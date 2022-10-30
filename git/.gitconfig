@@ -1,0 +1,15 @@
+[alias]
+	home = config --global user.email tutpaim@gmail.com
+[user]
+	email = tutpaim@gmail.com
+	name = Túlio Paim
+[credential "https://gitlab.com"]
+	provider = generic
+[fetch]
+	prune = true
+[core]
+	ignorecase = false
+[push]
+	autoSetupRemote = true
+[safe]
+	directory = C:/Users/tutpa/.dotfiles
