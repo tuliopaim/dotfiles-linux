@@ -31,8 +31,12 @@ export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -50'"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
+# Enable fzf widget
+source /usr/share/doc/fzf/examples/key-bindings.zsh
+
 #aliases
 
+alias ls='ls -la'
 alias ..='cd ..'
 alias ....='cd ../..'
 alias ......='cd ../../..'
@@ -40,7 +44,30 @@ alias dev='cd /mnt/c/dev/'
 alias c='cd /mnt/c/'
 alias tutpa='cd /mnt/c/Users/tutpa'
 alias dotfiles='cd ~/.dotfiles'
+
 alias sshconfig='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_tuliopaim_github'
+
+alias gp='git pull'
+alias gps='git push'
+alias gs='git status'
+
+alias fh='history | fzf --tac | awk '\''{$1=""; print $0}'\'' | xargs -r -I{} fc -s {}'
+
+# Enable vi mode
+bindkey -v
+
+# bindkey '\t' autosuggest-accept
+bindkey -M vicmd 'j' vi-down-line-or-history
+bindkey -M vicmd 'k' vi-up-line-or-history
+
+bindkey '^ ' autosuggest-accept
+
+# Bind Ctrl+R to fzf-history-widget
+bindkey "^R" fzf-history-widget
+
+# No error beep
+setopt no_beep
+
 
 export GIT_CONFIG=~/.gitconfig
 
