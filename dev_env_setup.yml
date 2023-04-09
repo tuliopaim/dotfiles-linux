@@ -1,9 +1,29 @@
 ---
-- name: Setup .NET Core development environment on WSL
+- name: Setup Development Environment
   hosts: localhost
   gather_facts: yes
 
   tasks:
+
+    - name: Install Microsoft apt repository key
+      apt_key:
+        url: https://packages.microsoft.com/keys/microsoft.asc
+        state: present
+      become: yes
+
+    - name: Add Microsoft apt repository
+      apt_repository:
+        repo: 
+          'deb [arch=amd64]
+          https://packages.microsoft.com/{{ ansible_lsb.id | lower }}/{{ ansible_distribution_version }}/prod
+          {{ ansible_distribution_release }}
+          main'
+        state: present
+        filename: 'packages-microsoft-prod.list'
+        mode: '0644'
+        update_cache: yes
+      become: yes
+
     - name: Install required packages
       become: yes
       ansible.builtin.apt:
@@ -20,7 +40,10 @@
           - unzip
           - gcc
           - fonts-firacode
+          - dotnet-sdk-6.0
+          - dotnet-sdk-7.0
         state: present
+
 
     - name: Copy Github SSH key
       block:
