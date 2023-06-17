@@ -19,8 +19,6 @@ vim.api.nvim_set_keymap('n', '<leader>p', '"+p', { noremap = true })
 -- Move to previous/next
 vim.api.nvim_set_keymap('n', 'gj', ':bprev<enter>', opts)
 vim.api.nvim_set_keymap('n', 'gk', ':bnext<enter>', opts)
--- Pin/unpin buffer
-vim.api.nvim_set_keymap('n', '<A-p>', '<Cmd>BufferPin<CR>', opts)
 --
 -- Close bufferlsp
 vim.api.nvim_set_keymap('n', '<leader>x', ':bdelete<enter>', opts)
