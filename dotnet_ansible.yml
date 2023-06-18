@@ -1,0 +1,31 @@
+- name: Add DotNet Core as a submodule
+  hosts: localhost
+  become: yes
+
+  tasks:
+    - name: Check if dotnet-install.sh is already downloaded
+      ansible.builtin.stat:
+        path: /tmp/dotnet/dotnet-install.sh
+      register: dotnet_install_script
+
+    - name: Create directory for dotnet-install.sh
+      ansible.builtin.file:
+        path: /tmp/dotnet/
+        state: directory
+        mode: '0755'
+      when: not dotnet_install_script.stat.exists
+
+    - name: Download dotnet-install.sh script
+      ansible.builtin.get_url:
+        url: https://dot.net/v1/dotnet-install.sh
+        dest: /tmp/dotnet/dotnet-install.sh
+        mode: '0755'
+      when: not dotnet_install_script.stat.exists
+
+    - name: Execute dotnet-install.sh for channel 6.0
+      ansible.builtin.shell: /tmp/dotnet/dotnet-install.sh --channel 6.0
+      when: not dotnet_install_script.stat.exists
+
+    - name: Execute dotnet-install.sh for channel 7.0
+      ansible.builtin.shell: /tmp/dotnet/dotnet-install.sh --channel 7.0
+      when: not dotnet_install_script.stat.exists
