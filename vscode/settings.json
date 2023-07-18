@@ -1,0 +1,386 @@
+{
+    "security.workspace.trust.untrustedFiles": "open",
+    "redhat.telemetry.enabled": true,
+    "files.exclude": {
+        "**/bin": true,
+        "**/obj": true
+    },
+    "github.copilot.enable": {
+        "*": true,
+        "yaml": true,
+        "plaintext": false,
+        "markdown": false
+    },
+    "grammarly.files.include": [
+        "**/*.md",
+        "**/*.txt"
+    ],
+    "markdown-pdf.displayHeaderFooter": false,
+    "vsicons.dontShowNewVersionMessage": true,
+    "workbench.iconTheme": "vscode-icons",
+    "workbench.startupEditor": "newUntitledFile",
+    "git.autofetch": true,
+    "diffEditor.wordWrap": "off",
+    "terminal.integrated.fontFamily": "'Fira Code', Consolas, 'Courier New', monospace",
+    "explorer.confirmDragAndDrop": false,
+    "editor.fontFamily": "'Fira Code', Consolas, 'Courier New', monospace",
+    "editor.inlineSuggest.enabled": true,
+    "editor.cursorBlinking": "solid",
+    "editor.minimap.enabled": false,
+    "editor.formatOnSave": true,
+    "editor.lineNumbers": "relative",
+    "editor.acceptSuggestionOnCommitCharacter": false,
+    //VIM
+    "vim.smartRelativeLine": true,
+    "vim.searchHighlightColor": "rgba(150, 255, 255, 0.3)",
+    "vim.incsearch": true,
+    "vim.hlsearch": true,
+    "vim.useSystemClipboard": false,
+    "vim.leader": "<space>",
+    "vim.handleKeys": {
+        "<C-c>": false,
+        "<C-v>": false,
+        "<C-z>": false,
+        "<C-n>": false,
+        "<C-f>": false,
+        "<C-h>": false,
+        "<C-r>": false,
+        "<C-s>": false
+    },
+    "vim.visualModeKeyBindingsNonRecursive": [
+        {
+            "before": [
+                "<leader>",
+                "y"
+            ],
+            "after": [
+                "\"",
+                "+",
+                "y"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "p"
+            ],
+            "after": [
+                "\"",
+                "+",
+                "p"
+            ]
+        },
+        {
+            "before": [
+                "<"
+            ],
+            "commands": [
+                "editor.action.outdentLines"
+            ]
+        },
+        {
+            "before": [
+                ">"
+            ],
+            "commands": [
+                "editor.action.indentLines"
+            ]
+        },
+        // Move selected lines while staying in visual mode
+        {
+            "before": [
+                "J"
+            ],
+            "commands": [
+                "editor.action.moveLinesDownAction"
+            ]
+        },
+        {
+            "before": [
+                "K"
+            ],
+            "commands": [
+                "editor.action.moveLinesUpAction"
+            ]
+        },
+        {
+            "before": [
+                "leader",
+                "c"
+            ],
+            "commands": [
+                "editor.action.commentLine"
+            ]
+        }
+    ],
+    "vim.normalModeKeyBindingsNonRecursive": [
+        // Terminal
+        {
+            "before": [
+                "<leader>",
+                "t"
+            ],
+            "commands": [
+                "workbench.action.terminal.focus"
+            ]
+        },
+        // actions
+        {
+            "before": [
+                "<leader>",
+                "f"
+            ],
+            "after": [],
+            "commands": [
+                {
+                    "command": "workbench.action.quickOpen"
+                }
+            ]
+        },
+        {
+            "before": [
+                "g",
+                "d"
+            ],
+            "after": [],
+            "commands": [
+                {
+                    "command": "editor.action.revealDefinition"
+                }
+            ]
+        },
+        {
+            "before": [
+                "g",
+                "i"
+            ],
+            "after": [],
+            "commands": [
+                {
+                    "command": "editor.action.goToImplementation"
+                }
+            ]
+        },
+        {
+            "before": [
+                "g",
+                "r"
+            ],
+            "after": [],
+            "commands": [
+                {
+                    "command": "editor.action.goToReferences"
+                }
+            ]
+        },
+        {
+            "before": [
+                "K"
+            ],
+            "after": [],
+            "commands": [
+                {
+                    "command": "editor.action.showHover"
+                }
+            ]
+        },
+        // editor management
+        {
+            "before": [
+                "<leader>",
+                "v"
+            ],
+            "after": [],
+            "commands": [
+                {
+                    "command": "workbench.action.splitEditor"
+                }
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "-"
+            ],
+            "after": [],
+            "commands": [
+                {
+                    "command": "workbench.action.splitEditorDown"
+                }
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "p",
+                "t"
+            ],
+            "after": [],
+            "commands": [
+                {
+                    "command": "workbench.action.pinEditor"
+                }
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "u",
+                "t"
+            ],
+            "after": [],
+            "commands": [
+                {
+                    "command": "workbench.action.unpinEditor"
+                }
+            ]
+        },
+        {
+            "before": [
+                "<C-d>"
+            ],
+            "after": [
+                "<C-d>",
+                "z",
+                "z"
+            ]
+        },
+        {
+            "before": [
+                "<C-u>"
+            ],
+            "after": [
+                "<C-u>",
+                "z",
+                "z"
+            ]
+        },
+        {
+            "before": [
+                "g",
+                "k"
+            ],
+            "after": [
+                "g",
+                "t"
+            ]
+        },
+        {
+            "before": [
+                "g",
+                "j"
+            ],
+            "after": [
+                "g",
+                "T"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "l"
+            ],
+            "commands": [
+                "workbench.action.moveEditorToNextGroup"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "h"
+            ],
+            "commands": [
+                "workbench.action.moveEditorToPreviousGroup"
+            ]
+        },
+        {
+            "before": [
+                "<space>",
+                "<Right>"
+            ],
+            "commands": [
+                "workbench.action.increaseViewSize"
+            ]
+        },
+        {
+            "before": [
+                "<space>",
+                "<Left>"
+            ],
+            "commands": [
+                "workbench.action.decreaseViewSize"
+            ]
+        },
+        {
+            "before": [
+                "<space>",
+                "."
+            ],
+            "commands": [
+                "workbench.view.explorer"
+            ]
+        },
+        {
+            "before": [
+                "<space>",
+                "e"
+            ],
+            "commands": [
+                "workbench.action.toggleSidebarVisibility"
+            ]
+        },
+        {
+            "before": [
+                "<C-g>"
+            ],
+            "commands": [
+                "workbench.view.scm"
+            ]
+        },
+        // git
+        {
+            "before": [
+                "<leader>",
+                "g",
+                "p"
+            ],
+            "commands": [
+                "git.pull"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "g",
+                "p",
+                "s"
+            ],
+            "commands": [
+                "git.push"
+            ]
+        },
+        // csharp
+        {
+            "before": [
+                "<leader>",
+                "b",
+                "s"
+            ],
+            "commands": [
+                "csdevkit.rebuildSolution"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "b",
+                "c",
+                "s"
+            ],
+            "commands": [
+                "csdevkit.cleanSolution"
+            ]
+        }
+    ],
+    "workbench.colorTheme": "Catppuccin Mocha",
+}
