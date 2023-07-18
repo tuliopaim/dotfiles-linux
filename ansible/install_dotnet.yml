@@ -1,6 +1,5 @@
-- name: Add DotNet Core as a submodule
+- name: Install DotNet
   hosts: localhost
-  become: yes
 
   tasks:
     - name: Check if dotnet-install.sh is already downloaded

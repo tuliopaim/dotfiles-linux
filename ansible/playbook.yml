@@ -23,7 +23,6 @@
           - fzf
           - xclip
           - libfuse2
-          - fonts-firacode
           - code
           - alacritty
           - ripgrep
@@ -42,12 +41,16 @@
         - { src: 'zsh/.p10k.zsh', dest: '.p10k.zsh' }
         - { src: 'nvim', dest: '.config/nvim' }
         - { src: 'alacritty/alacritty.yml', dest: '.config/alacritty.yml' }
+        - { src: 'ideavim/.ideavimrc', dest: '.ideavimrc' }
+        - { src: 'tmux/.tmux.conf', dest: '.tmux.conf' }
+        - { src: 'vscode/keybindings.json', dest: '.config/Code/User/keybindings.json' }
+        - { src: 'vscode/settings.json', dest: '.config/Code/User/settings.json' }
 
     - name: Setup ZSH
-      include_tasks: ./zsh/zsh_tasks.yml
+      include_tasks: ../zsh/zsh_tasks.yml
 
     - name: Setup Neovim
-      include_tasks: ./nvim/nvim_tasks.yml
+      include_tasks: ../nvim/nvim_tasks.yml
 
     - name: Check if fnm install script exists
       ansible.builtin.stat:
@@ -68,5 +71,8 @@
       when: not fnm_script_exists.stat.exists
 
 - name: Install .NET
-  import_playbook: dotnet_ansible.yml
+  import_playbook: install_dotnet.yml
+
+- name: Fix cedilha
+  import_playbook: fix_cedilha_popos.yml
 
