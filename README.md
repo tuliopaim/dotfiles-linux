@@ -29,5 +29,4 @@ All configurations are applied for my 3 users.
      - Vitals
      - unite
      - user-theme
-- Set nvim as default git editor `git config --global core.editor "nvim"`
 
