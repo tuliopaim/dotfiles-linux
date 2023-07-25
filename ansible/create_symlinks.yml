@@ -1,0 +1,59 @@
+---
+- name: Create SymLinks to the other users
+  block:
+
+    - name: Ensure necessary directories exist
+      become: yes
+      file:
+        path: "/home/{{ item[0] }}/{{ item[1] }}"
+        state: directory
+        mode: '0777'
+        recurse: yes
+      loop: "{{ users | product(directories) | list }}"
+      vars:
+        directories:
+          - .config
+          - .config/Code
+          - .config/Code/User
+          - .config/nvim
+          - .config/alacritty
+          - .tmux
+      tags: ['symbolic-links', 'permissions']
+
+    - name: Create symbolic links for all users
+      become: yes
+      file:
+        src: "{{ item[1].src }}"
+        dest: "/home/{{ item[0] }}/{{ item[1].dest }}"
+        state: link
+        force: yes
+      loop: "{{ users | product(links) | list }}"
+      vars:
+        links:
+          - { src: '{{share}}/.oh-my-zsh', dest: '.oh-my-zsh' }
+          - { src: '{{share}}/.tmux', dest: '.tmux' }
+          - { src: '{{dotfiles}}/zsh/.zshrc', dest: '.zshrc' }
+          - { src: '{{dotfiles}}/zsh/.p10k.zsh', dest: '.p10k.zsh' }
+          - { src: '{{dotfiles}}/nvim', dest: '.config/nvim' }
+          - { src: '{{dotfiles}}/alacritty/alacritty.yml', dest: '.config/alacritty/alacritty.yml' }
+          - { src: '{{dotfiles}}/ideavim/.ideavimrc', dest: '.ideavimrc' }
+          - { src: '{{dotfiles}}/vscode/settings.json', dest: '.config/Code/User/settings.json' }
+          - { src: '{{dotfiles}}/vscode/keybindings.json', dest: '.config/Code/User/keybindings.json' }
+          - { src: '{{dotfiles}}/tmux/.tmux.conf', dest: '.tmux.conf' }
+      tags: ['symbolic-links', 'permissions']
+
+    - name: Create symbolic links for other users
+      become: yes
+      file:
+        src: "{{ item[1].src }}"
+        dest: "/home/{{ item[0] }}/{{ item[1].dest }}"
+        state: link
+        force: yes
+      loop: "{{ other_users | product(links) | list }}"
+      vars:
+        links:
+          - { src: '/home/tuliopaim/.local/share/fnm', dest: '.local/share/fnm' }
+        other_users:
+          - p1
+          - p2
+      tags: ['symbolic-links', 'permissions']
