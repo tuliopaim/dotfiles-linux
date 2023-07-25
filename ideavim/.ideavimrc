@@ -44,8 +44,8 @@ nnoremap <c-s>l :action StretchSplitToRight<CR>
 nnoremap <c-s>k :action StretchSplitToTop<CR>
 nnoremap <c-s>j :action StretchSplitToBottom<CR>
 
-noremap <leader>qt :action CloseEditor<CR>
-nnoremap <leader>qa :action CloseAllEditors<CR>
+noremap <leader>x :action CloseEditor<CR>
+nnoremap <leader>ax :action CloseAllEditors<CR>
 nnoremap <leader>gm :action Git.Menu<CR>
 
 " Code editing
