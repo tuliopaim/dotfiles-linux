@@ -383,4 +383,6 @@
         }
     ],
     "workbench.colorTheme": "Catppuccin Mocha",
+    "window.menuBarVisibility": "toggle",
+    "window.zoomLevel": 1,
 }
