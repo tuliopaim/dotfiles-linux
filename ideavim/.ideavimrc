@@ -1,6 +1,8 @@
 set number relativenumber
 set showmode 
 
+set ideajoin
+
 " no bells
 set visualbell
 set noerrorbells
@@ -8,6 +10,8 @@ set noerrorbells
 " vim shortcuts
 sethandler <c-j> a:vim
 sethandler <c-k> a:vim
+sethandler <c-h> a:vim
+sethandler <c-l> a:vim
 sethandler <c-w> a:vim
 sethandler <c-n> a:vim
 sethandler <c-p> a:vim
@@ -16,7 +20,6 @@ sethandler <c-g> a:vim
 
 " ide shortcuts
 sethandler <c-f> a:ide
-sethandler <c-h> a:ide
 sethandler <c-r> a:ide
 sethandler <c-c> a:ide
 sethandler <c-v> a:ide
@@ -26,15 +29,20 @@ let mapleader = "\<Space>"
 
 " Window Navigation
 nnoremap <leader>v :action SplitVertically<CR>
-nnoremap <leader>- :action SplitHorizontally<CR>
+nnoremap <leader>b :action SplitHorizontally<CR>
 nnoremap <leader>= :action Unsplit<CR>
 
 nnoremap <leader>l :action MoveEditorToOppositeTabGroup<CR>
 
-nnoremap <leader><Left> :action StretchSplitToLeft<CR>
-nnoremap <leader><Right> :action StretchSplitToRight<CR>
-nnoremap <leader><Up> :action StretchSplitToTop<CR>
-nnoremap <leader><Down> :action StretchSplitToBottom<CR>
+nnoremap <c-h> <c-w>h
+nnoremap <c-l> <c-w>l
+nnoremap <c-k> <c-w>k
+nnoremap <c-j> <c-w>j
+
+nnoremap <c-s>h :action StretchSplitToLeft<CR>
+nnoremap <c-s>l :action StretchSplitToRight<CR>
+nnoremap <c-s>k :action StretchSplitToTop<CR>
+nnoremap <c-s>j :action StretchSplitToBottom<CR>
 
 noremap <leader>qt :action CloseEditor<CR>
 nnoremap <leader>qa :action CloseAllEditors<CR>
@@ -46,7 +54,9 @@ nnoremap ge :action ReSharperGotoNextErrorInSolution<CR>
 nnoremap gE :action GotoPreviousError<CR>
 nnoremap zc :action CollapseRegion<CR>
 nnoremap zo :action ExpandRegion<CR>
+
 nnoremap <leader>pt :action PinActiveTabToggle<CR>
+nnoremap <leader>ha :action HideAllWindows<CR>
 
 nnoremap gk gt
 nnoremap gj gT
@@ -54,8 +64,8 @@ nnoremap gj gT
 nnoremap <leader>zc :action CollapseAllRegions<CR>
 nnoremap <leader>zo :action ExpandAllRegions<CR>
 
-" paste the deleted value
-nnoremap <leader>p [["_dP]]
+" dont paste the deleted value
+nnoremap <leader>p "0p
 
 nnoremap <leader>y "+y
 vnoremap <leader>y "+y
@@ -72,7 +82,7 @@ nnoremap <c-g> :action Vcs.QuickListPopupAction<CR>
 " Source Code Navigation
 set incsearch
 
-nnoremap <c-a> :action GotoAction<CR>
+nnoremap <c-p> :action GotoAction<CR>
 nnoremap <c-t> :action GotoFile<CR>
 nnoremap gr :action FindUsages<CR>
 nnoremap gi :action GotoImplementation<CR>
@@ -82,9 +92,9 @@ nnoremap gd :action GotoDeclaration<CR>
 nnoremap <leader>t :action ActivateTerminalToolWindow<CR>
 
 " Build
-nnoremap <leader>bs :action RebuildSolutionAction<CR>
-nnoremap <leader>bcs :action CleanSolutionAction<CR>
-nnoremap <leader>bsp :action RebuildStartupProject<CR>
+nnoremap <leader>rs :action RebuildSolutionAction<CR>
+nnoremap <leader>cs :action CleanSolutionAction<CR>
+nnoremap <leader>rsp :action RebuildStartupProject<CR>
 
 " NERDTree"
 set NERDTree
