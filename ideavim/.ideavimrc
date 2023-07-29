@@ -82,10 +82,6 @@ nnoremap <leader>ha :action HideAllWindows<CR>
 vnoremap < <gv
 vnoremap > >gv
 
-" Popup navigation
-inoremap <C-j> <Action>(PopupMenu-selectNext)
-inoremap <C-k> <Action>(PopupMenu-selectPrev)
-
 " Git
 map <leader>gm <Action>(Git.Menu)
 map <leader>gs <Action>(ActivateVersionControlToolWindow)
@@ -119,7 +115,7 @@ map <leader>fl <action>(RecentLocations)
 map <leader>fs <action>(NewScratchFile)
 map <leader>fa :action SearchEverywhere<CR>
 
-e Auto ident lines
+" Auto ident lines
 nnoremap = :action AutoIndentLines<CR>
 
 " Refactoring

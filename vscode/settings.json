@@ -23,7 +23,7 @@
     "diffEditor.wordWrap": "off",
     "terminal.integrated.fontFamily": "'Fira Code Nerd Font', Consolas, 'Courier New', monospace",
     "explorer.confirmDragAndDrop": false,
-    "editor.fontFamily": "''JetBrains Mono', Consolas, 'Courier New', monospace",
+    "editor.fontFamily": "'FiraCode Nerd Font', Consolas, 'Courier New', monospace",
     "editor.inlineSuggest.enabled": true,
     "editor.cursorBlinking": "solid",
     "editor.minimap.enabled": false,
@@ -31,6 +31,7 @@
     "editor.lineNumbers": "relative",
     "editor.acceptSuggestionOnCommitCharacter": false,
     //VIM
+    "vim.cursorStypePerMode.normal": "block",
     "vim.smartRelativeLine": true,
     "vim.searchHighlightColor": "rgba(150, 255, 255, 0.3)",
     "vim.incsearch": true,
@@ -116,7 +117,8 @@
         {
             "before": [
                 "<leader>",
-                "t"
+                "t",
+                "r"
             ],
             "commands": [
                 "workbench.action.terminal.focus"
@@ -126,6 +128,7 @@
         {
             "before": [
                 "<leader>",
+                "f",
                 "f"
             ],
             "after": [],
@@ -210,8 +213,8 @@
         {
             "before": [
                 "<leader>",
-                "p",
-                "t"
+                "t",
+                "p"
             ],
             "after": [],
             "commands": [
@@ -223,8 +226,8 @@
         {
             "before": [
                 "<leader>",
-                "u",
-                "t"
+                "t",
+                "u"
             ],
             "after": [],
             "commands": [
@@ -236,6 +239,7 @@
         {
             "before": [
                 "<leader>",
+                "t",
                 "x"
             ],
             "after": [],
@@ -248,8 +252,8 @@
         {
             "before": [
                 "<leader>",
-                "a",
-                "x"
+                "t",
+                "a"
             ],
             "after": [],
             "commands": [
@@ -318,6 +322,24 @@
         },
         {
             "before": [
+                "<C-k>"
+            ],
+            "after": [
+                "<C-w>",
+                "k"
+            ]
+        },
+        {
+            "before": [
+                "<C-j>"
+            ],
+            "after": [
+                "<C-w>",
+                "j"
+            ]
+        },
+        {
+            "before": [
                 "<C-h>"
             ],
             "after": [
@@ -337,21 +359,41 @@
         {
             "before": [
                 "<leader>",
-                "i",
+                "s",
                 "l"
             ],
             "commands": [
-                "workbench.action.increaseViewSize"
+                "workbench.action.increaseViewWidth"
+            ],
+        },
+        {
+            "before": [
+                "<leader>",
+                "s",
+                "h"
+            ],
+            "commands": [
+                "workbench.action.decreaseViewWidth"
             ]
         },
         {
             "before": [
                 "<leader>",
-                "i",
-                "h"
+                "s",
+                "k"
             ],
             "commands": [
-                "workbench.action.decreaseViewSize"
+                "workbench.action.increaseViewHeight"
+            ],
+        },
+        {
+            "before": [
+                "<leader>",
+                "s",
+                "j"
+            ],
+            "commands": [
+                "workbench.action.decreaseViewHeight"
             ]
         },
         {
@@ -374,18 +416,20 @@
         },
         {
             "before": [
-                "<C-g>"
+                "<leader>",
+                "g",
+                "m"
             ],
             "commands": [
                 "workbench.view.scm"
             ]
         },
-        // git
         {
             "before": [
                 "<leader>",
                 "g",
-                "p"
+                "p",
+                "l"
             ],
             "commands": [
                 "git.pull"
@@ -402,12 +446,10 @@
                 "git.push"
             ]
         },
-        // csharp
         {
             "before": [
                 "<leader>",
                 "r",
-                "b",
                 "s"
             ],
             "commands": [
@@ -418,7 +460,6 @@
             "before": [
                 "<leader>",
                 "r",
-                "b",
                 "c"
             ],
             "commands": [
@@ -427,5 +468,8 @@
         }
     ],
     "workbench.colorTheme": "Catppuccin Mocha",
-    "window.menuBarVisibility": "toggle"
+    "window.menuBarVisibility": "toggle",
+    "vim.cursorStylePerMode.normal": "block",
+    "window.zoomLevel": -1,
+    "diffEditor.ignoreTrimWhitespace": false
 }
