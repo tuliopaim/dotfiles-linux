@@ -61,8 +61,8 @@ setopt no_beep
 export PATH="/usr/local/bin/nvim:$PATH"
 
 # dotnet 
-export DOTNET_ROOT=/usr/local/share/.dotnet
-export PATH=$PATH:/usr/local/share/.dotnet:~/.dotnet/tools
+export DOTNET_ROOT="/home/$USER/.dotnet"
+export PATH=$PATH:/home/$USER/.dotnet:~/.dotnet/tools
 
 export FZF_DEFAULT_OPTS="--color=16 --color=fg+:#FF5E7D --color=bg+:#002B36 --color=hl:#B48EAD --color=fg:#839496"
 

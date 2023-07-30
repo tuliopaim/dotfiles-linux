@@ -22,15 +22,17 @@
   tags: ['dotnet']
 
 - name: Execute dotnet-install.sh for channel 6.0
+  become: yes
+  become_user: "{{ item }}"
   ansible.builtin.shell: /tmp/dotnet/dotnet-install.sh --channel 6.0
-  environment:
-    DOTNET_INSTALL_DIR: "{{ share }}/.dotnet"
   when: not dotnet_install_script.stat.exists
+  loop: "{{ users }}"
   tags: ['dotnet']
 
 - name: Execute dotnet-install.sh for channel 7.0
+  become: yes
+  become_user: "{{ item }}"
   ansible.builtin.shell: /tmp/dotnet/dotnet-install.sh --channel 7.0
-  environment:
-    DOTNET_INSTALL_DIR: "{{ share }}/.dotnet"
   when: not dotnet_install_script.stat.exists
+  loop: "{{ users }}"
   tags: ['dotnet']
