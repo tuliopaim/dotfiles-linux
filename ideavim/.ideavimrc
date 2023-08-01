@@ -54,10 +54,10 @@ nnoremap <c-k> <c-w>k
 nnoremap <c-j> <c-w>j
 
 " Resize splits
-nnoremap <leader>sh :action StretchSplitToLeft<CR>
-nnoremap <leader>sl :action StretchSplitToRight<CR>
-nnoremap <leader>sk :action StretchSplitToTop<CR>
-nnoremap <leader>sj :action StretchSplitToBottom<CR>
+nnoremap <leader>wh :action StretchSplitToLeft<CR>
+nnoremap <leader>wl :action StretchSplitToRight<CR>
+nnoremap <leader>wk :action StretchSplitToTop<CR>
+nnoremap <leader>wj :action StretchSplitToBottom<CR>
 
 " Jump between methods
 nnoremap [[ :action MethodUp<CR>
@@ -65,11 +65,13 @@ nnoremap ]] :action MethodDown<CR>
 
 " Tab Close / Pin
 nnoremap <leader>tp :action PinActiveTabToggle<CR>
-nnoremap <leader>tx :action CloseEditor<CR>
-nnoremap <leader>ta :action CloseAllEditors<CR>
+nnoremap <leader>x :action CloseEditor<CR>
+nnoremap <leader>ax :action CloseAllEditors<CR>
 
 " Terminal
 nnoremap <leader>tr :action ActivateTerminalToolWindow<CR>
+" Tests
+nnoremap <leader>tt :action ActivateUnitTestsToolWindow<CR>
 
 " Tab navigation
 nnoremap gk :tabnext<CR>
@@ -91,29 +93,30 @@ map <leader>gpl :action Git.Pull<CR>
 map <leader>gps :action Git.Push<CR>
 
 " Regions
-nnoremap zc <action>(CollapseRegion)
-nnoremap zo <action>(ExpandRegion)
-nnoremap <leader>zc <action>(CollapseAllRegions)
-nnoremap <leader>zo <action>(ExpandAllRegions)
+nnoremap zc :action CollapseRegion<CR>
+nnoremap zo :action ExpandRegion<CR>
+nnoremap <leader>zc :action CollapseAllRegions<CR>
+nnoremap <leader>zo :action ExpandAllRegions<CR>
 
 " Comment lines
-map <leader>c <action>(CommentByLineComment)
+map <leader>c :action CommentByLineComment<CR>
 
 " Jump around with easymotion
 map <leader>j <Plug>(easymotion-s)
 
 " Display options
-map <leader>dd <action>(ToggleDistractionFreeMode)
-map <leader>dz <action>(ToggleZenMode)
-map <leader>df <action>(ToggleFullScreen)
+map <leader>dd :action ToggleDistractionFreeMode<CR>
+map <leader>dz :action ToggleZenMode<CR>
+map <leader>df :action ToggleFullScreen<CR>
 
 " File navigation
-map <leader>ff <action>(GotoFile)
-map <leader>fr <action>(RecentFiles)
-map <leader>fc <action>(FindInPath)
-map <leader>fl <action>(RecentLocations)
-map <leader>fs <action>(NewScratchFile)
+map <leader>ff :action GotoFile<CR>
+map <leader>fr :action RecentFiles<CR>
+map <leader>fc :action FindInPath<CR>
+map <leader>fl :action RecentLocations<CR>
+map <leader>fs :action NewScratchFile<CR>
 map <leader>fa :action SearchEverywhere<CR>
+
 
 " Auto ident lines
 nnoremap = :action AutoIndentLines<CR>
@@ -178,11 +181,11 @@ let g:WhichKeyDesc_window_split_horizontal = "<leader>b Split Horizontally"
 let g:WhichKeyDesc_window_split_insplit = "<leader>= Unsplit"
 let g:WhichKeyDesc_window_split_move_editor = "<leader>l Move editor to opposite"
 
-let g:WhichKeyDesc_window = "<leader>s Resize Splits"
-let g:WhichKeyDesc_window_resize_split_left = "<leader>sh Resize left"
-let g:WhichKeyDesc_window_resize_split_right = "<leader>sl Resize right"
-let g:WhichKeyDesc_window_resize_split_bottom = "<leader>sj Resize Botton"
-let g:WhichKeyDesc_window_resize_split_top = "<leader>sk Resize Top"
+let g:WhichKeyDesc_window = "<leader>w Resize Splits"
+let g:WhichKeyDesc_window_resize_split_left = "<leader>wh Resize left"
+let g:WhichKeyDesc_window_resize_split_right = "<leader>wl Resize right"
+let g:WhichKeyDesc_window_resize_split_bottom = "<leader>wj Resize Bottom"
+let g:WhichKeyDesc_window_resize_split_top = "<leader>wk Resize Top"
 
 let g:WhichKeyDesc_display = "<leader>d Display options"
 let g:WhichKeyDesc_zen_mode = "<leader>dz Toggle Zen mode"
@@ -196,12 +199,12 @@ let g:WhichKeyDesc_file_nav_goto_content = "<leader>fc Search for file content"
 let g:WhichKeyDesc_file_nav_show_recent_files = "<leader>fr Show recent files"
 let g:WhichKeyDesc_file_nav_show_recent_locations = "<leader>fl Show recent locations"
 
-let g:WhichKeyDesc_tab = "<leader>t Tab Management"
 let g:WhichKeyDesc_tab_pin = "<leader>tp Pin tab"
-let g:WhichKeyDesc_tab_close = "<leader>tx Close tab"
-let g:WhichKeyDesc_tab_close_all = "<leader>ta Close all tabs"
+let g:WhichKeyDesc_tab_close = "<leader>x Close tab"
+let g:WhichKeyDesc_tab_close_all = "<leader>ax Close all tabs"
 
 let g:WhichKeyDesc_terminal = "<leader>tr Open Terminal"
+let g:WhichKeyDesc_tests = "<leader>tt Open Tests"
 
 let g:WhichKeyDesc_refactoring = "<leader>r Refactoring menu"
 let g:WhichKeyDesc_refactoring_rename = "<leader>rn Rename element"
