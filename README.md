@@ -30,3 +30,6 @@ All configurations are applied for my 3 users.
      - unite
      - user-theme
 
+### TODO:
+- Script to set users to developer group
+- Script to change the ownership/permissions on the shared folders

@@ -1,5 +1,5 @@
 ---
-- name: Ensure the script is present
+- name: Ensure the script is present and executable
   become: yes
   copy: 
     src: ./install_firacode.sh
