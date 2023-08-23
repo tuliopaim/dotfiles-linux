@@ -44,8 +44,6 @@ alias dev='cd ~/dev/'
 alias dotfiles='cd /usr/local/share/.dotfiles'
 
 alias sshpersonal='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_personal_gh'
-alias sshtb='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_tb_gh'
-alias sshhe='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_he_gh'
 
 alias gp='git pull'
 alias gps='git push'
