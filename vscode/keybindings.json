@@ -68,5 +68,5 @@
     {
         "key": "shift+alt+h",
         "command": "workbench.action.previousEditor"
-    },
+    }
 ]
