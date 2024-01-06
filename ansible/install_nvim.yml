@@ -6,7 +6,7 @@
   block:
     - name: Check if Neovim AppImage is downloaded
       stat:
-        path: "{{ ansible_user_dir }}/nvim.appimage"
+        path: "{{ share }}/nvim.appimage"
       register: nvim_appimage
 
     - name: Download and install Neovim stable via AppImage
@@ -21,7 +21,7 @@
       block:
         - name: Check if Neovim is extracted
           stat:
-            path: "{{ ansible_user_dir }}/squashfs-root"
+            path: "{{ share }}/squashfs-root"
           register: nvim_extracted
 
         - name: Extract Neovim stable from AppImage
@@ -42,31 +42,17 @@
 
         - name: Move Neovim stable
           become: yes
-          ansible.builtin.shell: "mv {{ ansible_user_dir }}/squashfs-root/* /opt/nvim/"
+          ansible.builtin.shell: "mv {{ ansible_user_dir }}/squashfs-root/* /usr/local/bin/"
           when: not nvim_extracted.stat.exists
 
         - name: Set executable permissions for Neovim binary
           ansible.builtin.file:
-            path: /opt/nvim/usr/bin/nvim
+            path: /usr/local/bin/nvim
             mode: "u+x,g+x,o+x"
             group: developer
             state: file
           become: yes
           when: not nvim_extracted.stat.exists
-
-        - name: Check if Neovim symlink exists
-          stat:
-            path: /usr/local/bin/nvim
-          register: nvim_symlink
-
-        - name: Create symlink for Neovim stable
-          become: yes
-          ansible.builtin.file:
-            src: /opt/nvim/usr/bin/nvim
-            dest: /usr/local/bin/nvim
-            state: link
-            force: yes
-          when: not nvim_symlink.stat.exists
 
     - name: Create destination directory for packer.nvim for user
       become: yes
@@ -107,3 +93,10 @@
           recurse: yes
         loop: "{{ users }}"
       tags: ['neovim', 'packer.nvim']
+
+    - name: Set Neovim as default Git editor for each user
+      become: yes
+      become_user: "{{ item }}"
+      ansible.builtin.shell:
+        cmd: git config --global core.editor "nvim"
+      loop: "{{ users }}"
