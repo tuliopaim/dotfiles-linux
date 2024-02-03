@@ -6,9 +6,13 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 
 export ZSH_DISABLE_COMPFIX=true
-export ZSH="/usr/local/share/.oh-my-zsh"
+export ZSH="$HOME/.oh-my-zsh"
+
 ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(zsh-autosuggestions)
+
+DOTFILES="/usr/local/share/.dotfiles"
+NVIM_FOLDER="/usr/local/share/.dotfiles/nvim/.config/nvim"
 
 source $ZSH/oh-my-zsh.sh
 
@@ -42,6 +46,7 @@ alias ....='cd ../..'
 alias ......='cd ../../..'
 alias dev='cd ~/dev/'
 alias dotfiles='cd /usr/local/share/.dotfiles'
+alias nvimconfig='cd /usr/local/share/.dotfiles/nvim/.config/nvim'
 alias via='/usr/local/bin/via.AppImage'
 
 alias sshpersonal='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_personal_gh'
