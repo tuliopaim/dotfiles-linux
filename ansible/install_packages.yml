@@ -1,6 +1,17 @@
 ---
 - name: Install and configure ZSH
   block:
+
+    - name: Install dnf-plugins-core
+      become: yes
+      command: dnf install dnf-plugins-core
+      tags: ['packages']
+
+    - name: Add Docker repository
+      become: yes
+      command: dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+      tags: ['packages']
+
     - name: Install required packages
       become: yes
       ansible.builtin.dnf:
@@ -10,40 +21,36 @@
           - tree
           - bash-completion
           - make
-          - python3-pip
+          - pip
           - zsh
           - tmux
           - git
           - unzip
           - gcc
+          - gcc-c++
           - fzf
           - fd-find
           - xclip
-          - libfuse2
-          - code
           - alacritty
           - ripgrep
           - snapd
-          - aptitude
-          - apt-transport-https
-          - ca-certificates
-          - software-properties-common
-          - python3-pip
-          - virtualenv
-          - python3-setuptools
           - flameshot
           - copyq
           - bat
+          - obs-studio
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io 
+          - docker-buildx-plugin
+          - docker-compose-plugin
         state: present
-        tags: ['packages']
+      tags: ['packages']
 
-    - name: Install bat
-      block:
+    - name: Install FNM
+      shell: curl -fsSL https://fnm.vercel.app/install | bash
+      tags: ['packages']
 
-        - name: Create symlink from fdfind to fd
-          become: yes
-          file:
-            src: /usr/bin/fdfind
-            dest: /usr/bin/fd
-            state: link
-          tags: ['packages']
+    - name: Install Node
+      command: fnm install 20.11
+      tags: ['packages']
+
