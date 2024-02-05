@@ -65,4 +65,5 @@
         - dotnet6 
         - dotnet7
         - dotnet8
+        - ef
 
