@@ -22,7 +22,7 @@ export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_CTRL_T_OPTS="--preview 'bat --color=always --line-range :50 {}'"
 
 # Enable fzf widget
-source /usr/share/fzf/shell/key-bindings.zsh
+source /usr/share/fzf/key-bindings.zsh
 
 #aliases
 alias ls='ls -la'
@@ -30,12 +30,6 @@ alias ..='cd ..'
 alias ....='cd ../..'
 alias ......='cd ../../..'
 
-alias dev='cd ~/dev/'
-alias tb='cd ~/dev/tb'
-alias ems='cd ~/dev/tb/ems'
-alias personal='cd ~/dev/personal'
-
-alias dotfiles='cd $DOTFILES'
 alias nvimconfig='cd $NVIM_FOLDER'
 
 alias subup='sshtb && git submodule update --init --recursive'
@@ -56,3 +50,7 @@ export PATH=$PATH:/home/$USER/.dotnet:~/.dotnet/tools
 # fnm
 export PATH="/home/tuliopaim/.local/share/fnm:$PATH"
 eval "`fnm env`"
+
+eval "$(zoxide init zsh)"
+
+alias cd='z'
