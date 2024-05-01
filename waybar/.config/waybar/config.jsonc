@@ -26,6 +26,7 @@
             "6": "󰇩", // work browser 
             "7": "󰒱", // slack + obsidian 
             "8": "󰃣", // brush
+            "9": "", // random
         }
     },
     "hyprland/window": {
