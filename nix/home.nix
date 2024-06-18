@@ -1,10 +1,17 @@
-{ config, pkgs, ... }:
+{ outputs, config, pkgs, ... }:
 
 {
+
+  nixpkgs = {
+    overlays = [
+        outputs.overlays.unstable-packages
+    ];
+  };
+
   home.username = "tuliopaim";
   home.homeDirectory = "/home/tuliopaim";
 
-  home.stateVersion = "24.05"; # Please read the comment before changing.
+  home.stateVersion = "24.05";
 
   nixpkgs.config = {
       allowUnfree = true;
@@ -24,6 +31,7 @@
       dotnetCorePackages.sdk_6_0_1xx
 
       # terminal tools
+      unstable.neovim
       wget
       fd
       fzf
@@ -55,7 +63,6 @@
       
       # desktop
       cinnamon.nemo-with-extensions
-      neovim
       brave
       firefox
       microsoft-edge
@@ -70,19 +77,10 @@
       openfortivpn
   ];
 
-  home.file = {
-      ".local/bin" =
-      {
-          source = config.lib.file.mkOutOfStoreSymlink "../scripts";
-          recursive = true;
-      };
-  };
-
   home.sessionVariables = {
      EDITOR = "nvim";
   };
 
-  # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 
   programs.zsh = {
