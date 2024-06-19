@@ -12,32 +12,23 @@
 
   programs.hyprland.enable = true;
 
-  environment.sessionVariables.NIXOS_OZONE_WL = "1";
-
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  # Bootloader.
-  # boot.loader.systemd-boot.enable = true;
-  # boot.loader.efi.canTouchEfiVariables = true;
+  boot.kernel.sysctl."fs.inotify.max_user_instances" = 524288;
 
   boot.loader = {
     efi = {
-     efiSysMountPoint = "/boot";
+      efiSysMountPoint = "/boot";
     };
     grub = {
       enable = true;
       efiSupport = true;
       device = "nodev";
-      efiInstallAsRemovable=true;
+      efiInstallAsRemovable = true;
     };
   };
 
   networking.hostName = "nixos"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
   # Enable networking
   networking.networkmanager.enable = true;
@@ -61,7 +52,7 @@
   };
 
   fonts.packages = with pkgs; [
-	  (nerdfonts.override { fonts = [ "FiraCode" "DroidSansMono" ]; })
+    (nerdfonts.override { fonts = [ "FiraCode" "DroidSansMono" ]; })
   ];
 
   # Configure keymap in X11
@@ -76,32 +67,50 @@
   users.users.tuliopaim = {
     isNormalUser = true;
     description = "tulio";
-    extraGroups = [ "networkmanager" "wheel" ];
-    packages = with pkgs; [];
+    extraGroups = [ "networkmanager" "wheel" "docker" ];
+    packages = with pkgs; [ ];
   };
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
+  # zsh for the system
   programs.zsh.enable = true;
   users.defaultUserShell = pkgs.zsh;
 
   environment.variables.EDITOR = "nvim";
+  environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    vim 
+    vim
     git
     alacritty
     home-manager
     openfortivpn
-
   ];
 
-  hardware.pulseaudio.enable = true;
-  hardware.pulseaudio.support32Bit = true;
+  # Enable docker
+  virtualisation.docker = {
+    enable = true;
+    logDriver = "json-file";
+  };
+
+  # PipeWire and PulseAudio
   nixpkgs.config.pulseaudio = true;
+
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+    # If you want to use JACK applications, uncomment this
+    #jack.enable = true;
+  };
+
+  # rtkit is optional but recommended
+  security.rtkit.enable = true;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
@@ -113,7 +122,4 @@
 
   xdg.portal.enable = true;
   xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
-
-
-
 }
