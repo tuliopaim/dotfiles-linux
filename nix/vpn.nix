@@ -1,11 +1,11 @@
 { pkgs }:
-
-pkgs.writeShellScriptBin "connect-vpn" ''
-    cd ~/.dotfiles/tb/vpn
-
+{
+  connect = pkgs.writeShellScriptBin "connect-vpn" ''
+    cd /home/tuliopaim/.dotfiles/tb/vpn
     nix-shell --command zsh
-''
+  '';
 
-pkgs.writeShellScriptBin "disconnect-vpn" ''
-    killall openfortivpn
-''
+  disconnect = pkgs.writeShellScriptBin "disconnect-vpn" ''
+    sudo killall openfortivpn
+  '';
+}

@@ -6,7 +6,7 @@
 
 {
   imports =
-    [ # Include the results of the hardware scan.
+    [
       ./hardware-configuration.nix
     ];
 
@@ -30,7 +30,6 @@
       device = "nodev";
       efiInstallAsRemovable=true;
     };
-
   };
 
   networking.hostName = "nixos"; # Define your hostname.
@@ -96,6 +95,8 @@
     git
     alacritty
     home-manager
+    openfortivpn
+
   ];
 
   hardware.pulseaudio.enable = true;
@@ -112,5 +113,7 @@
 
   xdg.portal.enable = true;
   xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+
+
 
 }

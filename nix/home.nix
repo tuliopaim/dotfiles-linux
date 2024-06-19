@@ -1,10 +1,9 @@
 { outputs, config, pkgs, ... }:
 
 {
-
   nixpkgs = {
     overlays = [
-        outputs.overlays.unstable-packages
+      outputs.overlays.unstable-packages
     ];
   };
 
@@ -14,116 +13,125 @@
   home.stateVersion = "24.05";
 
   nixpkgs.config = {
-      allowUnfree = true;
-      allowUnfreePredicate = (_: true);
+    allowUnfree = true;
+    allowUnfreePredicate = (_: true);
   };
 
-  home.sessionPath = [
-    "$HOME/.local/bin"
-  ];
-
   home.packages = with pkgs; [
-      # langs
-      (lib.hiPrio gcc)
-      (lib.lowPrio clang)
-      cargo
-      nodejs
-      dotnetCorePackages.sdk_6_0_1xx
+    # langs
+    (lib.hiPrio gcc)
+    (lib.lowPrio clang)
+    cargo
+    nodejs
+    dotnetCorePackages.sdk_6_0_1xx
 
-      # terminal tools
-      unstable.neovim
-      wget
-      fd
-      fzf
-      htop
-      ripgrep
-      tree
-      unzip
-      zip
-      zoxide
-      wl-clipboard
-      grim
-      slurp
-      swappy
-      copyq
-      ansible
-      stow
-      lazygit
-      killall
+    # dev tools
+    unstable.neovim
+    docker
+    docker-compose
+    awscli
+    terraform
 
-      #hyprland
-      swww
-      waybar
-      rofi-wayland
-      gnome-icon-theme
-      pulseaudio
-      fira-code-nerdfont
-      swaylock
-      wlogout
-      
-      # desktop
-      cinnamon.nemo-with-extensions
-      brave
-      firefox
-      microsoft-edge
-      spotify
-      slack
-      obsidian
-      pavucontrol
-      vlc
-      discord
-      networkmanagerapplet
-      os-prober
-      openfortivpn
+    # terminal tools
+    wget
+    fd
+    fzf
+    htop
+    ripgrep
+    tree
+    unzip
+    zip
+    zoxide
+    wl-clipboard
+    grim
+    slurp
+    swappy
+    copyq
+    ansible
+    stow
+    lazygit
+    killall
+
+    #hyprland
+    swww
+    waybar
+    rofi-wayland
+    gnome-icon-theme
+    pulseaudio
+    fira-code-nerdfont
+    swaylock
+    wlogout
+
+    # desktop
+    cinnamon.nemo-with-extensions
+    brave
+    firefox
+    microsoft-edge
+    spotify
+    slack
+    obsidian
+    pavucontrol
+    vlc
+    discord
+    networkmanagerapplet
+    os-prober
+    obs-studio
+    stremio
+
+    # scripts 
+    (import ./vpn.nix { inherit pkgs; }).connect
+    (import ./vpn.nix { inherit pkgs; }).disconnect
   ];
 
   home.sessionVariables = {
-     EDITOR = "nvim";
+    EDITOR = "nvim";
   };
 
   programs.home-manager.enable = true;
 
   programs.zsh = {
-	  enable = true;
-	  enableCompletion = true;
-	  autosuggestion.enable = true;
-	  syntaxHighlighting.enable = true;
+    enable = true;
+    enableCompletion = true;
+    autosuggestion.enable = true;
+    syntaxHighlighting.enable = true;
 
-	  shellAliases = {
-		  ls = "ls -la";
-		  update = "sudo nixos-rebuild switch";
-		  ".." = "cd ..";
-		  "...." = "cd ../..";
-		  "......" = "cd ../../..";
-		  sshtb = "eval \"$(ssh-agent -s)\" && ssh-add ~/.ssh/id_tb_gh";
-		  sshpersonal = "eval \"$(ssh-agent -s)\" && ssh-add ~/.ssh/id_personal_gh";
-		  lg = "lazygit";
-		  cd = "z";
-	  };
+    shellAliases = {
+      ls = "ls -la";
+      update = "sudo nixos-rebuild switch";
+      ".." = "cd ..";
+      "...." = "cd ../..";
+      "......" = "cd ../../..";
+      sshtb = "eval \"$(ssh-agent -s)\" && ssh-add ~/.ssh/id_tb_gh";
+      sshpersonal = "eval \"$(ssh-agent -s)\" && ssh-add ~/.ssh/id_personal_gh";
+      lg = "lazygit";
+      cd = "z";
+    };
 
-	  history = {
-		  size = 10000;
-		  path = "${config.xdg.dataHome}/zsh/history";
-	  };
+    history = {
+      size = 10000;
+      path = "${config.xdg.dataHome}/zsh/history";
+    };
 
-	  oh-my-zsh = {
-		  enable = true;
-		  plugins = [ "git" "vi-mode" ];
-		  theme = "amuse";
-	  };
+    oh-my-zsh = {
+      enable = true;
+      plugins = [ "git" "vi-mode" ];
+      theme = "amuse";
+    };
 
-      initExtra = ''
-          export FZF_DEFAULT_OPTS="--color=16 --color=fg+:#FF5E7D --color=bg+:#002B36 --color=hl:#B48EAD --color=fg:#839496"
-          export FZF_DEFAULT_COMMAND='fd --type f --strip-cwd-prefix'
+    initExtra = ''
+      export FZF_DEFAULT_OPTS="--color=16 --color=fg+:#FF5E7D --color=bg+:#002B36 --color=hl:#B48EAD --color=fg:#839496"
+      export FZF_DEFAULT_COMMAND='fd --type f --strip-cwd-prefix'
 
-          export FZF_ALT_C_COMMAND="fd --type d . --strip-cwd-prefix"
-          export FZF_ALT_C_OPTS="--preview 'tree -C {}'"
+      export FZF_ALT_C_COMMAND="fd --type d . --strip-cwd-prefix"
+      export FZF_ALT_C_OPTS="--preview 'tree -C {}'"
 
-          export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-          export FZF_CTRL_T_OPTS="--preview 'bat --color=always --line-range :50 {}'"
+      export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+      export FZF_CTRL_T_OPTS="--preview 'bat --color=always --line-range :50 {}'"
 
-          eval "$(zoxide init zsh)"
-      '';
+      export PATH="~/.local/bin:$PATH"
+
+      eval "$(zoxide init zsh)"
+    '';
   };
 
   programs.fzf = {
@@ -215,7 +223,6 @@
 
         set -g @catppuccin_flavour 'mocha'
     '';
-
   };
 
 }
