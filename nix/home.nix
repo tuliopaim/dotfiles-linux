@@ -111,10 +111,16 @@
     stremio
     evince
     sxiv
+    teams-for-linux
 
     # scripts 
-    (import ./vpn.nix { inherit pkgs; }).connect
-    (import ./vpn.nix { inherit pkgs; }).disconnect
+    (pkgs.writeShellScriptBin "clone-wt" (builtins.readFile ../scripts/clone-wt))
+    (pkgs.writeShellScriptBin "prune-wt" (builtins.readFile ../scripts/prune-wt))
+    (pkgs.writeShellScriptBin "lockscreentime" (builtins.readFile ../scripts/lockscreentime))
+    (pkgs.writeShellScriptBin "tmux-sessionizer" (builtins.readFile ../scripts/tmux-sessionizer))
+    (pkgs.writeShellScriptBin "usersecrets" (builtins.readFile ../scripts/usersecrets))
+    (pkgs.writeShellScriptBin "connect-vpn" (builtins.readFile ../scripts/connect-vpn))
+    (pkgs.writeShellScriptBin "disconnect-vpn" (builtins.readFile ../scripts/disconnect-vpn))
   ];
 
   imports = [
@@ -128,6 +134,7 @@
     enableZshIntegration = true;
   };
 
+  xdg.mimeApps.enable = true;
   xdg.mimeApps.defaultApplications = {
     "application/pdf" = [ "firefox.desktop" ];
     "image/*" = [ "sxiv.desktop" ];
