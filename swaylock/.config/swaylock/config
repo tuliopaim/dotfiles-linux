@@ -9,7 +9,7 @@
 # ----------------------------------------------------- 
 
 ignore-empty-password
-font="Fira Sans Semibold"
+font="FiraCode"
 
 clock
 timestr=%R
@@ -19,7 +19,7 @@ datestr=%a, %e of %B
 # screenshots
 
 # Add an image as a background 
-image=~/Images/wallpapers/blobs-d.png
+image=~/Images/blobs-d.png
 
 # Fade in time
 fade-in=1
