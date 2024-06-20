@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
-sudo killall openfortivpn
+cd /home/tuliopaim/.dotfiles/tb/vpn
+nix-shell --run run-openfortivpn
