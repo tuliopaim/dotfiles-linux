@@ -94,6 +94,7 @@
     fira-code-nerdfont
     swaylock
     wlogout
+    swayidle
 
     # desktop
     cinnamon.nemo-with-extensions
@@ -112,6 +113,7 @@
     evince
     sxiv
     teams-for-linux
+    gnome.file-roller
 
     # scripts 
     (pkgs.writeShellScriptBin "clone-wt" (builtins.readFile ../scripts/clone-wt))
@@ -134,10 +136,24 @@
     enableZshIntegration = true;
   };
 
-  xdg.mimeApps.enable = true;
-  xdg.mimeApps.defaultApplications = {
-    "application/pdf" = [ "firefox.desktop" ];
-    "image/*" = [ "sxiv.desktop" ];
-    "video/*" = [ "vlc.desktop" ];
+  xdg.mimeApps = {
+    enable = true;
+    defaultApplications = {
+      "text/html" = "microsoft-edge.desktop";
+      "x-scheme-handler/http" = "microsoft-edge.desktop";
+      "x-scheme-handler/https" = "microsoft-edge.desktop";
+      "x-scheme-handler/about" = "microsoft-edge.desktop";
+      "x-scheme-handler/unknown" = "microsoft-edge.desktop";
+      "application/pdf" = "org.gnome.Evince.desktop";
+      "image/png" = "sxiv.desktop";
+      "image/jpg" = "sxiv.desktop";
+      "image/gif" = "sxiv.desktop";
+      "image/webp" = "sxiv.desktop";
+      "video/mp4" = "vlc.desktop";
+      "video/mkv" = "vlc.desktop";
+      "video/mpeg" = "vlc.desktop";
+      "audio/mpeg" = "vlc.desktop";
+      "application/x-tar" = "org.gnome.FileRoller.desktop";
+    };
   };
 }
