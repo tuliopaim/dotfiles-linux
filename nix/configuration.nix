@@ -12,14 +12,16 @@
 
   programs.hyprland.enable = true;
 
+  # Nix flakes
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   boot.kernel.sysctl."fs.inotify.max_user_instances" = 524288;
 
+  # Bootloader.
+  # boot.loader.systemd-boot.enable = true;
+  # boot.loader.efi.canTouchEfiVariables = true;
+
   boot.loader = {
-    efi = {
-      efiSysMountPoint = "/boot";
-    };
     grub = {
       enable = true;
       efiSupport = true;
@@ -27,6 +29,26 @@
       efiInstallAsRemovable = true;
     };
   };
+
+  # Additional custom menu entries
+  boot.loader.grub.extraEntries = ''
+    menuentry "Arch Linux" {
+      search --set=root --file /vmlinuz-linux
+      linux /vmlinuz-linux root=/dev/nvme0n1p2 rw
+      initrd /initramfs-linux.img
+    }
+    menuentry "Arch Linux LTS" {
+      search --set=root --file /vmlinuz-linux-lts
+      linux /vmlinuz-linux-lts root=/dev/nvme0n1p2 rw
+      initrd /initramfs-linux-lts.img
+    }
+    menuentry "Windows 10" {
+      insmod part_gpt
+      insmod fat
+      set root='hd1,gpt1' # Adjust this if needed based on your setup
+      chainloader /EFI/Microsoft/Boot/bootmgfw.efi
+    }
+  '';
 
   networking.hostName = "nixos"; # Define your hostname.
 
@@ -85,6 +107,7 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     vim
+    neovim
     git
     alacritty
     home-manager
