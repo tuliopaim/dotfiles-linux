@@ -10,50 +10,52 @@
       ./hardware-configuration.nix
     ];
 
-  programs.hyprland.enable = true;
+  programs = {
+    hyprland.enable = true;
+    zsh.enable = true;
+  };
 
   # Nix flakes
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
-  boot.kernel.sysctl."fs.inotify.max_user_instances" = 524288;
 
   # Bootloader.
   # boot.loader.systemd-boot.enable = true;
   # boot.loader.efi.canTouchEfiVariables = true;
 
-  boot.loader = {
-    grub = {
-      enable = true;
-      efiSupport = true;
-      device = "nodev";
-      efiInstallAsRemovable = true;
+  boot = {
+    kernel.sysctl."fs.inotify.max_user_instances" = 524288;
+    loader = {
+      grub = {
+        enable = true;
+        efiSupport = true;
+        device = "nodev";
+        efiInstallAsRemovable = true;
+        extraEntries = ''
+          menuentry "Arch Linux" {
+            search --set=root --file /vmlinuz-linux
+            linux /vmlinuz-linux root=/dev/nvme0n1p2 rw
+            initrd /initramfs-linux.img
+          }
+          menuentry "Arch Linux LTS" {
+            search --set=root --file /vmlinuz-linux-lts
+            linux /vmlinuz-linux-lts root=/dev/nvme0n1p2 rw
+            initrd /initramfs-linux-lts.img
+          }
+          menuentry "Windows 10" {
+            insmod part_gpt
+            insmod fat
+            set root='hd1,gpt1' # Adjust this if needed based on your setup
+            chainloader /EFI/Microsoft/Boot/bootmgfw.efi
+          }
+        '';
+      };
     };
   };
 
-  # Additional custom menu entries
-  boot.loader.grub.extraEntries = ''
-    menuentry "Arch Linux" {
-      search --set=root --file /vmlinuz-linux
-      linux /vmlinuz-linux root=/dev/nvme0n1p2 rw
-      initrd /initramfs-linux.img
-    }
-    menuentry "Arch Linux LTS" {
-      search --set=root --file /vmlinuz-linux-lts
-      linux /vmlinuz-linux-lts root=/dev/nvme0n1p2 rw
-      initrd /initramfs-linux-lts.img
-    }
-    menuentry "Windows 10" {
-      insmod part_gpt
-      insmod fat
-      set root='hd1,gpt1' # Adjust this if needed based on your setup
-      chainloader /EFI/Microsoft/Boot/bootmgfw.efi
-    }
-  '';
-
-  networking.hostName = "nixos"; # Define your hostname.
-
-  # Enable networking
-  networking.networkmanager.enable = true;
+  networking = {
+    hostName = "nixos";
+    networkmanager.enable = true;
+  };
 
   # Set your time zone.
   time.timeZone = "America/Sao_Paulo";
@@ -77,6 +79,16 @@
     (nerdfonts.override { fonts = [ "FiraCode" "DroidSansMono" ]; })
   ];
 
+  services.displayManager = {
+    enable = true;
+    sddm = {
+      enable = true;
+      wayland = {
+        enable = true;
+      };
+    };
+  };
+
   # Configure keymap in X11
   services.xserver = {
     xkb = {
@@ -97,22 +109,23 @@
   nixpkgs.config.allowUnfree = true;
 
   # zsh for the system
-  programs.zsh.enable = true;
   users.defaultUserShell = pkgs.zsh;
-
-  environment.variables.EDITOR = "nvim";
-  environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
-  environment.systemPackages = with pkgs; [
-    vim
-    neovim
-    git
-    alacritty
-    home-manager
-    openfortivpn
-  ];
+  environment = {
+    variables = {
+      EDITOR = "nvim";
+      NIXOS_OZONE_WL = "1";
+    };
+    systemPackages = with pkgs; [
+      vim
+      neovim
+      git
+      alacritty
+      home-manager
+    ];
+  };
 
   # Enable docker
   virtualisation.docker = {
@@ -134,6 +147,7 @@
 
   # rtkit is optional but recommended
   security.rtkit.enable = true;
+  security.polkit.enable = true;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

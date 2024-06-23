@@ -114,6 +114,9 @@
     sxiv
     teams-for-linux
     gnome.file-roller
+    libreoffice
+    gparted
+    exfat
 
     # scripts 
     (pkgs.writeShellScriptBin "clone-wt" (builtins.readFile ../scripts/clone-wt))
@@ -154,6 +157,8 @@
       "video/mpeg" = "vlc.desktop";
       "audio/mpeg" = "vlc.desktop";
       "application/x-tar" = "org.gnome.FileRoller.desktop";
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document" = "writer.desktop";
+      "application/msword" = "writer.desktop";
     };
   };
 }
