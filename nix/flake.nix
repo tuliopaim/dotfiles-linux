@@ -11,30 +11,36 @@
   };
 
   outputs = { self, nixpkgs, home-manager, ... } @ inputs:
-  let
+    let
       inherit (self) outputs;
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
-  in 
-  {
-    overlays = {
+    in
+    {
+      overlays = {
         unstable-packages = final: _prev: {
-            unstable = import inputs.nixpkgs-unstable {
-                system = final.system;
-                config.allowUnfree = true;
-            };
+          unstable = import inputs.nixpkgs-unstable {
+            system = final.system;
+            config.allowUnfree = true;
+          };
         };
-    };
-    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-      inherit system;
-      modules = [
-        ./configuration.nix
-      ];
-    };
-    homeConfigurations."tuliopaim" = home-manager.lib.homeManagerConfiguration {
-        inherit pkgs;
-        extraSpecialArgs = {inherit inputs outputs;};
+      };
+      iso = nixpkgs.lib.nixosSystem {
+        modules = [
+          ./hosts/iso/configuration.nix
+        ];
+      };
+
+      nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+        inherit system;
+        modules = [
+          ./configuration.nix
+        ];
+      };
+
+      homeConfigurations."tuliopaim" = home-manager.lib.homeManagerConfiguration {
+        specialArgs = { inherit inputs outputs; };
         modules = [ ./home.nix ];
+      };
     };
-  };
 }
