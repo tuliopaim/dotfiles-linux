@@ -39,7 +39,8 @@
       };
 
       homeConfigurations."tuliopaim" = home-manager.lib.homeManagerConfiguration {
-        specialArgs = { inherit inputs outputs; };
+        inherit pkgs;
+        extraSpecialArgs = { inherit inputs outputs; };
         modules = [ ./home.nix ];
       };
     };

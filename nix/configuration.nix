@@ -30,24 +30,6 @@
         efiSupport = true;
         device = "nodev";
         efiInstallAsRemovable = true;
-        extraEntries = ''
-          menuentry "Arch Linux" {
-            search --set=root --file /vmlinuz-linux
-            linux /vmlinuz-linux root=/dev/nvme0n1p2 rw
-            initrd /initramfs-linux.img
-          }
-          menuentry "Arch Linux LTS" {
-            search --set=root --file /vmlinuz-linux-lts
-            linux /vmlinuz-linux-lts root=/dev/nvme0n1p2 rw
-            initrd /initramfs-linux-lts.img
-          }
-          menuentry "Windows 10" {
-            insmod part_gpt
-            insmod fat
-            set root='hd1,gpt1' # Adjust this if needed based on your setup
-            chainloader /EFI/Microsoft/Boot/bootmgfw.efi
-          }
-        '';
       };
     };
   };
@@ -124,6 +106,7 @@
       git
       alacritty
       home-manager
+      stow
     ];
   };
 
