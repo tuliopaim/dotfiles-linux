@@ -17,8 +17,6 @@
     allowUnfreePredicate = (_: true);
   };
 
-  programs.home-manager.enable = true;
-
   home.sessionVariables = {
     EDITOR = "nvim";
   };
@@ -131,12 +129,18 @@
   imports = [
     ./apps/zsh.nix
     ./apps/tmux.nix
+    ./apps/git.nix
     ./apps/firefox.nix
   ];
 
-  programs.fzf = {
-    enable = true;
-    enableZshIntegration = true;
+  programs = {
+    home-manager = { 
+        enable = true;
+    };
+    fzf = {
+      enable = true;
+      enableZshIntegration = true;
+    };
   };
 
   xdg.mimeApps = {
