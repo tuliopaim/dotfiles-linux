@@ -65,6 +65,7 @@
     enable = true;
     sddm = {
       enable = true;
+      theme = "${import ./apps/sddm/sddm-sugar-dark.nix { inherit pkgs;}}";
       wayland = {
         enable = true;
       };
