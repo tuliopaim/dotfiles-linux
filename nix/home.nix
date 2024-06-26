@@ -1,20 +1,23 @@
 { outputs, config, pkgs, ... }:
 
 {
-  nixpkgs = {
-    overlays = [
-      outputs.overlays.unstable-packages
-    ];
-  };
 
   home.username = "tuliopaim";
   home.homeDirectory = "/home/tuliopaim";
 
   home.stateVersion = "24.05";
 
-  nixpkgs.config = {
-    allowUnfree = true;
-    allowUnfreePredicate = (_: true);
+  nixpkgs = {
+    overlays = [
+      outputs.overlays.unstable-packages
+    ];
+    config = {
+      allowUnfree = true;
+      allowUnfreePredicate = (_: true);
+      packageOverrides = pkgs: {
+         dotnet-ef = pkgs.callPackage ./apps/dotnet-ef/default.nix { inherit pkgs; };
+      };
+    };
   };
 
   home.sessionVariables = {
@@ -27,13 +30,26 @@
     };
   };
 
+  qt = {
+    enable = true;
+    platformTheme = {
+      name = "gtk";
+    };
+    style = {
+      name = "adwaita-dark";
+    };
+  };
+
   gtk = {
     enable = true;
     theme = {
       name = "Adwaita-dark";
       package = pkgs.gnome.gnome-themes-extra;
     };
-    cursorTheme.name = "Bibata-Modern-Ice";
+    cursorTheme = {
+      name = "Bibata-Modern-Ice";
+      package = pkgs.bibata-cursors;
+    };
   };
 
   home.packages = with pkgs; [
@@ -48,12 +64,14 @@
       sdk_7_0
       sdk_8_0
     ])
+    dotnet-ef
 
     # dev tools
     unstable.neovim
     docker
     docker-compose
     awscli
+    aws-sam-cli
     terraform
     jetbrains.rider
     postman
@@ -82,6 +100,7 @@
     killall
     postgresql
     inotify-info
+    neofetch
 
     #hyprland
     swww
@@ -113,8 +132,8 @@
     teams-for-linux
     gnome.file-roller
     libreoffice
-    gparted
     exfat
+    zlib
 
     # scripts 
     (pkgs.writeShellScriptBin "clone-wt" (builtins.readFile ../scripts/clone-wt))
@@ -134,8 +153,8 @@
   ];
 
   programs = {
-    home-manager = { 
-        enable = true;
+    home-manager = {
+      enable = true;
     };
     fzf = {
       enable = true;
