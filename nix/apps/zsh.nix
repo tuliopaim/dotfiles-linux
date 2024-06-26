@@ -32,9 +32,9 @@
 
     initExtra = ''
       export FZF_DEFAULT_OPTS="--color=16 --color=fg+:#FF5E7D --color=bg+:#002B36 --color=hl:#B48EAD --color=fg:#839496"
-      export FZF_DEFAULT_COMMAND='fd --type f --strip-cwd-prefix'
+      export FZF_DEFAULT_COMMAND='fd --type f --strip-cwd-prefix -H'
 
-      export FZF_ALT_C_COMMAND="fd --type d . --strip-cwd-prefix"
+      export FZF_ALT_C_COMMAND="fd --type d . -H --strip-cwd-prefix"
       export FZF_ALT_C_OPTS="--preview 'tree -C {}'"
 
       export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"

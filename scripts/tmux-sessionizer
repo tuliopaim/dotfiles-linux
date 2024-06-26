@@ -7,7 +7,7 @@ else
         ~/.dotfiles/ \
         ~/dev/tb/ \
         ~/dev/personal/ \
-        -mindepth 1 -maxdepth 2 -type d -not -path '*/.*'| fzf)
+        -mindepth 0 -maxdepth 2 -type d | fzf)
 fi
 
 if [[ -z $selected ]]; then
