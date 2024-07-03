@@ -101,6 +101,7 @@
     postgresql
     inotify-info
     neofetch
+    gcalcli
 
     #hyprland
     swww
@@ -109,14 +110,13 @@
     gnome-icon-theme
     pulseaudio
     fira-code-nerdfont
-    swaylock
-    wlogout
     swayidle
 
     # desktop
     cinnamon.nemo-with-extensions
     brave
     microsoft-edge
+    firefox
     spotify
     slack
     obsidian
@@ -134,6 +134,8 @@
     libreoffice
     exfat
     zlib
+    gnome.gnome-calculator
+    mongodb-compass
 
     # scripts 
     (pkgs.writeShellScriptBin "clone-wt" (builtins.readFile ../scripts/clone-wt))
@@ -145,11 +147,21 @@
     (pkgs.writeShellScriptBin "disconnect-vpn" (builtins.readFile ../scripts/disconnect-vpn))
   ];
 
+  home.file = {
+    ".config/hypr/hyprland.conf".source = ../hypr/.config/hypr/hyprland.conf;
+    ".config/hypr/start.sh".source = ../hypr/.config/hypr/start.sh;
+    ".config/alacritty.toml".source = ../alacritty/.config/alacritty.toml;
+    ".config/waybar/config.jsonc".source = ../waybar/.config/waybar/config.jsonc;
+    ".config/waybar/style.css".source = ../waybar/.config/waybar/style.css;
+    "ideavimrc".source = ../ideavim/.ideavimrc;
+  };
+
   imports = [
     ./apps/zsh.nix
     ./apps/tmux.nix
     ./apps/git.nix
-    ./apps/firefox.nix
+    ./apps/wlogout.nix
+    ./apps/swaylock.nix
   ];
 
   programs = {
