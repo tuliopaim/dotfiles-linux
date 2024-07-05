@@ -1,16 +1,12 @@
-{ outputs, config, pkgs, ... }:
+{ outputs, config, pkgs, pkgs-unstable, ... }:
 
 {
-
   home.username = "tuliopaim";
   home.homeDirectory = "/home/tuliopaim";
 
   home.stateVersion = "24.05";
 
   nixpkgs = {
-    overlays = [
-      outputs.overlays.unstable-packages
-    ];
     config = {
       allowUnfree = true;
       allowUnfreePredicate = (_: true);
@@ -67,7 +63,7 @@
     dotnet-ef
 
     # dev tools
-    unstable.neovim
+    pkgs-unstable.neovim
     docker
     docker-compose
     awscli
@@ -140,8 +136,8 @@
     # scripts 
     (pkgs.writeShellScriptBin "clone-wt" (builtins.readFile ../scripts/clone-wt))
     (pkgs.writeShellScriptBin "prune-wt" (builtins.readFile ../scripts/prune-wt))
-    (pkgs.writeShellScriptBin "lockscreentime" (builtins.readFile ../scripts/lockscreentime))
     (pkgs.writeShellScriptBin "tmux-sessionizer" (builtins.readFile ../scripts/tmux-sessionizer))
+    (pkgs.writeShellScriptBin "lockscreentime" (builtins.readFile ../scripts/lockscreentime))
     (pkgs.writeShellScriptBin "usersecrets" (builtins.readFile ../scripts/usersecrets))
     (pkgs.writeShellScriptBin "connect-vpn" (builtins.readFile ../scripts/connect-vpn))
     (pkgs.writeShellScriptBin "disconnect-vpn" (builtins.readFile ../scripts/disconnect-vpn))
@@ -171,6 +167,9 @@
     fzf = {
       enable = true;
       enableZshIntegration = true;
+    };
+    direnv = {
+      enable = true;
     };
   };
 
