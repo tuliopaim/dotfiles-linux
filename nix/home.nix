@@ -98,6 +98,8 @@
     inotify-info
     neofetch
     gcalcli
+    playerctl
+    mono
 
     #hyprland
     swww
@@ -118,7 +120,6 @@
     obsidian
     pavucontrol
     vlc
-    discord
     networkmanagerapplet
     os-prober
     obs-studio
@@ -132,6 +133,7 @@
     zlib
     gnome.gnome-calculator
     mongodb-compass
+    vesktop
 
     # scripts 
     (pkgs.writeShellScriptBin "clone-wt" (builtins.readFile ../scripts/clone-wt))
@@ -149,7 +151,7 @@
     ".config/alacritty.toml".source = ../alacritty/.config/alacritty.toml;
     ".config/waybar/config.jsonc".source = ../waybar/.config/waybar/config.jsonc;
     ".config/waybar/style.css".source = ../waybar/.config/waybar/style.css;
-    "ideavimrc".source = ../ideavim/.ideavimrc;
+    ".ideavimrc".source = ../ideavim/.ideavimrc;
   };
 
   imports = [

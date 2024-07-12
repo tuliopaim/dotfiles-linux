@@ -96,6 +96,7 @@
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
+  environment.sessionVariables.NIXOS_OZONE_WL = "1";
   environment = {
     variables = {
       EDITOR = "nvim";
