@@ -1,4 +1,4 @@
-{ pkgs, ...}:
+{ pkgs, ... }:
 {
   programs.tmux = {
     enable = true;
@@ -26,6 +26,11 @@
         
         # fix colors
         set -sa terminal-overrides ",xterm*:Tc"
+
+        # yazi image preview
+        set -g allow-passthrough on
+        set -ga update-environment TERM
+        set -ga update-environment TERM_PROGRAM
         
         # Set 'v' for vertical and 'h' for horizontal split
         bind v split-window -h -c '#{pane_current_path}'
