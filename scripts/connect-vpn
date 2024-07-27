@@ -2,6 +2,8 @@
 
 cd /home/tuliopaim/.dotfiles/nix/shells/openfortivpn-webview/
 
+sudo .
+
 nix-shell --command zsh
 
 appimage-run openfortivpn-webview vpn.emsbilling.com \

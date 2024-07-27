@@ -11,7 +11,7 @@
       allowUnfree = true;
       allowUnfreePredicate = (_: true);
       packageOverrides = pkgs: {
-         dotnet-ef = pkgs.callPackage ./apps/dotnet-ef/default.nix { inherit pkgs; };
+        dotnet-ef = pkgs.callPackage ./apps/dotnet-ef/default.nix { inherit pkgs; };
       };
     };
   };
@@ -95,11 +95,18 @@
     lazydocker
     killall
     postgresql
+    postgresql_jdbc
     inotify-info
     neofetch
     gcalcli
     playerctl
     mono
+    yazi
+
+    # split keyboard
+    qmk
+    vial
+    keymapviz
 
     #hyprland
     swww
