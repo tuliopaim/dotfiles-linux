@@ -10,7 +10,11 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, nixpkgs-unstable, ... } @ inputs:
+  outputs = {
+      self,
+      nixpkgs,
+      home-manager,
+      nixpkgs-unstable, ... } @ inputs:
     let
       inherit (self) outputs;
       system = "x86_64-linux";
@@ -36,8 +40,11 @@
         extraSpecialArgs = {
           inherit inputs outputs;
           inherit pkgs-unstable;
+          username = "tuliopaim";
         };
-        modules = [ ./home.nix ];
+        modules = [ ./homes/home.nix ];
+      };
+
       };
     };
 }
