@@ -16,6 +16,7 @@
       sshtb = "eval \"$(ssh-agent -s)\" && ssh-add ~/.ssh/id_tb_gh";
       sshpersonal = "eval \"$(ssh-agent -s)\" && ssh-add ~/.ssh/id_personal_gh";
       lg = "lazygit";
+      lz = "lazydocker";
       cd = "z";
     };
 
