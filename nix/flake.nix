@@ -45,6 +45,14 @@
         modules = [ ./homes/home.nix ];
       };
 
+      homeConfigurations."tuliopaim-ntbk" = home-manager.lib.homeManagerConfiguration {
+        inherit pkgs;
+        extraSpecialArgs = {
+          inherit inputs outputs;
+          inherit pkgs-unstable;
+          username = "tuliopaim-ntbk";
+        };
+        modules = [ ./homes/home-ntbk.nix ];
       };
     };
 }
