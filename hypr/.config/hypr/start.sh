@@ -12,3 +12,6 @@ waybar &
 # Clipboard
 copyq --start-server & 
 copyq config hide_main_window true
+
+# Redshift
+systemctl --user start redshift

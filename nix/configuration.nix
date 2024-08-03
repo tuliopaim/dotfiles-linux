@@ -131,6 +131,21 @@
     #jack.enable = true;
   };
 
+  services.redshift = {
+    enable = true;
+    brightness = {
+      # Note the string values below.
+      day = "1";
+      night = "1";
+    };
+    temperature = {
+      day = 5700;
+      night = 3500;
+    };
+    latitude = "-16.6799";
+    longitude= "-49.255";
+  };
+
   # rtkit is optional but recommended
   security.rtkit.enable = true;
   security.polkit.enable = true;
