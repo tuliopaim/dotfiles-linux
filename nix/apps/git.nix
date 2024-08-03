@@ -17,7 +17,17 @@
       safe = {
         directory = "*";
       };
+      merge = {
+          tool = "nvim";
+      };
+      mergetool = {
+          prompt = false;
+          nvim = {
+              cmd = "nvim -f -c \"Gdiffsplit!\" \"$MERGED\"";
+          };
+      };
     };
+    
     includes = [
       {
         condition = "gitdir:~/dev/personal/";

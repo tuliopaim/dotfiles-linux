@@ -91,7 +91,7 @@
     copyq
     ansible
     stow
-    lazygit
+    pkgs-unstable.lazygit
     lazydocker
     killall
     postgresql
