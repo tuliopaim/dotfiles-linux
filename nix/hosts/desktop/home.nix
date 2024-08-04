@@ -13,7 +13,6 @@
     ../../apps/git.nix
   ];
 
-
   nixpkgs = {
     config = {
       allowUnfree = true;
@@ -116,15 +115,6 @@
     vial
     keymapviz
 
-    #hyprland
-    swww
-    waybar
-    rofi-wayland
-    gnome-icon-theme
-    pulseaudio
-    fira-code-nerdfont
-    swayidle
-
     # desktop
     cinnamon.nemo-with-extensions
     brave
@@ -162,11 +152,7 @@
   ];
 
   home.file = {
-    ".config/hypr/hyprland.conf".source = ../../../hypr/.config/hypr/hyprland.conf;
-    ".config/hypr/start.sh".source = ../../../hypr/.config/hypr/start.sh;
     ".config/alacritty.toml".source = ../../../alacritty/.config/alacritty.toml;
-    ".config/waybar/config.jsonc".source = ../../../waybar/.config/waybar/config.jsonc;
-    ".config/waybar/style.css".source = ../../../waybar/.config/waybar/style.css;
     ".ideavimrc".source = ../../../ideavim/.ideavimrc;
   };
 
