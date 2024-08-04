@@ -8,9 +8,8 @@
 
   imports = [
     ../../home-manager/hyprland
+    ../../home-manager/apps
     ../../apps/zsh.nix
-    ../../apps/tmux.nix
-    ../../apps/git.nix
   ];
 
   nixpkgs = {
@@ -80,36 +79,6 @@
     postman
     netcoredbg
 
-    # terminal tools
-    wget
-    jq
-    fd
-    fzf
-    htop
-    ripgrep
-    tree
-    unzip
-    zip
-    zoxide
-    wl-clipboard
-    grim
-    slurp
-    swappy
-    copyq
-    ansible
-    stow
-    pkgs-unstable.lazygit
-    lazydocker
-    killall
-    postgresql
-    postgresql_jdbc
-    inotify-info
-    neofetch
-    gcalcli
-    playerctl
-    mono
-    yazi
-
     # split keyboard
     qmk
     vial
@@ -152,7 +121,6 @@
   ];
 
   home.file = {
-    ".config/alacritty.toml".source = ../../../alacritty/.config/alacritty.toml;
     ".ideavimrc".source = ../../../ideavim/.ideavimrc;
   };
 
@@ -166,25 +134,6 @@
     };
     direnv = {
       enable = true;
-    };
-    kitty = {
-      enable = true;
-      font = {
-        name = "FiraCode Nerd Font";
-        size = 15;
-      };
-      theme = "Catppuccin-Mocha";
-      shellIntegration = {
-        enableZshIntegration = true;
-      };
-      keybindings = {
-        "ctrl+equal" = "change_font_size all +2.0";
-        "ctrl+plus" = "change_font_size all +2.0";
-        "ctrl+minus" = "change_font_size all -2.0";
-      };
-      settings = {
-        background_opacity = "0.9";
-      };
     };
   };
 }

@@ -10,10 +10,14 @@
   home.packages = with pkgs; [
     waybar
     swww
+    copyq
     rofi-wayland
     gnome-icon-theme
     pulseaudio
     fira-code-nerdfont
+    grim
+    slurp
+    swappy
   ];
 
   home.file = {

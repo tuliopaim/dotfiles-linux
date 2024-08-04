@@ -1,0 +1,36 @@
+{ pkgs, pkgs-unstable, ... }:
+{
+  imports = [
+    #./alacritty.nix
+    ./tmux.nix
+    ./kitty.nix
+  ];
+
+  home.packages = with pkgs; [
+    wget
+    jq
+    fd
+    fzf
+    htop
+    ripgrep
+    tree
+    unzip
+    zip
+    zoxide
+    wl-clipboard
+    ansible
+    stow
+    pkgs-unstable.lazygit
+    lazydocker
+    killall
+    postgresql
+    postgresql_jdbc
+    inotify-info
+    neofetch
+    gcalcli
+    playerctl
+    mono
+    yazi
+  ];
+
+}
