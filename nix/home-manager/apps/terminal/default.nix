@@ -30,6 +30,8 @@
     gcalcli
     playerctl
     mono
+    exfat
+    zlib
     yazi
   ];
 
