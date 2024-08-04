@@ -11,7 +11,7 @@
       allowUnfree = true;
       allowUnfreePredicate = (_: true);
       packageOverrides = pkgs: {
-        dotnet-ef = pkgs.callPackage ../apps/dotnet-ef/default.nix { inherit pkgs; };
+        dotnet-ef = pkgs.callPackage ../../apps/dotnet-ef/default.nix { inherit pkgs; };
       };
     };
   };
@@ -144,30 +144,30 @@
     virtualbox
 
     # scripts 
-    (pkgs.writeShellScriptBin "clone-wt" (builtins.readFile ../../scripts/clone-wt))
-    (pkgs.writeShellScriptBin "prune-wt" (builtins.readFile ../../scripts/prune-wt))
-    (pkgs.writeShellScriptBin "tmux-sessionizer" (builtins.readFile ../../scripts/tmux-sessionizer))
-    (pkgs.writeShellScriptBin "lockscreentime" (builtins.readFile ../../scripts/lockscreentime))
-    (pkgs.writeShellScriptBin "usersecrets" (builtins.readFile ../../scripts/usersecrets))
-    (pkgs.writeShellScriptBin "connect-vpn" (builtins.readFile ../../scripts/connect-vpn))
-    (pkgs.writeShellScriptBin "disconnect-vpn" (builtins.readFile ../../scripts/disconnect-vpn))
+    (pkgs.writeShellScriptBin "clone-wt" (builtins.readFile ../../../scripts/clone-wt))
+    (pkgs.writeShellScriptBin "prune-wt" (builtins.readFile ../../../scripts/prune-wt))
+    (pkgs.writeShellScriptBin "tmux-sessionizer" (builtins.readFile ../../../scripts/tmux-sessionizer))
+    (pkgs.writeShellScriptBin "lockscreentime" (builtins.readFile ../../../scripts/lockscreentime))
+    (pkgs.writeShellScriptBin "usersecrets" (builtins.readFile ../../../scripts/usersecrets))
+    (pkgs.writeShellScriptBin "connect-vpn" (builtins.readFile ../../../scripts/connect-vpn))
+    (pkgs.writeShellScriptBin "disconnect-vpn" (builtins.readFile ../../../scripts/disconnect-vpn))
   ];
 
   home.file = {
-    ".config/hypr/hyprland.conf".source = ../../hypr/.config/hypr/hyprland.conf;
-    ".config/hypr/start.sh".source = ../../hypr/.config/hypr/start.sh;
-    ".config/alacritty.toml".source = ../../alacritty/.config/alacritty.toml;
-    ".config/waybar/config.jsonc".source = ../../waybar/.config/waybar/config.jsonc;
-    ".config/waybar/style.css".source = ../../waybar/.config/waybar/style.css;
-    ".ideavimrc".source = ../../ideavim/.ideavimrc;
+    ".config/hypr/hyprland.conf".source = ../../../hypr/.config/hypr/hyprland.conf;
+    ".config/hypr/start.sh".source = ../../../hypr/.config/hypr/start.sh;
+    ".config/alacritty.toml".source = ../../../alacritty/.config/alacritty.toml;
+    ".config/waybar/config.jsonc".source = ../../../waybar/.config/waybar/config.jsonc;
+    ".config/waybar/style.css".source = ../../../waybar/.config/waybar/style.css;
+    ".ideavimrc".source = ../../../ideavim/.ideavimrc;
   };
 
   imports = [
-    ../apps/zsh.nix
-    ../apps/tmux.nix
-    ../apps/git.nix
-    ../apps/wlogout.nix
-    ../apps/swaylock.nix
+    ../../apps/zsh.nix
+    ../../apps/tmux.nix
+    ../../apps/git.nix
+    ../../apps/wlogout.nix
+    ../../apps/swaylock.nix
   ];
 
   programs = {

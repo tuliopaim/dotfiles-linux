@@ -10,11 +10,13 @@
     };
   };
 
-  outputs = {
-      self,
-      nixpkgs,
-      home-manager,
-      nixpkgs-unstable, ... } @ inputs:
+  outputs =
+    { self
+    , nixpkgs
+    , home-manager
+    , nixpkgs-unstable
+    , ...
+    } @ inputs:
     let
       inherit (self) outputs;
       system = "x86_64-linux";
@@ -31,7 +33,7 @@
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
         inherit system;
         modules = [
-          ./configuration.nix
+          ./hosts/desktop/configuration.nix
         ];
       };
 
@@ -42,17 +44,9 @@
           inherit pkgs-unstable;
           username = "tuliopaim";
         };
-        modules = [ ./homes/home.nix ];
-      };
-
-      homeConfigurations."tuliopaim-ntbk" = home-manager.lib.homeManagerConfiguration {
-        inherit pkgs;
-        extraSpecialArgs = {
-          inherit inputs outputs;
-          inherit pkgs-unstable;
-          username = "tuliopaim-ntbk";
-        };
-        modules = [ ./homes/home-ntbk.nix ];
+        modules = [
+          ./hosts/desktop/home.nix
+        ];
       };
     };
 }

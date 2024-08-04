@@ -8,6 +8,7 @@
   imports =
     [
       ./hardware-configuration.nix
+      ../../modules/hyprland/greetd
     ];
 
   programs = {
@@ -18,19 +19,11 @@
   # Nix flakes
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  # Bootloader.
-  # boot.loader.systemd-boot.enable = true;
-  # boot.loader.efi.canTouchEfiVariables = true;
-
   boot = {
     kernel.sysctl."fs.inotify.max_user_instances" = 524288;
     loader = {
-      grub = {
-        enable = true;
-        efiSupport = true;
-        device = "nodev";
-        efiInstallAsRemovable = true;
-      };
+      systemd-boot.enable = true;
+      efi.canTouchEfiVariables = true;
     };
   };
 
@@ -60,17 +53,6 @@
   fonts.packages = with pkgs; [
     (nerdfonts.override { fonts = [ "FiraCode" "DroidSansMono" ]; })
   ];
-
-  services.displayManager = {
-    enable = true;
-    sddm = {
-      enable = true;
-      theme = "${import ./apps/sddm/sddm-sugar-dark.nix { inherit pkgs;}}";
-      wayland = {
-        enable = true;
-      };
-    };
-  };
 
   # Configure keymap in X11
   services.xserver = {
@@ -142,9 +124,10 @@
       day = 5700;
       night = 3500;
     };
-    latitude = "-16.6799";
-    longitude= "-49.255";
   };
+
+  location.latitude = -16.6799;
+  location.longitude = -49.255;
 
   # rtkit is optional but recommended
   security.rtkit.enable = true;
