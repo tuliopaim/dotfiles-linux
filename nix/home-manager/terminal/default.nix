@@ -30,11 +30,7 @@
     wl-clipboard
     ansible
     stow
-    pkgs-unstable.lazygit
-    lazydocker
     killall
-    postgresql
-    postgresql_jdbc
     inotify-info
     neofetch
     gcalcli

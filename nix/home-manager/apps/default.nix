@@ -2,7 +2,6 @@
 {
   imports = [
     ./git
-    ./terminal
     ./browser
     ./vpn
   ];
