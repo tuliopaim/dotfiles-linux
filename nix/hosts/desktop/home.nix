@@ -6,6 +6,15 @@
 
   home.stateVersion = "24.05";
 
+  imports = [
+    ../../home-manager/hyprland
+    ../../apps/zsh.nix
+    ../../apps/tmux.nix
+    ../../apps/git.nix
+    ../../apps/swaylock.nix
+  ];
+
+
   nixpkgs = {
     config = {
       allowUnfree = true;
@@ -162,14 +171,6 @@
     ".ideavimrc".source = ../../../ideavim/.ideavimrc;
   };
 
-  imports = [
-    ../../apps/zsh.nix
-    ../../apps/tmux.nix
-    ../../apps/git.nix
-    ../../apps/wlogout.nix
-    ../../apps/swaylock.nix
-  ];
-
   programs = {
     home-manager = {
       enable = true;
@@ -199,28 +200,6 @@
       settings = {
         background_opacity = "0.9";
       };
-    };
-  };
-  xdg.mimeApps = {
-    enable = true;
-    defaultApplications = {
-      "text/html" = "microsoft-edge.desktop";
-      "x-scheme-handler/http" = "microsoft-edge.desktop";
-      "x-scheme-handler/https" = "microsoft-edge.desktop";
-      "x-scheme-handler/about" = "microsoft-edge.desktop";
-      "x-scheme-handler/unknown" = "microsoft-edge.desktop";
-      "application/pdf" = "org.gnome.Evince.desktop";
-      "image/png" = "sxiv.desktop";
-      "image/jpg" = "sxiv.desktop";
-      "image/gif" = "sxiv.desktop";
-      "image/webp" = "sxiv.desktop";
-      "video/mp4" = "vlc.desktop";
-      "video/mkv" = "vlc.desktop";
-      "video/mpeg" = "vlc.desktop";
-      "audio/mpeg" = "vlc.desktop";
-      "application/x-tar" = "org.gnome.FileRoller.desktop";
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document" = "writer.desktop";
-      "application/msword" = "writer.desktop";
     };
   };
 }
