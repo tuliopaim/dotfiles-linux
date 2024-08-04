@@ -3,5 +3,6 @@
     imports = [
         ./xdg.nix
         ./wlogout.nix
+        ./swaylock.nix
     ];
 }

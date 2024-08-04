@@ -11,7 +11,6 @@
     ../../apps/zsh.nix
     ../../apps/tmux.nix
     ../../apps/git.nix
-    ../../apps/swaylock.nix
   ];
 
 
