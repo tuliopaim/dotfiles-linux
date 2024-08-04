@@ -27,7 +27,6 @@
   };
 
   home.packages = with pkgs; [
-
     # langs
     (lib.hiPrio gcc)
     (lib.lowPrio clang)
@@ -55,10 +54,7 @@
     (pkgs.writeShellScriptBin "clone-wt" (builtins.readFile ../../../scripts/clone-wt))
     (pkgs.writeShellScriptBin "prune-wt" (builtins.readFile ../../../scripts/prune-wt))
     (pkgs.writeShellScriptBin "tmux-sessionizer" (builtins.readFile ../../../scripts/tmux-sessionizer))
-    (pkgs.writeShellScriptBin "lockscreentime" (builtins.readFile ../../../scripts/lockscreentime))
     (pkgs.writeShellScriptBin "usersecrets" (builtins.readFile ../../../scripts/usersecrets))
-    (pkgs.writeShellScriptBin "connect-vpn" (builtins.readFile ../../../scripts/connect-vpn))
-    (pkgs.writeShellScriptBin "disconnect-vpn" (builtins.readFile ../../../scripts/disconnect-vpn))
   ];
 
   home.file = {

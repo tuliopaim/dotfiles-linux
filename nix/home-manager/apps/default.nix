@@ -4,6 +4,7 @@
     ./git
     ./terminal
     ./browser
+    ./vpn
   ];
 
   home.packages = with pkgs; [
