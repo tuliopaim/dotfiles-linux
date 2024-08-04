@@ -5,6 +5,7 @@
     ./wlogout.nix
     ./swaylock.nix
     ./waybar.nix
+    ./gtk.nix
   ];
 
   home.packages = with pkgs; [

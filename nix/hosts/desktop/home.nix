@@ -26,34 +26,6 @@
     EDITOR = "nvim";
   };
 
-  dconf.settings = {
-    "org/gnome/desktop/interface" = {
-      color-scheme = "prefer-dark";
-    };
-  };
-
-  qt = {
-    enable = true;
-    platformTheme = {
-      name = "gtk";
-    };
-    style = {
-      name = "adwaita-dark";
-    };
-  };
-
-  gtk = {
-    enable = true;
-    theme = {
-      name = "Adwaita-dark";
-      package = pkgs.gnome.gnome-themes-extra;
-    };
-    cursorTheme = {
-      name = "Bibata-Modern-Ice";
-      package = pkgs.bibata-cursors;
-    };
-  };
-
   home.packages = with pkgs; [
 
     # langs
@@ -78,37 +50,6 @@
     jetbrains.rider
     postman
     netcoredbg
-
-    # split keyboard
-    qmk
-    vial
-    keymapviz
-
-    # desktop
-    cinnamon.nemo-with-extensions
-    brave
-    microsoft-edge
-    firefox
-    spotify
-    slack
-    obsidian
-    pavucontrol
-    vlc
-    networkmanagerapplet
-    os-prober
-    obs-studio
-    stremio
-    evince
-    sxiv
-    teams-for-linux
-    gnome.file-roller
-    libreoffice
-    exfat
-    zlib
-    gnome.gnome-calculator
-    mongodb-compass
-    vesktop
-    virtualbox
 
     # scripts 
     (pkgs.writeShellScriptBin "clone-wt" (builtins.readFile ../../../scripts/clone-wt))

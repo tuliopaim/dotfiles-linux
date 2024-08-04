@@ -25,5 +25,10 @@
     mongodb-compass
     vesktop
     virtualbox
+
+    #qmk
+    qmk
+    vial
+    keymapviz
   ];
 }
