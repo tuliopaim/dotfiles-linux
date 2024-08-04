@@ -8,7 +8,7 @@
   imports =
     [
       ./hardware-configuration.nix
-      ../../modules/hyprland/greetd
+      ../../system/greetd
     ];
 
   programs = {
