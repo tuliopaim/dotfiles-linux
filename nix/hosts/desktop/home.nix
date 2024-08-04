@@ -9,7 +9,6 @@
   imports = [
     ../../home-manager/hyprland
     ../../home-manager/apps
-    ../../apps/zsh.nix
   ];
 
   nixpkgs = {
@@ -49,12 +48,6 @@
     jetbrains.rider
     postman
     netcoredbg
-
-    # scripts 
-    (pkgs.writeShellScriptBin "clone-wt" (builtins.readFile ../../../scripts/clone-wt))
-    (pkgs.writeShellScriptBin "prune-wt" (builtins.readFile ../../../scripts/prune-wt))
-    (pkgs.writeShellScriptBin "tmux-sessionizer" (builtins.readFile ../../../scripts/tmux-sessionizer))
-    (pkgs.writeShellScriptBin "usersecrets" (builtins.readFile ../../../scripts/usersecrets))
   ];
 
   home.file = {
@@ -63,13 +56,6 @@
 
   programs = {
     home-manager = {
-      enable = true;
-    };
-    fzf = {
-      enable = true;
-      enableZshIntegration = true;
-    };
-    direnv = {
       enable = true;
     };
   };

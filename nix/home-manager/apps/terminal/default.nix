@@ -4,7 +4,17 @@
     #./alacritty.nix
     ./tmux.nix
     ./kitty.nix
+    ./zsh.nix
+    ./scripts.nix
   ];
+
+  programs.fzf = {
+    enable = true;
+    enableZshIntegration = true;
+  };
+  programs.direnv = {
+    enable = true;
+  };
 
   home.packages = with pkgs; [
     wget
