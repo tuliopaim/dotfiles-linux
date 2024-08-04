@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, hyprlandProfile, ... }:
 {
   imports = [
     ./xdg.nix
@@ -12,6 +12,7 @@
     swww
     copyq
     rofi-wayland
+    networkmanagerapplet
     gnome-icon-theme
     pulseaudio
     fira-code-nerdfont
@@ -21,7 +22,6 @@
   ];
 
   home.file = {
-    ".config/hypr/hyprland.conf".source = ../../../hypr/.config/hypr/hyprland.conf;
+    ".config/hypr/hyprland.conf".source = ./${hyprlandProfile}.conf;
   };
-
 }

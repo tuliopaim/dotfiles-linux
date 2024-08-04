@@ -43,6 +43,7 @@
           inherit inputs outputs;
           inherit pkgs-unstable;
           username = "tuliopaim";
+          hyprlandProfile = "desktop";
         };
         modules = [
           ./hosts/desktop/home.nix
