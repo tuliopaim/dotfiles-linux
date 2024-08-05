@@ -32,6 +32,10 @@
 
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
         inherit system;
+        specialArgs = {
+          username = "tuliopaim";
+          hostname = "nixos";
+        };
         modules = [
           ./hosts/desktop/configuration.nix
         ];
