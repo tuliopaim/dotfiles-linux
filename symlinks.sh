@@ -1,3 +1,2 @@
 #! /usr/bin/env sh
-stow -v -t /home/tuliopaim/ -d /home/tuliopaim/.dotfiles/ \
-    nvim 
+ln -s ~/.dotfiles/nvim ~/.config/nvim
