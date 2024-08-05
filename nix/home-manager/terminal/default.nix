@@ -6,6 +6,7 @@
     ./kitty.nix
     ./zsh.nix
     ./scripts.nix
+    ./yazi.nix
   ];
 
   programs.fzf = {
@@ -38,7 +39,5 @@
     mono
     exfat
     zlib
-    yazi
   ];
-
 }
