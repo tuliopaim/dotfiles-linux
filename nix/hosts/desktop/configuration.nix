@@ -4,8 +4,8 @@
     [
       ./hardware-configuration.nix
       ../../hosts/desktop/users/tuliopaim
+      ../../system/sddm
       ../../system/nix.nix
-      ../../system/greetd.nix
       ../../system/boot.nix
       ../../system/hyprland.nix
       ../../system/locale.nix
