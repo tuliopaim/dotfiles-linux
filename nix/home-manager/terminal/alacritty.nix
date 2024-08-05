@@ -5,6 +5,6 @@
   };
 
   home.file = {
-    ".config/alacritty.toml".source = ../../../alacritty/.config/alacritty.toml;
+    ".config/alacritty.toml".source = ../../../alacritty/alacritty.toml;
   };
 }
