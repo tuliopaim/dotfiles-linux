@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+if [[ $# -eq 1 ]]; then
+    selected=$1
+else
+    selected=$(find \
+        ~/.dotfiles/ \
+        ~/dev/tb/ \
+        ~/dev/personal/ \
+        -mindepth 0 -maxdepth 2 -type d | fzf)
+fi
+
+if [[ -z $selected ]]; then
+    exit 0
+fi
+
+if [[ $selected == *"/dev/"* ]]; then
+    IFS="/" read -ra path_levels <<< "$selected"
+    selected_name="${path_levels[-2]}-${path_levels[-1]}"
+else
+    # Extract the last level of the path
+    selected_name=$(basename "$selected")
+fi
+
+selected_name="$selected" | tr . _
+
+tmux_running=$(pgrep tmux)
+
+if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
+    tmux new-session -s $selected_name -c $selected
+    exit 0
+fi
+
+if ! tmux has-session -t=$selected_name 2> /dev/null; then
+    tmux new-session -ds $selected_name -c $selected
+fi
+
+tmux switch-client -t $selected_name
