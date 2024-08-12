@@ -21,10 +21,12 @@
     teams-for-linux
     gnome.file-roller
     libreoffice
+    gnome.gnome-disk-utility
     gnome.gnome-calculator
     mongodb-compass
     vesktop
     virtualbox
+    woeusb
 
     #qmk
     qmk

@@ -20,6 +20,7 @@
     postman
     postgresql
     postgresql_jdbc
+    typescript
   ];
 
   home.sessionVariables = {

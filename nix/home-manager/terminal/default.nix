@@ -1,7 +1,7 @@
 { pkgs, pkgs-unstable, ... }:
 {
   imports = [
-    #./alacritty.nix
+    ./alacritty.nix
     ./tmux.nix
     ./kitty.nix
     ./zsh.nix
