@@ -16,10 +16,6 @@
       name = "Adwaita-dark";
       package = pkgs.gnome.gnome-themes-extra;
     };
-    iconTheme = {
-      name = "Papirus-Dark";
-      package = pkgs.papirus-icon-theme;
-    };
 
     gtk3.extraConfig = {
       Settings = ''
