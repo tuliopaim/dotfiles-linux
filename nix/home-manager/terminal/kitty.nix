@@ -17,6 +17,7 @@
     };
     settings = {
       background_opacity = "0.9";
+      enable_audio_bell = "no";
     };
   };
 }
