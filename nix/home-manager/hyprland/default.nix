@@ -20,6 +20,7 @@
     grim
     slurp
     swappy
+    swayidle
   ];
 
   home.file = {
