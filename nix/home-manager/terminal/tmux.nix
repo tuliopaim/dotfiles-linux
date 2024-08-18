@@ -72,8 +72,7 @@
         bind-key -T copy-mode-vi y send-keys -X copy-selection-and-cancel
         
         bind-key -r f run-shell "tmux neww tmux-sessionizer"
-        
-        bind-key -r H run-shell "~/.local/bin/tmux-sessionizer ~/dev/tb/ems"
+        bind-key -r H run-shell "tmux-dotfiles"
         
         # remove default binding since replacing
         unbind %
