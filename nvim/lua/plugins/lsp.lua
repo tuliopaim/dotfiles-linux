@@ -99,6 +99,20 @@ return {
 				["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded" }),
 			}
 
+            require('lspconfig').lua_ls.setup({
+                on_attach = on_attach,
+                capabilities = capabilities,
+                settings = {
+                    Lua = {
+                        format = { enable = false },
+                        telemetry = { enable = false },
+                        workspace = { checkThirdParty = false },
+                        diagnostics = { globals = { "vim" } }
+                    },
+                },
+                handlers = vim.tbl_deep_extend("force", {}, default_handlers),
+            })
+
             require("mason-lspconfig").setup_handlers({
 
                 function(server_name)

@@ -11,6 +11,7 @@
     ../../home-manager/terminal
     ../../home-manager/dev
     ../../home-manager/dev/dotnet.nix
+    ../../home-manager/dev/neovim.nix
   ];
 
   programs = {
