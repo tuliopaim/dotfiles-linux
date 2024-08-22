@@ -34,17 +34,6 @@ local on_attach = function(client, bufnr)
     map("<leader>k", vim.diagnostic.open_float, "Float Documentation")
     map("<leader>K", vim.lsp.buf.signature_help, "Signature Help")
     imap("<c-k>", vim.lsp.buf.signature_help, "Signature Help")
-
-    if client.server_capabilities.documentFormattingProvider then
-        vim.api.nvim_buf_create_user_command(
-            bufnr,
-            "Format",
-            vim.lsp.buf.format,
-            { desc = "Format current buffer with LSP" }
-        )
-
-        map("<leader>fm", vim.lsp.buf.format, "Format buffer")
-    end
 end
 
 return {
@@ -85,19 +74,21 @@ return {
             -- DOTNET LSP
             require("roslyn").setup({
                 config = {
-                    on_attach = on_attach
-                }
+                    on_attach = on_attach,
+                    handlers = {
+                        ["textDocument/hover"] = function(err, result, ctx, config)
+                            if result and result.contents and result.contents.value then
+                                result.contents.value = result.contents.value:gsub("\\([^%w])", "%1")
+                            end
+                            vim.lsp.handlers["textDocument/hover"](err, result, ctx, config)
+                        end,
+                    },
+                },
             })
 
             require("mason-lspconfig").setup({
                 ensure_installed = { "cssls", "docker_compose_language_service", "dockerls", "eslint", "rnix", "tsserver" }
             })
-
-            -- Default handlers for LSP
-			local default_handlers = {
-				["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded" }),
-				["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded" }),
-			}
 
             require('lspconfig').lua_ls.setup({
                 on_attach = on_attach,
@@ -110,7 +101,6 @@ return {
                         diagnostics = { globals = { "vim" } }
                     },
                 },
-                handlers = vim.tbl_deep_extend("force", {}, default_handlers),
             })
 
             require("mason-lspconfig").setup_handlers({
@@ -119,7 +109,6 @@ return {
                     require("lspconfig")[server_name].setup({
                         on_attach = on_attach,
                         capabilities = capabilities,
-                        handlers = vim.tbl_deep_extend("force", {}, default_handlers),
                     })
                 end,
 
@@ -135,7 +124,6 @@ return {
                                 workspace = { checkThirdParty = false },
                             },
                         },
-                        handlers = vim.tbl_deep_extend("force", {}, default_handlers),
                     })
                 end,
 
@@ -178,10 +166,5 @@ return {
             -- Configure borderd for LspInfo ui
 			require("lspconfig.ui.windows").default_options.border = "rounded"
 		end,
-	},
-    {
-        "Fildo7525/pretty_hover",
-        event = "LspAttach",
-        opts = {}
-    },
+	}
 }
