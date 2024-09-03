@@ -42,10 +42,9 @@
           inherit pkgs inputs outputs;
           username = "tuliopaim";
           hostname = "nixos";
-          inherit inputs;
         };
         modules = [
-          ./hosts/laptop/configuration.nix
+          ./hosts/desktop/configuration.nix
         ];
       };
 
@@ -54,10 +53,10 @@
         extraSpecialArgs = {
           inherit inputs system pkgs-unstable;
           username = "tuliopaim";
-          hyprlandProfile = "laptop";
+          hyprlandProfile = "desktop";
         };
         modules = [
-          ./hosts/laptop/home.nix
+          ./hosts/desktop/home.nix
         ];
       };
 
