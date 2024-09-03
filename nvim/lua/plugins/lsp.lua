@@ -104,6 +104,18 @@ return {
                 },
             })
 
+            require('lspconfig').gopls.setup({
+                on_attach = on_attach,
+                capabilities = capabilities,
+                settings = {
+                    gopls = {
+                        staticcheck = true,
+                        gofumpt = false,
+                    },
+                },
+            })
+
+
             require("mason-lspconfig").setup_handlers({
 
                 function(server_name)
@@ -148,19 +160,6 @@ return {
 						capabilities = capabilities,
                     })
                 end,
-
-				["gopls"] = function()
-					require("lspconfig").gopls.setup({
-						on_attach = on_attach,
-						capabilities = capabilities,
-						settings = {
-							gopls = {
-								staticcheck = true,
-								gofumpt = false,
-							},
-						},
-					})
-				end,
 
 			})
 
