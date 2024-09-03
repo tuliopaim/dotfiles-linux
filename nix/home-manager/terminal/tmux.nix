@@ -71,8 +71,8 @@
         bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle
         bind-key -T copy-mode-vi y send-keys -X copy-selection-and-cancel
         
-        bind-key -r F run-shell "tmux neww tmux-sessionizer"
-        bind-key -r f run-shell "tmux neww tmux-windownizer"
+        bind-key -r F run-shell "tmux neww -t 99 tmux-sessionizer"
+        bind-key -r f run-shell "tmux neww -t 99 tmux-windownizer"
         bind-key -r H run-shell "tmux-dotfiles"
         
         # remove default binding since replacing
