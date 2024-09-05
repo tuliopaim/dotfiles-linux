@@ -18,6 +18,7 @@
       ../../system/redshift.nix
       ../../system/fonts.nix
       ../../system/via.nix
+      ../../system/vpn.nix
     ];
 
   environment = {
