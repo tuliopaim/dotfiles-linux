@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+if ! tmux has-session -t=vault 2> /dev/null; then
+    tmux new-session -ds vault -c ~/vault
+fi
+
+tmux switch-client -t vault
