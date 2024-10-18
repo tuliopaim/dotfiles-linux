@@ -100,6 +100,8 @@
         "**/*.md"
         "**/*.txt"
       ];
+      "catppuccin.italicComments" = false;
+      "catppuccin.italicKeywords" = false;
       "zenMode.hideLineNumbers" = false;
       "editor.stickyScroll.enabled" = true;
       "vsicons.dontShowNewVersionMessage" = true;
