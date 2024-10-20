@@ -3,9 +3,10 @@
   imports = [
     ./xdg.nix
     ./wlogout.nix
-    ./swaylock.nix
     ./waybar.nix
     ./gtk.nix
+    ./hypridle.nix
+    ./hyprlock
   ];
 
   home.packages = with pkgs; [
@@ -21,7 +22,8 @@
     grim
     slurp
     swappy
-    swayidle
+    hyprcursor
+    hyprpicker
   ];
 
   home.file = {
