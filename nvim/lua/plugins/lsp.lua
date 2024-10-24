@@ -89,6 +89,30 @@ return {
                 },
             })
 
+            require("lspconfig").nixd.setup({
+                on_attach = on_attach,
+                capabilities = capabilities,
+                cmd = { "nixd" },
+                settings = {
+                    nixd = {
+                        nixpkgs = {
+                            expr = "import <nixpkgs> { }",
+                        },
+                        formatting = {
+                            command = { "nixpkgs-fmt"},
+                        }
+                    },
+                    options = {
+                        nixos = {
+                            expr = '(builtins.getFlake "/home/tuliopaim/.dotfiles/nix).nixosConfigurations.nixos.options'
+                        },
+                        home_manager = {
+                            expr = '(builtins.getFlake "/home/tuliopaim/.dotfiles/nix).homeManagerConfigurations.tuliopaim.options'
+                        }
+                    }
+                }
+            })
+
             require('lspconfig').gopls.setup({
                 on_attach = on_attach,
                 capabilities = capabilities,
