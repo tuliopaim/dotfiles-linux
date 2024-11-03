@@ -1,4 +1,4 @@
-{ config, pkgs, hyprlandProfile, ... }:
+{ pkgs, hyprlandProfile, ... }:
 {
   imports = [
     ./xdg.nix
@@ -7,6 +7,7 @@
     ./gtk.nix
     ./hypridle.nix
     ./hyprlock
+    ./swaync
   ];
 
   home.packages = with pkgs; [
@@ -24,6 +25,7 @@
     swappy
     hyprcursor
     hyprpicker
+    libnotify
   ];
 
   home.file = {
