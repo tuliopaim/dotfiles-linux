@@ -43,5 +43,6 @@
     lm_sensors
     glow
     gnumake
+    eza
   ];
 }
