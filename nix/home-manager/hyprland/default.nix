@@ -6,13 +6,13 @@
     ./waybar
     ./gtk.nix
     ./hypridle.nix
+    ./hyprpaper.nix
     ./hyprlock
     ./swaync
   ];
 
   home.packages = with pkgs; [
     waybar
-    swww
     copyq
     rofi-wayland
     smile
