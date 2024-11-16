@@ -60,19 +60,7 @@
           finder.AppleShowAllExtensions = true;
           finder.FXPreferredViewStyle = "clmv";
           loginwindow.LoginwindowText = "tuliopaim";
-          screencapture.location = "~/Pictures/screenshots";
-          screensaver.askForPasswordDelay = 10;
         };
-
-
-        homebrew = {
-          enable = true;
-          casks = [
-            "nikitabobko/tap/aerospace"
-            "shottr"
-          ];
-        };
-
       };
     in
     {

@@ -1,4 +1,4 @@
-{ outputs, config, pkgs, pkgs-unstable, username, ... }:
+{ username, ... }:
 
 {
   home.username = username;
@@ -8,8 +8,6 @@
   imports = [
     ./apps.nix
     ./dev.nix
-    ../nix/home-manager/dev/dotnet.nix
-    ../nix/home-manager/terminal/alacritty.nix
     ../nix/home-manager/terminal/tmux.nix
     ../nix/home-manager/terminal/scripts.nix
     ../nix/home-manager/terminal/zsh.nix
@@ -17,6 +15,8 @@
 
   home.file = {
     ".config/aerospace/aerospace.toml".source = ./aerospace/aerospace.toml;
+    ".config/alacritty.toml".source = ../alacritty/alacritty.toml;
+    ".ideavimrc".source = ../ideavim/.ideavimrc;
   };
 
   programs = {

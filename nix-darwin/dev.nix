@@ -5,7 +5,6 @@
     (pkgs.lib.hiPrio pkgs.gcc)
     (pkgs.lib.lowPrio pkgs.clang)
     pkgs.cargo
-    pkgs.nodejs
     pkgs.yarn
     pkgs.go
     pkgs.gopls
@@ -13,17 +12,17 @@
 
     # dev tools
     pkgs-unstable.lazygit
-    pkgs.docker
-    pkgs.docker-compose
     pkgs.lazydocker
     pkgs.awscli
     pkgs.aws-sam-cli
     pkgs.terraform
-    pkgs.postman
     pkgs.postgresql
     pkgs.postgresql_jdbc
     pkgs.typescript
-    pkgs.dbeaver-bin
+
+    #dotnet stuff
+    pkgs-unstable.roslyn-ls
+    pkgs.netcoredbg
   ];
 
   home.sessionVariables = {
