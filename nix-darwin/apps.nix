@@ -31,5 +31,6 @@
     glow
     gnumake
     eza
+    stow
   ];
 }
