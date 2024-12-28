@@ -8,7 +8,6 @@
 
     plugins = with pkgs; [
       tmuxPlugins.sensible
-      tmuxPlugins.yank
       tmuxPlugins.resurrect
       tmuxPlugins.yank
       tmuxPlugins.vim-tmux-navigator
@@ -62,10 +61,6 @@
         bind -r C-j resize-pane -D
         bind -r C-h resize-pane -L 5
         bind -r C-l resize-pane -R 5
-        
-        # vim-like window switching
-        bind -n M-H previous-window 
-        bind -n M-L next-window 
         
         bind-key -T copy-mode-vi v send-keys -X begin-selection
         bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle
