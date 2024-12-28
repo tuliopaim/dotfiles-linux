@@ -18,6 +18,7 @@
       lg = "lazygit";
       lz = "lazydocker";
       cd = "z";
+      db = "dotnet build";
     };
 
     history = {
@@ -41,8 +42,8 @@
       export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
       export FZF_CTRL_T_OPTS="--preview 'bat --color=always --line-range :50 {}'"
 
-      export PATH="~/.local/bin:$PATH"
-      export PATH="$PATH:/usr/local/share/dotnet:~/.dotnet/tools"
+      export PATH="$PATH:~/.local/bind"
+      export PATH="$PATH:/usr/local/share/dotnet:/Users/tuliopaim/.dotnet/tools"
 
       function yy() {
         local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
