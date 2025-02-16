@@ -1,5 +1,6 @@
 return {
     'ThePrimeagen/git-worktree.nvim',
+    lazy = true,
     config = function()
         local worktree = require('git-worktree')
 

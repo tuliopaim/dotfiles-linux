@@ -12,8 +12,8 @@ vim.cmd("command Qa qa")
 
 -- Normal --
 -- Better window navigation
-vim.api.nvim_set_keymap('n', "<C-d>", "<C-d>zz", opts)
-vim.api.nvim_set_keymap('n', "<C-u>", "<C-u>zz", opts)
+--vim.api.nvim_set_keymap('n', "<C-d>", "<C-d>zz", opts)
+--vim.api.nvim_set_keymap('n', "<C-u>", "<C-u>zz", opts)
 vim.api.nvim_set_keymap('n', "<leader>v", ":vsplit<CR>", opts)
 vim.api.nvim_set_keymap('n', "<leader>b", ":split<CR>", opts)
 
