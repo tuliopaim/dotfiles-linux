@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+source ~/.zshrc  # If you store your API key in your zsh profile
+
+clear
+
+echo "$1" | pbcopy
+
+sanitize_input() {
+    # Escape special characters for JSON
+    echo "$1" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e "s/'/\\'/g" -e 's/\n/\\n/g' -e 's/\r/\\r/g' -e 's/\t/\\t/g'
+}
+
+# Input
+TEXT="$1"
+
+API_KEY=$GEMINI_API_KEY
+
+SANITIZED_TEXT=$(sanitize_input "$TEXT")
+
+SYSTEM_INSTRUCTION="You are a helpful assistant that fixes spelling and grammar errors. You are helping a brazilian developer to cominute with his peers in his remote job in the US. Return only the corrected version of the text. Use United States english."
+
+JSON_PAYLOAD=$(jq -n \
+    --arg instruction "$SYSTEM_INSTRUCTION" \
+    --arg text "$SANITIZED_TEXT" \
+    '{
+        system_instruction: {
+            parts: [
+                { text: $instruction }
+            ]
+        },
+        contents: [{
+            parts: [
+                { text: $text }
+            ]
+        }]
+    }')
+
+RESPONSE=$(curl -s "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$API_KEY" \
+    -H 'Content-Type: application/json' \
+    -X POST \
+    -d "$JSON_PAYLOAD" | jq -r '.candidates[0].content.parts[0].text')
+
+echo "$RESPONSE"
+
