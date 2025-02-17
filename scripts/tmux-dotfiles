@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if ! tmux has-session -t=dotfiles 2> /dev/null; then
-    tmux new-session -ds dotfiles -c ~/.dotfiles
+    tmux new-session -ds dotfiles -c ~/dotfiles
 fi
 
 tmux switch-client -t dotfiles

@@ -105,10 +105,10 @@ return {
                     },
                     options = {
                         nixos = {
-                            expr = '(builtins.getFlake "/home/tuliopaim/.dotfiles/nix).nixosConfigurations.nixos.options'
+                            expr = '(builtins.getFlake "/home/tuliopaim/dotfiles/nix).nixosConfigurations.nixos.options'
                         },
                         home_manager = {
-                            expr = '(builtins.getFlake "/home/tuliopaim/.dotfiles/nix).homeManagerConfigurations.tuliopaim.options'
+                            expr = '(builtins.getFlake "/home/tuliopaim/dotfiles/nix).homeManagerConfigurations.tuliopaim.options'
                         }
                     }
                 }
