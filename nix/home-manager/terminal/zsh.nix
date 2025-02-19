@@ -42,6 +42,7 @@
       export FZF_CTRL_T_OPTS="--preview 'bat --color=always --line-range :50 {}'"
 
       export PATH="~/.local/bin:$PATH"
+      export PATH="$PATH:/usr/local/share/dotnet:~/.dotnet/tools"
 
       function yy() {
         local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
@@ -57,8 +58,8 @@
       }
 
       eval "$(zoxide init zsh)"
-      eval "$(fnm env --use-on-cd --shell zsh)"
       eval "$(/opt/homebrew/bin/brew shellenv)"
+      eval "$(fnm env --use-on-cd --shell zsh)"
     '';
   };
 }
