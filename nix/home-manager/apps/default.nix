@@ -32,6 +32,7 @@
     ventoy-full
     mpv
     gimp-with-plugins
+    todoist-electron
 
     #qmk
     qmk
