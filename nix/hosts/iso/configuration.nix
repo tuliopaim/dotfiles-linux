@@ -1,37 +1,48 @@
-{ pkgs, modulesPath, lib, ... }:
+{ pkgs, lib, ... }:
 {
+  nixpkgs = {
+    hostPlatform = lib.mkDefault "x86_64-linux";
+    config.allowUnfree = true;
+  };
+
   imports = [
-    "${modulesPath}/installer/cd-dvd/installation-cd-graphical-gnome.nix"
+    ../../system/hyprland.nix
+    ../../system/locale.nix
+    ../../system/zsh.nix
+    ../../system/bluetooth.nix
   ];
 
-  nixpkgs.hostPlatform = "x86_64-linux";
-
-  programs = {
-    hyprland.enable = true;
-    zsh.enable = true;
-  };
-
-  # Nix flakes
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  # inotify
-  boot.kernel.sysctl."fs.inotify.max_user_instances" = 524288;
-
-  users.defaultUserShell = pkgs.zsh;
-
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
-  environment = {
-    variables = {
-      EDITOR = "nvim";
-      NIXOS_OZONE_WL = "1";
-    };
-    systemPackages = with pkgs; [
-      vim
-      neovim
-      git
-      alacritty
-      home-manager
-    ];
+  networking = {
+    hostName = "iso";
   };
+
+  environment.systemPackages = with pkgs; [
+    git
+    neovim
+    ansible
+    brave
+    wget
+    jq
+    fd
+    fzf
+    htop
+    ripgrep
+    tree
+    unzip
+    zip
+    zoxide
+    wl-clipboard
+    ansible
+    stow
+    killall
+    inotify-info
+    neofetch
+    gcalcli
+    playerctl
+    mono
+    exfat
+    zlib
+  ];
 }

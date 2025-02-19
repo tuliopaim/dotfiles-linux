@@ -24,10 +24,16 @@
       pkgs-unstable = nixpkgs-unstable.legacyPackages.${system};
     in
     {
-      iso = nixpkgs.lib.nixosSystem {
+      nixosConfigurations.iso = nixpkgs.lib.nixosSystem {
+        inherit system;
         modules = [
+          "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-graphical-gnome.nix"
+          "${nixpkgs}/nixos/modules/installer/cd-dvd/channel.nix"
           ./hosts/iso/configuration.nix
         ];
+        specialArgs = {
+          inherit inputs outputs;
+        };
       };
 
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
