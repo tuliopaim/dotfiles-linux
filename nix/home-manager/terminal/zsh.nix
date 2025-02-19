@@ -33,34 +33,36 @@
     };
 
     initExtra = ''
-      export FZF_DEFAULT_OPTS="--color=16 --color=fg+:#FF5E7D --color=bg+:#002B36 --color=hl:#B48EAD --color=fg:#839496"
-      export FZF_DEFAULT_COMMAND='fd --type f --strip-cwd-prefix -H'
 
-      export FZF_ALT_C_COMMAND="fd --type d . -H --strip-cwd-prefix"
-      export FZF_ALT_C_OPTS="--preview 'tree -C {}'"
+            export FZF_DEFAULT_OPTS="--color=16 --color=fg+:#FF5E7D --color=bg+:#002B36 --color=hl:#B48EAD --color=fg:#839496"
+            export FZF_DEFAULT_COMMAND='fd --type f --strip-cwd-prefix -H'
 
-      export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-      export FZF_CTRL_T_OPTS="--preview 'bat --color=always --line-range :50 {}'"
+            export FZF_ALT_C_COMMAND="fd --type d . -H --strip-cwd-prefix"
+            export FZF_ALT_C_OPTS="--preview 'tree -C {}'"
 
-      export PATH="$PATH:~/.local/bind"
-      export PATH="$PATH:/usr/local/share/dotnet:/Users/tuliopaim/.dotnet/tools"
+            export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+            export FZF_CTRL_T_OPTS="--preview 'bat --color=always --line-range :50 {}'"
 
-      function yy() {
-        local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
-        yazi "$@" --cwd-file="$tmp"
-        if cwd="$(cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
-            builtin cd -- "$cwd"
-        fi
-        rm -f -- "$tmp"
-      }
+            export PATH="$PATH:~/.local/bin"
+            export PATH="$PATH:/usr/local/share/dotnet:/Users/tuliopaim/.dotnet/tools"
+            export PATH="$PATH:$HOME/.dotfiles/scripts"
 
-      function killp(){
-          ps aux | fzf --height 40% --layout=reverse --prompt="Select a process to kill: " | awk '{print $2}' | xargs -r sudo kill
-      }
+            function yy() {
+              local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
+              yazi "$@" --cwd-file="$tmp"
+              if cwd="$(cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+                  builtin cd -- "$cwd"
+              fi
+              rm -f -- "$tmp"
+            }
 
-      eval "$(zoxide init zsh)"
-      eval "$(/opt/homebrew/bin/brew shellenv)"
-      eval "$(fnm env --use-on-cd --shell zsh)"
+            function killp(){
+                ps aux | fzf --height 40% --layout=reverse --prompt="Select a process to kill: " | awk '{print $2}' | xargs -r sudo kill
+            }
+
+            eval "$(zoxide init zsh)"
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+            eval "$(fnm env --use-on-cd --shell zsh)"
     '';
   };
 }
