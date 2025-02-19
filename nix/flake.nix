@@ -15,7 +15,6 @@
     { self
     , nixpkgs
     , home-manager
-    , nixpkgs-unstable
     , ...
     } @ inputs:
     let
