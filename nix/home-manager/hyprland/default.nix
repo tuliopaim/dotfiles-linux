@@ -13,6 +13,7 @@
     swww
     copyq
     rofi-wayland
+    smile
     networkmanagerapplet
     gnome-icon-theme
     pulseaudio
