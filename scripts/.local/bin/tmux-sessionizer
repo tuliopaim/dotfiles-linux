@@ -4,21 +4,18 @@ if [[ $# -eq 1 ]]; then
     selected=$1
 else
     selected=$(find \
-        ~/dev/tb \
-        ~/dev/**/**/wt \
-        ~/dev/personal \
-        -mindepth 1 -maxdepth 1 -type d | fzf)
+        ~/dev/tb/ \
+        ~/dev/personal/ \
+        -mindepth 1 -maxdepth 2 -type d -not -path '*/.*'| fzf)
 fi
 
 if [[ -z $selected ]]; then
     exit 0
 fi
 
-if [[ $selected == *"/wt/"* ]]; then
-    # Extract the last 3 levels of the path and join them with hyphens
-
+if [[ $selected == *"/dev/"* ]]; then
     IFS="/" read -ra path_levels <<< "$selected"
-    selected_name="${path_levels[-3]}-${path_levels[-1]}"
+    selected_name="${path_levels[-2]}-${path_levels[-1]}"
 else
     # Extract the last level of the path
     selected_name=$(basename "$selected")
