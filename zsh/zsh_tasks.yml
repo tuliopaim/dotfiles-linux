@@ -3,9 +3,13 @@
   block:
     - name: Changing Default Shell to ZSH
       become: yes
-      user: 
+      user:
         name: '{{ ansible_user_id }}'
-        shell: /bin/zsh
+        shell: /usr/bin/zsh
+
+    - name: Debug ansible_user_id
+      debug:
+        var: ansible_user_id
 
     - name: Check if Oh My Zsh is installed
       ansible.builtin.stat:

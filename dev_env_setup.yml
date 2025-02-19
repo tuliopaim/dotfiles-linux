@@ -23,9 +23,13 @@
           - gcc
           - fzf
           - xclip
+          - libfuse2
           - fonts-firacode
           - dotnet-sdk-6.0
           - dotnet-sdk-7.0
+          - code
+          - alacritty
+          - ripgrep
         state: present
 
     - name: Create symbolic links 
@@ -45,3 +49,21 @@
 
     - name: Setup Neovim
       include_tasks: ./nvim/nvim_tasks.yml
+
+    - name: Check if fnm install script exists
+      ansible.builtin.stat:
+        path: "/tmp/install_fnm.sh"
+      register: fnm_script_exists
+      become: yes
+
+    - name: Download fnm install script
+      ansible.builtin.get_url:
+        url: "https://raw.githubusercontent.com/Schniz/fnm/master/.ci/install.sh"
+        dest: "/tmp/install_fnm.sh"
+        mode: "0755"
+      when: not fnm_script_exists.stat.exists
+
+    - name: Execute fnm install script
+      ansible.builtin.shell: "/tmp/install_fnm.sh"
+      become: yes
+      when: not fnm_script_exists.stat.exists

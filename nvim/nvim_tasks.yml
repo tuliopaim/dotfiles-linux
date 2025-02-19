@@ -6,7 +6,7 @@
       stat:
         path: "{{ ansible_user_dir }}/nvim.appimage"
       register: nvim_appimage
-        
+
     - name: Download and install Neovim stable via AppImage
       become: yes
       get_url:
@@ -28,10 +28,17 @@
       when: not nvim_extracted.stat.exists
 
     - name: Move Neovim stable
-      ansible.builtin.shell: "mv {{ ansible_user_dir }}/squashfs-root /opt/nvim"
+      ansible.builtin.shell: "mv {{ ansible_user_dir }}/squashfs-root/* /opt/nvim/"
       become: yes
       args:
         creates: /opt/nvim
+
+    - name: Set executable permissions for Neovim binary
+      ansible.builtin.file:
+        path: /opt/nvim/usr/bin/nvim
+        mode: "u+x,g+x,o+x"
+        state: file
+      become: yes
 
     - name: Check if Neovim symlink exists
       stat:
@@ -41,7 +48,7 @@
     - name: Create symlink for Neovim stable
       become: yes
       ansible.builtin.file:
-        src: /opt/nvim-stable/usr/bin/nvim
+        src: /opt/nvim/usr/bin/nvim
         dest: /usr/local/bin/nvim
         state: link
         force: yes
@@ -58,3 +65,4 @@
         dest: "{{ ansible_user_dir }}/.local/share/nvim/site/pack/packer/start/packer.nvim"
         depth: 1
       when: not packer_nvim.stat.exists
+
