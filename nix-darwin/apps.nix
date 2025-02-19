@@ -9,15 +9,7 @@
   };
 
   home.packages = with pkgs; [
-    spotify
-    slack
-    obsidian
-    discord
     qmk
-    zoxide
-    teams
-    raycast
-
     wget
     jq
     fd
