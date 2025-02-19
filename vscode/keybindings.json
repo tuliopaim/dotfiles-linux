@@ -1,4 +1,3 @@
-// Place your key bindings in this file to override the defaults
 [
     // NAVIGATION
     {
@@ -12,7 +11,7 @@
         "when": "terminalFocus"
     },
     {
-        "key": "shift+j",
+        "key": "ctrl+shift+j",
         "command": "workbench.action.togglePanel"
     },
     {
