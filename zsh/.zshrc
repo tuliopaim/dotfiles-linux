@@ -25,7 +25,7 @@ fix_wsl2_interop() {
 
 
 # fzf
-export FZF_DEFAULT_OPTS='--no-height --color=bg+:#343d46,gutter:-1,pointer:#ff3c3c,info:#0dbc79,hl:#0dbc79,hl+:#23d18b'
+export FZF_DEFAULT_OPTS="--color=16 --color=fg+:#FF5E7D --color=bg+:#002B36 --color=hl:#B48EAD --color=fg:#839496"
 
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_CTRL_T_OPTS="--preview 'bat --color=always --line-range :50 {}'"
@@ -47,4 +47,7 @@ alias dotfiles='cd ~/.dotfiles'
 
 #dotnet
 
+ZSH_THEME="powerlevel10k/powerlevel10k"
+
+plugins=(zsh-autosuggestions)
 
