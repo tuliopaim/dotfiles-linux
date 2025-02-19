@@ -30,5 +30,6 @@
 
   home.file = {
     ".config/hypr/hyprland.conf".source = ./${hyprlandProfile}.conf;
+    ".config/hypr/common.conf".source = ./common.conf;
   };
 }
