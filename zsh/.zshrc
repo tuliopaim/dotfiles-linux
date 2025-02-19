@@ -1,8 +1,8 @@
 export ZSH=$HOME/.oh-my-zsh
 
-ZSH_THEME="robbyrussell"
+ZSH_THEME="amuse"
 DOTFILES="/home/$USER/.dotfiles"
-NVIM_FOLDER="$DOTFILES/nvim/.config/nvim/"
+NVIM_FOLDER="/home/$USER/.config/nvim/"
 
 plugins=(git zsh-autosuggestions vi-mode)
 
@@ -32,18 +32,22 @@ alias ......='cd ../../..'
 
 alias dev='cd ~/dev/'
 alias tb='cd ~/dev/tb'
+alias ems='cd ~/dev/tb/ems'
 alias personal='cd ~/dev/personal'
 
 alias dotfiles='cd $DOTFILES'
 alias nvimconfig='cd $NVIM_FOLDER'
 
+alias subup='sshtb && git submodule update --init --recursive'
 alias sshpersonal='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_personal_gh'
 alias sshtb='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_tb_gh'
-alias tm='$DOTFILES/scripts/tmux-sessionizer.sh'
+alias tm='tmux-sessionizer'
 
 alias lg='lazygit'
 alias lzd='lazydocker'
 alias us='~/.dotfiles/scripts/usersecrets.sh'
+
+export PATH="/home/tuliopaim/.local/bin:$PATH"
 
 # dotnet 
 export DOTNET_ROOT="/home/$USER/.dotnet"
