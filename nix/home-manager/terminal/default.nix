@@ -39,5 +39,6 @@
     mono
     exfat
     zlib
+    lm_sensors
   ];
 }
