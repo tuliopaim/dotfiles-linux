@@ -4,10 +4,11 @@
     config = {
       allowUnfree = true;
       allowUnfreePredicate = (_: true);
-      packageOverrides = pkgs: {
-        dotnet-ef = pkgs.callPackage ./dotnet-ef/default.nix { inherit pkgs; };
-      };
     };
+  };
+
+  home.sessionVariables = {
+    DOTNET_ROOT = "${pkgs.dotnet-sdk}";
   };
 
   home.packages = with pkgs; [
@@ -16,12 +17,11 @@
       sdk_7_0
       sdk_8_0
     ])
-    dotnet-ef
     jetbrains.rider
     netcoredbg
   ];
 
   home.file = {
-    ".ideavimrc".source = ../../../../ideavim/.ideavimrc;
+    ".ideavimrc".source = ../../../ideavim/.ideavimrc;
   };
 }
