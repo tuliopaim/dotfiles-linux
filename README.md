@@ -1,19 +1,5 @@
 ## My Development Environment Ansible Playbook
 
-## Usage
-
-### Clone repo
-
-``` bash
-git clone --recurse-submodules https://github.com/tuliopaim/dotfiles-wsl.git
-```
-
-### Install ansible
-
-``` bash
-sudo apt update && sudo apt install ansible -y
-```
-
 ### Run playbook
 
 ```bash
@@ -22,9 +8,26 @@ sudo apt update && sudo apt install ansible -y
 
 This Ansible playbook sets up a development environment on a local machine with various tools and configurations. Below is an overview of the tasks performed by the playbook:
 
+All configurations are applied for my 3 users.
+
 - Setup APT repositories
 - Install required packages
-- Setup SSH keys
 - Create symbolic links for configuration files
-- Setup ZSH shell with Oh My Zsh, Powerlevel10k theme, and zsh-autosuggestions
+- Setup ZSH shell with Oh My Zsh, Powerlevel10k theme, and zsh-autosuggestions, fzf
+- Setup tmux
+- Download and setup FiraCode Nerdfont
 - Setup Neovim with packer.nvim and additional configurations
+- Install .NET
+- Install docker
+
+### Manual steps:
+
+- Create the 3 users
+- Install Rider
+- Install gnome extensions ([Gnome Extensions](https://extensions.gnome.org/))
+     - sound-output-device-chooser
+     - Vitals
+     - unite
+     - user-theme
+- Set nvim as default git editor `git config --global core.editor "nvim"`
+
