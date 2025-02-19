@@ -1,7 +1,8 @@
 export ZSH=$HOME/.oh-my-zsh
 
 ZSH_THEME="robbyrussell"
-NVIM_FOLDER="~/.dotfiles/nvim/.config/nvim/"
+DOTFILES="/home/$USER/.dotfiles"
+NVIM_FOLDER="$DOTFILES/nvim/.config/nvim/"
 
 plugins=(git zsh-autosuggestions vi-mode)
 
@@ -28,22 +29,25 @@ alias ls='ls -la'
 alias ..='cd ..'
 alias ....='cd ../..'
 alias ......='cd ../../..'
+
 alias dev='cd ~/dev/'
 alias tb='cd ~/dev/tb'
 alias personal='cd ~/dev/personal'
-alias dotfiles='cd ~/.dotfiles'
+
+alias dotfiles='cd $DOTFILES'
 alias nvimconfig='cd $NVIM_FOLDER'
+
 alias sshpersonal='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_personal_gh'
 alias sshtb='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_tb_gh'
+alias tm='$DOTFILES/scripts/tmux-sessionizer.sh'
 
 alias lg='lazygit'
 alias lzd='lazydocker'
 alias us='~/.dotfiles/scripts/usersecrets.sh'
 
-
-# fnm
-export PATH="/home/tuliopaim/.local/share/fnm:$PATH"
-eval "`fnm env`"
+# dotnet 
+export DOTNET_ROOT="/home/$USER/.dotnet"
+export PATH=$PATH:/home/$USER/.dotnet:~/.dotnet/tools
 
 # fnm
 export PATH="/home/tuliopaim/.local/share/fnm:$PATH"
