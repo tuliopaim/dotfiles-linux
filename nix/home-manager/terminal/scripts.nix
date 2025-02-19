@@ -8,5 +8,6 @@
     (pkgs.writeShellScriptBin "tmux-dotfiles" (builtins.readFile ../../../scripts/tmux-dotfiles))
     (pkgs.writeShellScriptBin "tmux-vault" (builtins.readFile ../../../scripts/tmux-vault))
     (pkgs.writeShellScriptBin "usersecrets" (builtins.readFile ../../../scripts/usersecrets))
+    (pkgs.writeShellScriptBin "hyprshot" (builtins.readFile ../../../scripts/hyprshot))
   ];
 }
