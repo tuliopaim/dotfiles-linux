@@ -31,12 +31,15 @@ sethandler <c-d> a:vim
 sethandler <c-u> a:vim
 sethandler <c-j> a:vim
 sethandler <c-k> a:vim
+sethandler <c-i> a:vim
 
 " ide shortcuts
 sethandler <c-f> a:ide
 sethandler <c-r> a:ide
 sethandler <c-c> a:ide
 sethandler <c-v> a:ide
+sethandler <c-t> a:ide
+sethandler <c-y> a:ide
 
 " map leader from , to space
 let mapleader = "\<Space>"
@@ -63,10 +66,10 @@ nnoremap <c-k> <c-w>k
 nnoremap <c-j> <c-w>j
 
 " Resize splits
-nnoremap <leader>sh :action StretchSplitToLeft<CR>
-nnoremap <leader>sl :action StretchSplitToRight<CR>
-nnoremap <leader>sk :action StretchSplitToTop<CR>
-nnoremap <leader>sj :action StretchSplitToBottom<CR>
+nnoremap <leader>rh :action StretchSplitToLeft<CR>
+nnoremap <leader>rl :action StretchSplitToRight<CR>
+nnoremap <leader>rk :action StretchSplitToTop<CR>
+nnoremap <leader>rj :action StretchSplitToBottom<CR>
 
 " Jump between methods
 nnoremap [[ :action MethodUp<CR>
