@@ -6,7 +6,7 @@
     layout = [
       {
         label = "lock";
-        action = "sleep 1; ${pkgs.swaylock-effects}/bin/swaylock --screenshots --clock --indicator --effect-pixelate 6 --effect-blur 4x4";
+        action = "hyprlock";
         text = "Lock";
         keybind = "l";
       }
