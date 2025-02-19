@@ -113,3 +113,37 @@ vim.keymap.set("n", "<leader>oc", function()
 	require("copilot.panel").open({})
 end, { desc = "[O]pen [C]opilot panel" })
 
+-- Create TODO command to open daily notes in a float window
+vim.api.nvim_create_user_command("TODO", function()
+    -- Expand the home directory path
+    local file_path = vim.fn.expand("~/vault/DAILY NOTES.md")
+
+    -- Calculate window size (% of editor size)
+    local width = math.floor(vim.api.nvim_get_option("columns") * 0.35)
+    local height = math.floor(vim.api.nvim_get_option("lines") * 0.5)
+
+    -- Calculate starting position to center the window
+    local row = 0
+    local col = math.floor((vim.api.nvim_get_option("columns") - width))
+
+    -- Create the floating window
+    local buf = vim.api.nvim_create_buf(false, true)
+    local win_opts = {
+        relative = "editor",
+        width = width,
+        height = height,
+        row = row,
+        col = col,
+        style = "minimal",
+        border = "rounded",
+    }
+
+    local win = vim.api.nvim_open_win(buf, true, win_opts)
+
+    -- Set some window options
+    vim.api.nvim_win_set_option(win, "winblend", 0)
+    vim.api.nvim_win_set_option(win, "wrap", true)
+
+    -- Try to read the file into the buffer
+    vim.api.nvim_command("edit " .. file_path)
+end, {})
