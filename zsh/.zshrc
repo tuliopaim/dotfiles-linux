@@ -1,58 +1,77 @@
-export ZSH=$HOME/.oh-my-zsh
+# Initialize Homebrew
+eval "$(/opt/homebrew/bin/brew shellenv)"
 
+# Oh My Zsh configuration
+export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="amuse"
-DOTFILES="/home/$USER/.dotfiles"
-NVIM_FOLDER="/home/$USER/.config/nvim/"
 
-plugins=(git zsh-autosuggestions vi-mode)
+# Oh My Zsh plugins
+plugins=(git fzf-zsh-plugin)
+
+source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+source $(brew --prefix)/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
 
 source $ZSH/oh-my-zsh.sh
 
 # Enable vi mode
 bindkey -v
 
-# fzf
+# FZF configuration
 export FZF_DEFAULT_OPTS="--color=16 --color=fg+:#FF5E7D --color=bg+:#002B36 --color=hl:#B48EAD --color=fg:#839496"
-export FZF_DEFAULT_COMMAND='fd --type f --strip-cwd-prefix'
+export FZF_DE AULT_COMMAND='fd --type f --strip-cwd-prefix -H'
 
-export FZF_ALT_C_COMMAND="fd --type d . --strip-cwd-prefix"
+export FZF_ALT_C_COMMAND="fd --type d . -H --strip-cwd-prefix"
 export FZF_ALT_C_OPTS="--preview 'tree -C {}'"
 
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_CTRL_T_OPTS="--preview 'bat --color=always --line-range :50 {}'"
 
-# Enable fzf widget
-source /usr/share/fzf/key-bindings.zsh
-
-#aliases
-alias ls='ls -la'
-alias ..='cd ..'
-alias ....='cd ../..'
-alias ......='cd ../../..'
-
-alias nvimconfig='cd $NVIM_FOLDER'
-
-alias subup='sshtb && git submodule update --init --recursive'
-alias sshpersonal='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_personal_gh'
+# Aliases
+alias ls="eza -la"
+alias update="darwin-rebuild switch --flake ~/dotfiles/nix-darwin/.#macos"
+alias ..="cd .."
+alias ....="cd ../.."
+alias ......="cd ../../.."
 alias sshtb='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_tb_gh'
-alias tm='tmux-sessionizer'
+alias sshpersonal='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_personal_gh'
+alias lg="lazygit"
+alias lz="lazydocker"
+alias cd="z"
+alias db="dotnet build"
+alias tm="tmux-windownizer"
 
-alias k='kubectl'
+# History configuration
+HISTSIZE=10000
+HISTFILE="$HOME/.zsh_history"
+SAVEHIST=10000
 
-alias lg='lazygit'
-alias lzd='lazydocker'
-alias us='~/.dotfiles/scripts/usersecrets.sh'
+# PATH additions
+export PATH="$PATH:/opt/homebrew/bin:$PATH"
+export PATH="$PATH:$HOME/.local/bin"
+export PATH="$PATH:/usr/local/share/dotnet:/Users/tuliopaim/.dotnet/tools"
+export PATH="$PATH:$HOME/dotfiles/scripts"
 
-export PATH="/home/tuliopaim/.local/bin:$PATH"
+# Yazi function
+function yy() {
+    local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
+    yazi "$@" --cwd-file="$tmp"
+    if cwd="$(cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+        builtin cd -- "$cwd"
+    fi
+    rm -f -- "$tmp"
+}
 
-# dotnet 
-export DOTNET_ROOT="/home/$USER/.dotnet"
-export PATH=$PATH:/home/$USER/.dotnet:~/.dotnet/tools
+# Kill process function
+function killp(){
+    ps aux | fzf --height 40% --layout=reverse --prompt="Select a process to kill: " | awk '{print $2}' | xargs -r sudo kill
+}
 
-# fnm
-export PATH="/home/tuliopaim/.local/share/fnm:$PATH"
-eval "`fnm env`"
-
+# Initialize zoxide
 eval "$(zoxide init zsh)"
 
-alias cd='z'
+# Initialize fnm
+eval "$(fnm env --use-on-cd --shell zsh)"
+
+# Private 
+source $HOME/dotfiles/private.sh
