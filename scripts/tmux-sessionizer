@@ -4,7 +4,7 @@ if [[ $# -eq 1 ]]; then
     selected=$1
 else
     selected=$(find \
-        ~/.dotfiles/ \
+        ~/dotfiles/ \
         ~/dev/tb/ \
         ~/dev/personal/ \
         -mindepth 0 -maxdepth 2 -type d | fzf)

@@ -9,7 +9,7 @@
 
     shellAliases = {
       ls = "eza -la";
-      update = "darwin-rebuild switch --flake ~/.dotfiles/nix-darwin/.#macos";
+      update = "darwin-rebuild switch --flake ~/dotfiles/nix-darwin/.#macos";
       ".." = "cd ..";
       "...." = "cd ../..";
       "......" = "cd ../../..";
@@ -45,7 +45,7 @@
 
             export PATH="$PATH:~/.local/bin"
             export PATH="$PATH:/usr/local/share/dotnet:/Users/tuliopaim/.dotnet/tools"
-            export PATH="$PATH:$HOME/.dotfiles/scripts"
+            export PATH="$PATH:$HOME/dotfiles/scripts"
 
             function yy() {
               local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"

@@ -65,10 +65,10 @@
         bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle
         bind-key -T copy-mode-vi y send-keys -X copy-selection-and-cancel
         
-        bind-key -r F run-shell "tmux neww -t 99 $HOME/.dotfiles/scripts/tmux-sessionizer"
-        bind-key -r f run-shell "tmux neww -t 99 $HOME/.dotfiles/scripts/tmux-windownizer"
-        bind-key -r H run-shell "$HOME/.dotfiles/scripts/tmux-dotfiles"
-        bind-key -r J run-shell "$HOME/.dotfiles/scripts/tmux-vault vaults"
+        bind-key -r F run-shell "tmux neww -t 99 $HOME/dotfiles/scripts/tmux-sessionizer"
+        bind-key -r f run-shell "tmux neww -t 99 $HOME/dotfiles/scripts/tmux-windownizer"
+        bind-key -r H run-shell "$HOME/dotfiles/scripts/tmux-dotfiles"
+        bind-key -r J run-shell "$HOME/dotfiles/scripts/tmux-vault vaults"
         
         # remove default binding since replacing
         unbind %

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-cd /home/tuliopaim/.dotfiles/nix/home-manager/apps/vpn/openfortivpn-webview/
+cd /home/tuliopaim/dotfiles/nix/home-manager/apps/vpn/openfortivpn-webview/
 
 sudo .
 

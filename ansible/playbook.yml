@@ -4,7 +4,7 @@
   gather_facts: yes
   vars:
     home: "/home/tuliopaim"
-    dotfiles: "{{ home }}/.dotfiles"
+    dotfiles: "{{ home }}/dotfiles"
 
   tasks:
     - name: Install packages
@@ -49,13 +49,13 @@
     - name: Ensure symlinks.sh is present and executable
       become: no
       ansible.builtin.file:
-        path: "{{ home }}/.dotfiles/symlinks.sh"
+        path: "{{ home }}/dotfiles/symlinks.sh"
         mode: '0755'
       tags: [ 'symlinks' ]
 
     - name: Execute symlinks.sh
       become: no
-      command: "{{ home }}/.dotfiles/symlinks.sh"
+      command: "{{ home }}/dotfiles/symlinks.sh"
       tags: [ 'symlinks' ]
 
     - name: Setup dotnet

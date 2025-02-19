@@ -16,9 +16,9 @@ create_symlink() {
 mkdir -p ~/.config
 
 # Create symlinks
-create_symlink ~/.dotfiles/nvim ~/.config/nvim
-create_symlink ~/.dotfiles/ghostty ~/.config/ghostty
-create_symlink ~/.dotfiles/aerospace ~/.config/aerospace
-create_symlink ~/.dotfiles/ideavim/.ideavimrc ~/.ideavimrc
+create_symlink ~/dotfiles/nvim ~/.config/nvim
+create_symlink ~/dotfiles/ghostty ~/.config/ghostty
+create_symlink ~/dotfiles/aerospace ~/.config/aerospace
+create_symlink ~/dotfiles/ideavim/.ideavimrc ~/.ideavimrc
 
 echo "Symlink creation completed!"
