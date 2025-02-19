@@ -76,6 +76,7 @@
             force: yes
           loop:
             - { src: 'zsh/.zshrc', dest: '.zshrc' }
+            - { src: 'zsh/.p10k.zsh', dest: '.p10k.zsh' }
 
         - name: Check if Oh My Zsh is installed
           ansible.builtin.stat:
