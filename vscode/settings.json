@@ -15,11 +15,12 @@
         "**/*.md",
         "**/*.txt"
     ],
-    "markdown-pdf.displayHeaderFooter": false,
+    "zenMode.hideLineNumbers": false,
+    "editor.stickyScroll.enabled": true,
     "vsicons.dontShowNewVersionMessage": true,
     "workbench.iconTheme": "vscode-icons",
+    "editor.suggest.insertMode": "replace",
     "workbench.startupEditor": "newUntitledFile",
-    "git.autofetch": true,
     "diffEditor.wordWrap": "off",
     "terminal.integrated.fontFamily": "'Fira Code Nerd Font', Consolas, 'Courier New', monospace",
     "explorer.confirmDragAndDrop": false,
@@ -31,9 +32,10 @@
     "editor.lineNumbers": "relative",
     "editor.acceptSuggestionOnCommitCharacter": false,
     //VIM
-    "vim.cursorStypePerMode.normal": "block",
+    "vim.foldfix": false,
     "vim.smartRelativeLine": true,
     "vim.searchHighlightColor": "rgba(150, 255, 255, 0.3)",
+    "vim.highlightedyank.enable": true,
     "vim.incsearch": true,
     "vim.hlsearch": true,
     "vim.useSystemClipboard": false,
@@ -324,6 +326,26 @@
                 "workbench.view.testing.focus"
             ]
         },
+        {
+            "before": [
+                "<leader>",
+                "r",
+                "t"
+            ],
+            "commands": [
+                "testing.runAtCursor"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "r",
+                "d"
+            ],
+            "commands": [
+                "testing.debugAtCursor"
+            ]
+        },
         // Terminal
         {
             "before": [
@@ -398,6 +420,20 @@
                 }
             ]
         },
+        {
+            "before": [
+                "<leader>",
+                "r",
+                "n"
+            ],
+            "after": [],
+            "commands": [
+                {
+                    "command": "editor.action.rename"
+                }
+            ]
+        },
+
         // LSP
         {
             "before": [
@@ -583,5 +619,11 @@
     "workbench.colorTheme": "Catppuccin Mocha",
     "window.menuBarVisibility": "toggle",
     "vim.cursorStylePerMode.normal": "block",
-    "diffEditor.ignoreTrimWhitespace": false
+    "diffEditor.ignoreTrimWhitespace": false,
+    "explorer.autoReveal": false,
+    "files.watcherExclude": {
+        "**/.bloop": true,
+        "**/.metals": true,
+        "**/.ammonite": true
+    }
 }
