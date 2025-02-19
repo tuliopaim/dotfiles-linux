@@ -9,7 +9,7 @@
 
     shellAliases = {
       ls = "eza -la";
-      update = "sudo nixos-rebuild switch --flake ~/.dotfiles/nix";
+      update = "darwin-rebuild switch --flake ~/.dotfiles/nix-darwin/.#macos";
       ".." = "cd ..";
       "...." = "cd ../..";
       "......" = "cd ../../..";
@@ -43,8 +43,6 @@
 
       export PATH="~/.local/bin:$PATH"
 
-      export PATH=$PATH:/home/$USER/.dotnet:~/.dotnet/tools
-
       function yy() {
         local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
         yazi "$@" --cwd-file="$tmp"
@@ -59,6 +57,8 @@
       }
 
       eval "$(zoxide init zsh)"
+      eval "$(fnm env --use-on-cd --shell zsh)"
+      eval "$(/opt/homebrew/bin/brew shellenv)"
     '';
   };
 }
