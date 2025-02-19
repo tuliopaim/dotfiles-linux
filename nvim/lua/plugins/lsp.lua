@@ -1,14 +1,9 @@
-local on_attach = function(client, bufnr)
-    local telescope_builtin = require("telescope.builtin")
-
-    vim.keymap.set("n", "gi", vim.lsp.buf.implementation, {buffer = bufnr, desc = "[G]oto [I]mplementation"})
-
-    vim.keymap.set("n", 'gd', telescope_builtin.lsp_definitions, {buffer = bufnr, desc = '[G]oto [D]efinition' })
-    vim.keymap.set("n", "gr", telescope_builtin.lsp_references, {buffer = bufnr, desc = "LSP: [G]oto [R]eferences" })
-    vim.keymap.set("n", "gi", telescope_builtin.lsp_implementations, {buffer = bufnr, desc = "[G]o to [I]mplementations"})
-    vim.keymap.set("n", '<leader>D', telescope_builtin.lsp_type_definitions, {buffer = bufnr, desc = 'Type [D]efinition'})
-    vim.keymap.set("n", "<leader>ds", telescope_builtin.lsp_document_symbols, {buffer = bufnr, desc = "[D]ocument [S]ymbols"})
-    vim.keymap.set("n", "<leader>ws", telescope_builtin.lsp_dynamic_workspace_symbols, {buffer = bufnr, desc = "[W]orkspace [S]ymbols"})
+local on_attach = function(_, bufnr)
+    vim.keymap.set("n", 'gd', function() Snacks.picker.lsp_definitions() end, { buffer = bufnr, desc = '[G]oto [D]efinition' })
+    vim.keymap.set("n", "gr", function() Snacks.picker.lsp_references() end, { buffer = bufnr, desc = "LSP: [G]oto [R]eferences" })
+    vim.keymap.set("n", "gi", function() Snacks.picker.lsp_implementations() end, { buffer = bufnr, desc = "[G]o to [I]mplementations" })
+    vim.keymap.set("n", "<leader>ds", function() Snacks.picker.lsp_symbols() end, { buffer = bufnr, desc = "[D]ocument [S]ymbols" })
+    vim.keymap.set("n", "<leader>ws", function() Snacks.picker.lsp_workspace_symbols() end, { buffer = bufnr, desc = "[W]orkspace [S]ymbols" })
 
     vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, {buffer = bufnr, desc = "[R]e[n]ame"})
     vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, {buffer = bufnr, desc = "[C]ode [A]ction"})
