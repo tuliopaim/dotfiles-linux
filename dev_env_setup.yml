@@ -1,9 +1,7 @@
 ---
 - name: Setup Development Environment
-  hosts: localhost
-  gather_facts: yes
 
-  tasks:
+  block:
 
     - name: Setup APT repositories
       include_tasks: ./apt-repositories_tasks.yml
