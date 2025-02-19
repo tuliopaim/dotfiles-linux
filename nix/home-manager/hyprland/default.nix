@@ -3,7 +3,7 @@
   imports = [
     ./xdg.nix
     ./wlogout.nix
-    ./waybar.nix
+    ./waybar
     ./gtk.nix
     ./hypridle.nix
     ./hyprlock
