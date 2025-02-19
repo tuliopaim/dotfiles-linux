@@ -1,2 +1,3 @@
-#! /usr/bin/env sh
-ln -s ~/.dotfiles/nvim ~/.config
+#! /usr/bin/env 
+ln -s ~/.dotfiles/nvim ~/.config &
+ln -s ~/.dotfiles/ghostty ~/.config
