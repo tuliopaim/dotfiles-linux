@@ -1,2 +1,2 @@
-## My Development Environment Ansible Playbook
+## My Dotfiles with Nix
 
