@@ -6,6 +6,7 @@
     (pkgs.writeShellScriptBin "tmux-sessionizer" (builtins.readFile ../../../scripts/tmux-sessionizer))
     (pkgs.writeShellScriptBin "tmux-windownizer" (builtins.readFile ../../../scripts/tmux-windownizer))
     (pkgs.writeShellScriptBin "tmux-dotfiles" (builtins.readFile ../../../scripts/tmux-dotfiles))
+    (pkgs.writeShellScriptBin "tmux-vault" (builtins.readFile ../../../scripts/tmux-vault))
     (pkgs.writeShellScriptBin "usersecrets" (builtins.readFile ../../../scripts/usersecrets))
     (pkgs.writeShellScriptBin "lockscreentime" (builtins.readFile ../../../scripts/lockscreentime))
   ];
