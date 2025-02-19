@@ -41,5 +41,6 @@
     zlib
     age
     lm_sensors
+    glow
   ];
 }
