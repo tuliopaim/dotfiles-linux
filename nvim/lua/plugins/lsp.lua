@@ -73,6 +73,7 @@ return {
 
             -- DOTNET LSP
             require("roslyn").setup({
+                exe = { "Microsoft.CodeAnalysis.LanguageServer" },
                 config = {
                     on_attach = on_attach,
                     handlers = {

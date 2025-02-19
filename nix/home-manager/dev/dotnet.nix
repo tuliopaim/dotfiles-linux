@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, pkgs-unstable, ... }:
 {
   nixpkgs = {
     config = {
@@ -11,14 +11,15 @@
     DOTNET_ROOT = "${pkgs.dotnet-sdk}";
   };
 
-  home.packages = with pkgs; [
-    (with dotnetCorePackages; combinePackages [
+  home.packages = [
+    pkgs-unstable.roslyn-ls
+    (with pkgs.dotnetCorePackages; combinePackages [
       sdk_6_0
       sdk_7_0
       sdk_8_0
     ])
-    jetbrains.rider
-    netcoredbg
+    pkgs.jetbrains.rider
+    pkgs.netcoredbg
   ];
 
   home.file = {
