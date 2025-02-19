@@ -34,6 +34,7 @@
           - flameshot
           - copyq
         state: present
+        tags: ['packages']
 
     - name: Install bat
       block:
@@ -44,18 +45,21 @@
             src: /usr/bin/fdfind
             dest: /usr/bin/fd
             state: link
+          tags: ['packages']
 
         - name: Check if bat is installed
           command: dpkg-query -W -f='${Status}' bat-musl
           ignore_errors: yes
           register: bat_installed
           changed_when: false
+          tags: ['packages']
 
         - name: Download bat if not installed
           get_url:
             url: "https://github.com/sharkdp/bat/releases/download/v0.23.0/bat-musl_0.23.0_amd64.deb"
             dest: "/tmp/bat-musl_0.23.0_amd64.deb"
           when: "'installed' not in bat_installed.stdout"
+          tags: ['packages']
 
         - name: Install bat
           apt:
@@ -63,3 +67,4 @@
             state: present
           become: yes
           when: "'installed' not in bat_installed.stdout"
+          tags: ['packages']
