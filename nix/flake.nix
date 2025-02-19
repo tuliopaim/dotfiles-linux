@@ -39,6 +39,7 @@
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
         inherit system;
         specialArgs = {
+          inherit pkgs inputs outputs;
           username = "tuliopaim";
           hostname = "nixos";
         };
