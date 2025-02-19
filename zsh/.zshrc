@@ -37,7 +37,6 @@ export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -50'"
 
 #aliases
 
-alias ls='/bin/ls -a'
 alias ..='cd ..'
 alias ....='cd ../..'
 alias ......='cd ../../..'
@@ -47,9 +46,5 @@ alias tutpa='cd /mnt/c/Users/tutpa'
 alias dotfiles='cd ~/.dotfiles'
 
 #dotnet
-
-export PATH=$HOME/dotnet:$PATH
-export PATH=$HOME/dotnet/tools:$PATH
-export DOTNET_ROOT=$HOME/dotnet
 
 
