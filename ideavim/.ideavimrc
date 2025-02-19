@@ -128,7 +128,6 @@ map <leader>df :action ToggleFullScreen<CR>
 map <leader>ff :action GotoFile<CR>
 map <leader>fa :action GotoAction<CR>
 map <leader>fn :action NewScratchFile<CR>
-map <leader>fd :action Find<CR>
 map <leader>fs :action FindInPath<CR>
 
 " Auto ident lines
@@ -147,13 +146,17 @@ nnoremap gr :action FindUsages<CR>
 nnoremap gi :action GotoImplementation<CR>
 nnoremap gd :action GotoDeclaration<CR>
 nnoremap gt :action GotoTest<CR>
+nnoremap fd :action FileStructurePopup<CR>
 nnoremap <leader>k :action ShowErrorDescription<CR>
+nnoremap <leader>ca :action CallInlineCompletionAction<CR>
+
 
 " Build
 nnoremap <leader>rs :action RebuildSolutionAction<CR>
 nnoremap <leader>rc :action CleanSolutionAction<CR>
 nnoremap <leader>rp :action ManageRecentProjects<CR>
 
+nnoremap ]e :action GotoNextError<CR>
 nnoremap ge :action ReSharperGotoNextErrorInSolution<CR>
 nnoremap gE :action GotoPreviousError<CR>
 
