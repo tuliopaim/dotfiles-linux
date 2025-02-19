@@ -61,7 +61,7 @@ export PATH="/usr/local/bin/nvim:$PATH"
 
 # dotnet 
 export DOTNET_ROOT=/usr/local/share/.dotnet
-export PATH=$PATH:/usr/local/share/.dotnet:/usr/local/share/.dotnet/tools
+export PATH=$PATH:/usr/local/share/.dotnet:~/.dotnet/tools
 
 # fnm
 # export PATH="/usr/local/share/.fnm:$PATH"
