@@ -28,6 +28,7 @@
 
     #qmk
     qmk
+    via
     vial
     keymapviz
   ];
