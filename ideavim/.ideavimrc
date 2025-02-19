@@ -1,15 +1,25 @@
+set scrolloff=10
 set number relativenumber
 set showmode 
+set showcmd
+set visualbell
+
+set ignorecase
+set smartcase
+set incsearch
+set hlsearch
 
 set ideajoin
 
-" no bells
-set visualbell
-set noerrorbells
+" plugins
+set NERDTree
+set multiple-cursors
+set highlightedyank
+set easymotion
+set notimeout
+set which-key
 
 " vim shortcuts
-sethandler <c-j> a:vim
-sethandler <c-k> a:vim
 sethandler <c-h> a:vim
 sethandler <c-l> a:vim
 sethandler <c-w> a:vim
@@ -19,6 +29,8 @@ sethandler <c-a> a:vim
 sethandler <c-g> a:vim
 sethandler <c-d> a:vim
 sethandler <c-u> a:vim
+sethandler <c-j> a:vim
+sethandler <c-k> a:vim
 
 " ide shortcuts
 sethandler <c-f> a:ide
@@ -29,84 +41,195 @@ sethandler <c-v> a:ide
 " map leader from , to space
 let mapleader = "\<Space>"
 
-" Window Navigation
+" Split
 nnoremap <leader>v :action SplitVertically<CR>
 nnoremap <leader>b :action SplitHorizontally<CR>
 nnoremap <leader>= :action Unsplit<CR>
-
 nnoremap <leader>l :action MoveEditorToOppositeTabGroup<CR>
 
+" Move between splits
 nnoremap <c-h> <c-w>h
 nnoremap <c-l> <c-w>l
 nnoremap <c-k> <c-w>k
 nnoremap <c-j> <c-w>j
 
-nnoremap <leader>ih :action StretchSplitToLeft<CR>
-nnoremap <leader>il :action StretchSplitToRight<CR>
-nnoremap <leader>ik :action StretchSplitToTop<CR>
-nnoremap <leader>ij :action StretchSplitToBottom<CR>
+" Resize splits
+nnoremap <leader>sh :action StretchSplitToLeft<CR>
+nnoremap <leader>sl :action StretchSplitToRight<CR>
+nnoremap <leader>sk :action StretchSplitToTop<CR>
+nnoremap <leader>sj :action StretchSplitToBottom<CR>
 
-nnoremap <leader>x :action CloseEditor<CR>
-nnoremap <leader>ax :action CloseAllEditors<CR>
-nnoremap <leader>gm :action Git.Menu<CR>
+" Jump between methods
+nnoremap [[ <Action>(MethodUp)
+nnoremap ]] <Action>(MethodDown)
 
-" Code editing
-nnoremap <leader>r :action Refactorings.QuickListPopupAction<CR>
-nnoremap ge :action ReSharperGotoNextErrorInSolution<CR>
-nnoremap gE :action GotoPreviousError<CR>
-nnoremap zc :action CollapseRegion<CR>
-nnoremap zo :action ExpandRegion<CR>
+" Tab Close / Pin
+nnoremap <leader>tp :action PinActiveTabToggle<CR>
+nnoremap <leader>tx :action CloseEditor<CR>
+nnoremap <leader>ta :action CloseAllEditors<CR>
 
-nnoremap <leader>pt :action PinActiveTabToggle<CR>
+" Terminal
+nnoremap <leader>tr :action ActivateTerminalToolWindow<CR>
+
+" Tab navigation
+nnoremap gk :tabnext<CR>
+nnoremap gj :tabprev<CR>\
+
+" Hide all the non-code windows
 nnoremap <leader>ha :action HideAllWindows<CR>
 
-nnoremap gk gt
-nnoremap gj gT
-
-nnoremap <leader>zc :action CollapseAllRegions<CR>
-nnoremap <leader>zo :action ExpandAllRegions<CR>
-
-" dont paste the deleted value
-nnoremap <leader>p "0p
-
-nnoremap <leader>y "+y
-vnoremap <leader>y "+y
-nnoremap <leader>Y "+Y
-
-nnoremap = :action AutoIndentLines<CR>
-
+" Visual indentation
 vnoremap < <gv
 vnoremap > >gv
 
+" Popup navigation
+inoremap <C-j> <Action>(PopupMenu-selectNext)
+inoremap <C-k> <Action>(PopupMenu-selectPrev)
+
 " Git
-nnoremap <c-g> :action Vcs.QuickListPopupAction<CR>
+map <leader>gm <Action>(Git.Menu)
+map <leader>gs <Action>(ActivateVersionControlToolWindow)
+map <leader>gc <Action>(ActivateCommitToolWindow)
+map <leader>gb <Action>(Gt.Branches)
+map <leader>gpl <Action>(Gt.Pull)
+map <leader>gps <Action>(Gt.Push)
 
-" Source Code Navigation
-set incsearch
+" Regions
+nnoremap zc <action>(CollapseRegion)
+nnoremap zo <action>(ExpandRegion)
+nnoremap <leader>zc <action>(CollapseAllRegions)
+nnoremap <leader>zo <action>(ExpandAllRegions)
 
-nnoremap <c-p> :action SearchEverywhere<CR>
-nnoremap <c-t> :action GotoFile<CR>
-nnoremap <leader>f :action GotoFile<CR>
-nnoremap gr :action FindUsages<CR>
-nnoremap gi :action GotoImplementation<CR>
-nnoremap gd :action GotoDeclaration<CR>
+" Comment lines
+map <leader>c <action>(CommentByLineComment)
 
-" Terminal
-nnoremap <leader>t :action ActivateTerminalToolWindow<CR>
+" Jump around with easymotion
+map <leader>j <Plug>(easymotion-s)
+
+" Display options
+map <leader>dd <action>(ToggleDistractionFreeMode)
+map <leader>dz <action>(ToggleZenMode)
+map <leader>df <action>(ToggleFullScreen)
+
+" File navigation
+map <leader>ff <action>(GotoFile)
+map <leader>fr <action>(RecentFiles)
+map <leader>fc <action>(FindInPath)
+map <leader>fl <action>(RecentLocations)
+map <leader>fs <action>(NewScratchFile)
+map <leader>fa :action SearchEverywhere<CR>
+
+e Auto ident lines
+nnoremap = :action AutoIndentLines<CR>
+
+" Refactoring
+map <leader>rn <Action>(RenameElement)
+map <leader>rm <Action>(ExtractMethod)
+map <leader>rv <Action>(IntroduceVariable)
+map <leader>rf <Action>(IntroduceField)
+map <leader>rs <Action>(ChangeSignature)
+map <leader>rr <Action>(Refactorings.QuickListPopupAction)
+
+" LSP
+nnoremap gr <action>(FindUsages)
+nnoremap gi <action>(GotoImplementation)
+nnoremap gd <action>(GotoDeclaration)
+nnoremap gt <action>(GotoTest)
 
 " Build
 nnoremap <leader>rs :action RebuildSolutionAction<CR>
-nnoremap <leader>cs :action CleanSolutionAction<CR>
-nnoremap <leader>rsp :action RebuildStartupProject<CR>
+nnoremap <leader>rc :action CleanSolutionAction<CR>
+nnoremap <leader>rps :action RebuildStartupProject<CR>
 
-" NERDTree"
-set NERDTree
+nnoremap ge <Action>(ReSharperGotoNextErrorInSolution)
+nnoremap gE <Action>(GotoPreviousError)
 
+" paste the last yanked content
+map <leader>p "0p
+
+"Copy to clipboard
+map <leader>y "+y
+map <leader>y "+y
+
+" nerd tree
 let g:NERDTreeMapJumpParent='h'
-
-nmap <Leader>. :NERDTreeFocus<CR>
+map <Leader>. :NERDTreeFocus<CR>
 map <Leader>e :NERDTreeToggle<CR>
 
-" multiple-cursors
 
-set multiple-cursors
+" Which-key settings
+set which-key
+
+let g:WhichKey_FontSize = 16
+let g:WhichKey_CommandColor = "#41ead4"
+let g:WhichKey_PrefixColor = "#f335b2"
+let g:WhichKey_SortOrder = "by_key_prefix_first"
+
+let g:WhichKeyDesc_leader = "<leader> Leader key"
+
+let g:WhichKeyDesc_leader = "<leader>. Focus on file explorer"
+let g:WhichKeyDesc_leader_toggle = "<leader>e Toggle file explorer"
+
+let g:WhichKeyDesc_easymotion = "<leader>j Jump with Easymotion"
+let g:WhichKeyDesc_easymotion_prefix = "<leader><leader>"
+
+let g:WhichKeyDesc_comment = "<leader>c Comment line"
+
+let g:WhichKeyDesc_paste_yanked = "<leader>p Paste yanked"
+
+let g:WhichKeyDesc_fold = "<leader>z Folding"
+let g:WhichKeyDesc_fold_all = "<leader>zc Fold all regions"
+let g:WhichKeyDesc_unfold_all = "<leader>zo Unfold all regions"
+
+let g:WhichKeyDesc_window_split_vertical = "<leader>v Split Vertically"
+let g:WhichKeyDesc_window_split_horizontal = "<leader>b Split Horizontally"
+let g:WhichKeyDesc_window_split_insplit = "<leader>= Unsplit"
+let g:WhichKeyDesc_window_split_move_editor = "<leader>l Move editor to opposite"
+
+let g:WhichKeyDesc_window = "<leader>s Resize Splits"
+let g:WhichKeyDesc_window_resize_split_left = "<leader>sh Resize left"
+let g:WhichKeyDesc_window_resize_split_right = "<leader>sl Resize right"
+let g:WhichKeyDesc_window_resize_split_bottom = "<leader>sj Resize Botton"
+let g:WhichKeyDesc_window_resize_split_top = "<leader>sk Resize Top"
+
+let g:WhichKeyDesc_display = "<leader>d Display options"
+let g:WhichKeyDesc_zen_mode = "<leader>dz Toggle Zen mode"
+let g:WhichKeyDesc_df_mode = "<leader>dd Toggle Distraction-Free mode"
+let g:WhichKeyDesc_fullscreen = "<leader>df Toggle full screen"
+
+let g:WhichKeyDesc_file_nav = "<leader>f File navigation"
+let g:WhichKeyDesc_file_nav_goto_everywhere = "<leader>fa Search everywhere"
+let g:WhichKeyDesc_file_nav_goto_file = "<leader>ff Go to file"
+let g:WhichKeyDesc_file_nav_goto_content = "<leader>fc Search for file content"
+let g:WhichKeyDesc_file_nav_show_recent_files = "<leader>fr Show recent files"
+let g:WhichKeyDesc_file_nav_show_recent_locations = "<leader>fl Show recent locations"
+
+let g:WhichKeyDesc_tab = "<leader>t Tab Management"
+let g:WhichKeyDesc_tab_pin = "<leader>tp Pin tab"
+let g:WhichKeyDesc_tab_close = "<leader>tx Close tab"
+let g:WhichKeyDesc_tab_close_all = "<leader>ta Close all tabs"
+
+let g:WhichKeyDesc_terminal = "<leader>tr Open Terminal"
+
+let g:WhichKeyDesc_refactoring = "<leader>r Refactoring menu"
+let g:WhichKeyDesc_refactoring_rename = "<leader>rn Rename element"
+let g:WhichKeyDesc_refactoring_method = "<leader>rm Extract method"
+let g:WhichKeyDesc_refactoring_variable = "<leader>rv Introduce variable"
+let g:WhichKeyDesc_refactoring_field = "<leader>rf Introduce field"
+let g:WhichKeyDesc_refactoring_signature = "<leader>rs Change signature"
+let g:WhichKeyDesc_refactoring_all = "<leader>rr Open refactorings list"
+
+let g:WhichKeyDesc_git = "<leader>g Git operations"
+let g:WhichKeyDesc_git_menu = "<leader>gm Open Git menu"
+let g:WhichKeyDesc_git_status = "<leader>gs Open Git status"
+let g:WhichKeyDesc_git_commit = "<leader>gc Open Git commit dialog"
+let g:WhichKeyDesc_git_branches = "<leader>gb Open Git branches list"
+let g:WhichKeyDesc_git_pull = "<leader>gpl Git pull"
+let g:WhichKeyDesc_git_push = "<leader>gps Git push"
+
+let g:WhichKeyDesc_rebuild = "<leader>r Rebuild operations"
+let g:WhichKeyDesc_rebuild_solution = "<leader>rs Rebuild solution"
+let g:WhichKeyDesc_rebuild_solution_clean = "<leader>rc Clean solution"
+let g:WhichKeyDesc_rebuild_startup_project = "<leader>rps Rebuild startup project"
+
+let g:WhichKeyDesc_copy = "<leader>y Copy to clipboard"
