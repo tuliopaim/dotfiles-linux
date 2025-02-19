@@ -11,6 +11,10 @@ vim.api.nvim_set_keymap("", "<Space>", "<Nop>", opts)
 vim.api.nvim_set_keymap('n', "<C-d>", "<C-d>zz", opts)
 vim.api.nvim_set_keymap('n', "<C-u>", "<C-u>zz", opts)
 
+-- Copy and pasting to clipboard
+vim.api.nvim_set_keymap('n', '<leader>y', '"+y', { noremap = true })
+vim.api.nvim_set_keymap('n', '<leader>p', '"+p', { noremap = true })
+
 -- Tabs
 -- Move to previous/next
 vim.api.nvim_set_keymap('n', 'gj', ':bprev<enter>', opts)
