@@ -1,12 +1,12 @@
 [
     // NAVIGATION
     {
-        "key": "shift+a",
+        "key": "ctrl+n",
         "command": "workbench.action.terminal.focusNext",
         "when": "terminalFocus"
     },
     {
-        "key": "shift+b",
+        "key": "ctrl+p",
         "command": "workbench.action.terminal.focusPrevious",
         "when": "terminalFocus"
     },
