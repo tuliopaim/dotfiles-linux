@@ -372,6 +372,32 @@
                 }
             ]
         },
+        {
+            "before": [
+                "<leader>",
+                "f",
+                "d"
+            ],
+            "after": [],
+            "commands": [
+                {
+                    "command": "action.find"
+                }
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "f",
+                "s"
+            ],
+            "after": [],
+            "commands": [
+                {
+                    "command": "workbench.action.findInFiles"
+                }
+            ]
+        },
         // LSP
         {
             "before": [
@@ -406,6 +432,45 @@
             "commands": [
                 {
                     "command": "editor.action.goToReferences"
+                }
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "g",
+                "c"
+            ],
+            "after": [],
+            "commands": [
+                {
+                    "command": "workbench.view.scm"
+                }
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "g",
+                "b"
+            ],
+            "after": [],
+            "commands": [
+                {
+                    "command": "gitlens.views.branches.focus"
+                }
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "g",
+                "w"
+            ],
+            "after": [],
+            "commands": [
+                {
+                    "command": "gitlens.views.worktrees.focus"
                 }
             ]
         },
