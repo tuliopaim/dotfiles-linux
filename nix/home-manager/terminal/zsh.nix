@@ -54,6 +54,10 @@
         rm -f -- "$tmp"
       }
 
+      function killp(){
+          ps aux | fzf --height 40% --layout=reverse --prompt="Select a process to kill: " | awk '{print $2}' | xargs -r sudo kill
+      }
+
       eval "$(zoxide init zsh)"
     '';
   };
