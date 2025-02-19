@@ -1,6 +1,3 @@
-[alias]
-	home = config --global user.email tutpaim@gmail.com
-	tb = config --global user.email tulio.p@thinkbridge.com
 [user]
 	email = tutpaim@gmail.com
 	name = tuliopaim
@@ -11,6 +8,8 @@
 [core]
 	ignorecase = false
 	editor = nvim
+	eol = lf
+	autocrlf = false
 [push]
 	autoSetupRemote = true
 [safe]
