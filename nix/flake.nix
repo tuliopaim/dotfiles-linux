@@ -44,7 +44,7 @@
           hostname = "nixos";
         };
         modules = [
-          ./hosts/desktop/configuration.nix
+          ./hosts/laptop/configuration.nix
         ];
       };
 
@@ -54,10 +54,10 @@
           inherit inputs outputs;
           inherit pkgs-unstable;
           username = "tuliopaim";
-          hyprlandProfile = "desktop";
+          hyprlandProfile = "laptop";
         };
         modules = [
-          ./hosts/desktop/home.nix
+          ./hosts/laptop/home.nix
         ];
       };
 
