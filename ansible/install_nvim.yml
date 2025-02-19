@@ -1,0 +1,109 @@
+---
+- name: Install and configure neovim
+  vars:
+    neovim_url: https://github.com/neovim/neovim/releases/download/stable/nvim.appimage
+    packer_repo: https://github.com/wbthomason/packer.nvim
+  block:
+    - name: Check if Neovim AppImage is downloaded
+      stat:
+        path: "{{ ansible_user_dir }}/nvim.appimage"
+      register: nvim_appimage
+
+    - name: Download and install Neovim stable via AppImage
+      become: yes
+      get_url:
+        url: "{{ neovim_url }}"
+        dest: "{{ ansible_user_dir }}"
+        mode: 0755
+      when: not nvim_appimage.stat.exists
+
+    - name: Extract, move, set permissions and symlink Neovim if not already done
+      block:
+        - name: Check if Neovim is extracted
+          stat:
+            path: "{{ ansible_user_dir }}/squashfs-root"
+          register: nvim_extracted
+
+        - name: Extract Neovim stable from AppImage
+          command: "{{ ansible_user_dir }}/nvim.appimage --appimage-extract"
+          become: yes
+          args:
+            chdir: "{{ ansible_user_dir }}"
+          when: not nvim_extracted.stat.exists
+
+        - name: Ensure /opt/nvim directory exists and has correct permissions for developer group
+          become: yes
+          ansible.builtin.file:
+            path: /opt/nvim
+            state: directory
+            mode: '0775'
+            group: developer
+            recurse: yes 
+
+        - name: Move Neovim stable
+          become: yes
+          ansible.builtin.shell: "mv {{ ansible_user_dir }}/squashfs-root/* /opt/nvim/"
+          when: not nvim_extracted.stat.exists
+
+        - name: Set executable permissions for Neovim binary
+          ansible.builtin.file:
+            path: /opt/nvim/usr/bin/nvim
+            mode: "u+x,g+x,o+x"
+            group: developer
+            state: file
+          become: yes
+          when: not nvim_extracted.stat.exists
+
+        - name: Check if Neovim symlink exists
+          stat:
+            path: /usr/local/bin/nvim
+          register: nvim_symlink
+
+        - name: Create symlink for Neovim stable
+          become: yes
+          ansible.builtin.file:
+            src: /opt/nvim/usr/bin/nvim
+            dest: /usr/local/bin/nvim
+            state: link
+            force: yes
+          when: not nvim_symlink.stat.exists
+
+    - name: Create destination directory for packer.nvim for user
+      become: yes
+      file:
+        path: "/home/{{ item }}/.local/share/nvim/site/pack/packer/start/packer.nvim"
+        state: directory
+        owner: "{{ item }}"
+        group: "{{ item }}"
+        mode: 0755
+      loop: "{{ users }}"
+
+    - name: Clone packer.nvim for each user if not already done and set correct ownership
+      block:
+      - name: Create necessary directories for each user
+        become: yes
+        become_user: "{{ item }}"
+        ansible.builtin.file:
+          path: "/home/{{ item }}/.local/share/nvim/site/pack/packer/start"
+          state: directory
+          mode: '0755'
+        loop: "{{ users }}"
+        
+      - name: Clone packer.nvim for each user
+        become: yes
+        become_user: "{{ item }}"
+        git:
+          repo: "https://github.com/wbthomason/packer.nvim"
+          dest: "/home/{{ item }}/.local/share/nvim/site/pack/packer/start/packer.nvim"
+          depth: 1
+        loop: "{{ users }}"
+        
+      - name: Set correct ownership for packer.nvim directory for each user
+        become: yes
+        ansible.builtin.file:
+          path: "/home/{{ item }}/.local/share/nvim/site/pack/packer"
+          owner: "{{ item }}"
+          group: "{{ item }}"
+          recurse: yes
+        loop: "{{ users }}"
+      tags: ['neovim', 'packer.nvim']

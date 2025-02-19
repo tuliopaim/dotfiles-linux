@@ -5,7 +5,8 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-export ZSH="$HOME/.oh-my-zsh"
+export ZSH_DISABLE_COMPFIX=true
+export ZSH="/usr/local/share/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(zsh-autosuggestions)
 
@@ -14,32 +15,25 @@ source $ZSH/oh-my-zsh.sh
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-# Fix Interop Error that randomly occurs in vscode terminal when using WSL2
-fix_wsl2_interop() {
-    for i in $(pstree -np -s $$ | grep -o -E '[0-9]+'); do
-        if [[ -e "/run/WSL/${i}_interop" ]]; then
-            export WSL_INTEROP=/run/WSL/${i}_interop
-        fi
-    done
-}
-
 # Generated for envman. Do not edit.
 [ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
 
+# Enable vi mode
+bindkey -v
 
 # fzf
-export FZF_DEFAULT_OPTS="--color=16 --color=fg+:#FF5E7D --color=bg+:#002B36 --color=hl:#B48EAD --color=fg:#839496"
+export FZF_DEFAULT_COMMAND='fd --type f --strip-cwd-prefix'
+
+export FZF_ALT_C_COMMAND="fd --type d . --strip-cwd-prefix"
+export FZF_ALT_C_OPTS="--preview 'tree -C {}'"
 
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_CTRL_T_OPTS="--preview 'bat --color=always --line-range :50 {}'"
-
-export FZF_ALT_C_COMMAND="$FZF_DEFAULT_COMMAND --type d . --color=never --hidden"
-export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -50'"
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+export FZF_TMUX_OPTS='-p80%,60%'
 
 # Enable fzf widget
 source /usr/share/doc/fzf/examples/key-bindings.zsh
+source /usr/share/doc/fzf/examples/completion.zsh
 
 #aliases
 alias ls='ls -la'
@@ -47,8 +41,7 @@ alias ..='cd ..'
 alias ....='cd ../..'
 alias ......='cd ../../..'
 alias dev='cd ~/dev/'
-alias tb='cd ~/dev/tb/'
-alias dotfiles='cd ~/.dotfiles'
+alias dotfiles='cd /usr/local/share/.dotfiles'
 
 alias sshpersonal='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_personal_gh'
 alias sshtb='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_tb_gh'
@@ -57,33 +50,21 @@ alias gp='git pull'
 alias gps='git push'
 alias gs='git status'
 
-alias fh='history | fzf --tac | awk '\''{$1=""; print $0}'\'' | xargs -r -I{} fc -s {}'
-
-# Enable vi mode
-bindkey -v
-
-# bindkey '\t' autosuggest-accept
-bindkey -M vicmd 'j' vi-down-line-or-history
-bindkey -M vicmd 'k' vi-up-line-or-history
-
 bindkey '^ ' autosuggest-accept
 
-# Bind Ctrl+R to fzf-history-widget
-bindkey "^R" fzf-history-widget
+alias fh='history | fzf --tac | awk '\''{$1=""; print $0}'\'' | xargs -r -I{} fc -s {}'
 
 # No error beep
 setopt no_beep
 
 export PATH="/usr/local/bin/nvim:$PATH"
 
-ZSH_THEME="powerlevel10k/powerlevel10k"
-
-plugins=(zsh-autosuggestions)
-
 # dotnet 
-export DOTNET_ROOT=$HOME/.dotnet
-export PATH=$PATH:$HOME/.dotnet:$HOME/.dotnet/tools
+export DOTNET_ROOT=/usr/local/share/.dotnet
+export PATH=$PATH:/usr/local/share/.dotnet:/usr/local/share/.dotnet/tools
 
 # fnm
-export PATH="/home/tuliopaim/.local/share/fnm:$PATH"
-eval "`fnm env`"
+# export PATH="/usr/local/share/.fnm:$PATH"
+# eval "`fnm env`"
+
+export FZF_DEFAULT_OPTS="--color=16 --color=fg+:#FF5E7D --color=bg+:#002B36 --color=hl:#B48EAD --color=fg:#839496"

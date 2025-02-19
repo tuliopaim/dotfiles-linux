@@ -1,0 +1,12 @@
+---
+- name: Check if tmux tpm is installed
+  stat:
+    path: "{{ share }}/.tmux/plugins/tpm"
+  register: tmux
+
+- name: Clone tmux tpm
+  git:
+    repo: https://github.com/tmux-plugins/tpm
+    dest: "{{ share }}/.tmux/plugins/tpm"  
+    depth: 1
+  when: not tmux.stat.exists

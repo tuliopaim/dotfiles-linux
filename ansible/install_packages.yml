@@ -1,0 +1,65 @@
+---
+- name: Install and configure ZSH
+  block:
+    - name: Install required packages
+      become: yes
+      ansible.builtin.apt:
+        name:
+          - htop
+          - curl
+          - tree
+          - bash-completion
+          - make
+          - python3-pip
+          - zsh
+          - tmux
+          - git
+          - unzip
+          - gcc
+          - fzf
+          - fd-find
+          - xclip
+          - libfuse2
+          - code
+          - alacritty
+          - ripgrep
+          - snapd
+          - aptitude
+          - apt-transport-https
+          - ca-certificates
+          - software-properties-common
+          - python3-pip
+          - virtualenv
+          - python3-setuptools
+          - flameshot
+          - copyq
+        state: present
+
+    - name: Install bat
+      block:
+
+        - name: Create symlink from fdfind to fd
+          become: yes
+          file:
+            src: /usr/bin/fdfind
+            dest: /usr/bin/fd
+            state: link
+
+        - name: Check if bat is installed
+          command: dpkg-query -W -f='${Status}' bat-musl
+          ignore_errors: yes
+          register: bat_installed
+          changed_when: false
+
+        - name: Download bat if not installed
+          get_url:
+            url: "https://github.com/sharkdp/bat/releases/download/v0.23.0/bat-musl_0.23.0_amd64.deb"
+            dest: "/tmp/bat-musl_0.23.0_amd64.deb"
+          when: "'installed' not in bat_installed.stdout"
+
+        - name: Install bat
+          apt:
+            deb: "/tmp/bat-musl_0.23.0_amd64.deb"
+            state: present
+          become: yes
+          when: "'installed' not in bat_installed.stdout"

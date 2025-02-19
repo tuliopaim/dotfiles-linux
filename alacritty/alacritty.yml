@@ -14,6 +14,9 @@ font:
     family: FiraCode Nerd Font
     style: Italic
 
+  fallback:
+    - family: Monospace
+
   # Point size of the font
   size: 15.0
 
