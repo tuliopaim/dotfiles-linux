@@ -1,30 +1,32 @@
 { pkgs, pkgs-unstable, ... }:
 {
-  home.packages = with pkgs; [
+  home.packages = [
     # langs
-    (lib.hiPrio gcc)
-    (lib.lowPrio clang)
-    cargo
-    nodejs
-    yarn
-    go
-    gopls
-    nixd
+    (pkgs.lib.hiPrio pkgs.gcc)
+    (pkgs.lib.lowPrio pkgs.clang)
+    pkgs.cargo
+    pkgs.nodejs
+    pkgs.yarn
+    pkgs.go
+    pkgs.gopls
+    pkgs.nixd
 
     # dev tools
     pkgs-unstable.neovim
     pkgs-unstable.lazygit
-    docker
-    docker-compose
-    lazydocker
-    awscli
-    aws-sam-cli
-    terraform
-    postman
-    postgresql
-    postgresql_jdbc
-    typescript
-    dbeaver-bin
+    pkgs.docker
+    pkgs.docker-compose
+    pkgs.lazydocker
+    pkgs.awscli
+    pkgs.aws-sam-cli
+    pkgs.terraform
+    pkgs.postman
+    pkgs.postgresql
+    pkgs.postgresql_jdbc
+    pkgs.typescript
+    pkgs.dbeaver-bin
+
+    pkgs.citrix_workspace
   ];
 
   home.sessionVariables = {
