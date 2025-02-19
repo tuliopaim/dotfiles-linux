@@ -49,9 +49,3 @@
 
     - name: Setup Neovim
       include_tasks: nvim/nvim_tasks.yml
-
-
-
-
-
-
