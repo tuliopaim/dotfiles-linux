@@ -17,7 +17,7 @@ window#waybar {
 }
 
 #window {
-    margin: 6px;
+    margin: 6px 4px;
     padding-left: 8;
     padding-right: 8;
 }
@@ -131,6 +131,12 @@ button:hover {
 #network {
     color: @yellow;
     border-bottom: 2px solid @yellow;
+}
+
+#custom-notification {
+    color: @maroon;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 #custom-power {
