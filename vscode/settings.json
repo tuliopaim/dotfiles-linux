@@ -293,7 +293,6 @@
         {
             "before": [
                 "<leader>",
-                "t",
                 "x"
             ],
             "after": [],
@@ -307,14 +306,25 @@
         {
             "before": [
                 "<leader>",
-                "t",
-                "a"
+                "a",
+                "x"
             ],
             "after": [],
             "commands": [
                 {
                     "command": "workbench.action.closeAllEditor"
                 }
+            ]
+        },
+        // Tests
+        {
+            "before": [
+                "<leader>",
+                "t",
+                "t"
+            ],
+            "commands": [
+                "workbench.view.testing.focus"
             ]
         },
         // Terminal
@@ -326,6 +336,16 @@
             ],
             "commands": [
                 "workbench.action.terminal.focus"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "t",
+                "h"
+            ],
+            "commands": [
+                "workbench.action.togglePanel"
             ]
         },
         // find 
@@ -501,5 +521,6 @@
     "workbench.colorTheme": "Catppuccin Mocha",
     "window.menuBarVisibility": "toggle",
     "vim.cursorStylePerMode.normal": "block",
-    "diffEditor.ignoreTrimWhitespace": false
+    "diffEditor.ignoreTrimWhitespace": false,
+    "window.zoomLevel": -1
 }
