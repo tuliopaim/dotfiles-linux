@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+if [[ $# -eq 1 ]]; then
+    selected=$1
+else
+    selected=$(find \
+        ~/dev/tb/ \
+        ~/dev/personal/ \
+        -mindepth 0 -maxdepth 2 -type d | fzf)
+fi
+
+if [[ -z $selected ]]; then
+    exit 0
+fi
+
+IFS="/" read -ra path_levels <<< "$selected"
+repo_name=${path_levels[-2]}
+branch_name=${path_levels[-1]}
+
+tmux_running=$(pgrep tmux)
+
+# Start a new tmux session if tmux is not running and we're not inside tmux
+if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
+    tmux new-session -s $repo_name -n $branch_name -c $selected
+    exit 0
+fi
+
+# Check if the session already exists
+if ! tmux has-session -t=$repo_name 2> /dev/null; then
+    tmux new-session -ds $repo_name -n $branch_name -c $selected
+fi
+
+# Check if the window exists within the session
+if ! tmux list-windows -t $repo_name | grep -q "\b$branch_name\b"; then
+    tmux new-window -t $repo_name -n $branch_name -c $selected
+fi
+
+# Switch to the session and window
+tmux switch-client -t $repo_name
+
+# Check again if the window exists before switching to it
+if tmux list-windows -t $repo_name | grep -q "\b$branch_name\b"; then
+    tmux select-window -t $branch_name
+fi
