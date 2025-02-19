@@ -28,5 +28,5 @@
 
 - name: Add users do docker group
   become: yes
-  shell: usermod -aG docker tuliopaim &&  usermod -aG docker p1  && usermod -aG docker p2
+  shell: usermod -aG docker tuliopaim
   tags: ['docker']

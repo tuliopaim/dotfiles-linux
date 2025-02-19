@@ -3,32 +3,13 @@
   hosts: localhost
   gather_facts: yes
   vars:
-    users:
-      - 'tuliopaim'
-      - 'p1'
-
-    dotfiles: "{{ share }}/.dotfiles"
-    share: "/usr/local/share"
+    home: "/home/tuliopaim"
+    dotfiles: "{{ home }}/.dotfiles"
 
   tasks:
     - name: Install packages
       include_tasks: install_packages.yml
       tags: ['packages']
-
-    - name: Set necessary permissions on shared folders
-      become: yes
-      file:
-        path: "{{ item }}"
-        owner: 'tuliopaim'
-        group: 'tuliopaim'
-        mode: '0775'
-        recurse: yes  
-      loop: "{{ links }}"
-      vars:
-        links:
-          - "{{ share }}"
-          - "{{ dotfiles }}"
-      tags: ['zsh', 'tmux', 'nvim', 'symbolic-links', 'permissions']
 
     - name: Setup Oh My Zsh
       include_tasks: install_oh_my_zsh.yml
@@ -57,21 +38,27 @@
       block:
       - name: Check if tmux tpm is installed
         stat:
-          path: "{{ share }}/.tmux/plugins/tpm"
+          path: "{{ home }}/.tmux/plugins/tpm"
         register: tmux
         tags: ['tmux']
 
       - name: Clone tmux tpm
         git:
           repo: https://github.com/tmux-plugins/tpm
-          dest: "{{ share }}/.tmux/plugins/tpm"  
+          dest: "{{ home }}/.tmux/plugins/tpm"  
           depth: 1
         when: not tmux.stat.exists
         tags: ['tmux']
 
-    - name: Create symbolic links for all users
-      include_tasks: create_symlinks.yml
-      tags: ['symbolic-links', 'permissions']
+    - name: Ensure symlinks.sh is present and executable
+      become: no
+      ansible.builtin.file:
+        path: "~/symlinks.sh"
+        mode: '0755'
+
+    - name: Execute symlinks.sh
+      become: no
+      command: "~/symlinks.sh"
 
     - name: Setup dotnet
       include_tasks: install_dotnet.yml
