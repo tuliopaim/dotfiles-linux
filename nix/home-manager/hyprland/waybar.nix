@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, hyprlandProfile, ... }:
 {
 
   home.packages = with pkgs; [
@@ -6,7 +6,7 @@
   ];
 
   home.file = {
-    ".config/waybar/config.jsonc".source = ../../../waybar/config.jsonc;
-    ".config/waybar/style.css".source = ../../../waybar/style.css;
+    ".config/waybar/config.jsonc".source = ../../../waybar/config-${hyprlandProfile}.jsonc;
+    ".config/waybar/style.css".source = ../../../waybar/style-${hyprlandProfile}.css;
   };
 }

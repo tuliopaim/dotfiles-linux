@@ -1,0 +1,233 @@
+{
+    "layer": "top", // Waybar at top layer
+    "height": 25, // Waybar height (to be removed for auto height)
+    "spacing": 4, // Gaps between modules (4px)
+    "modules-left": [
+        "hyprland/workspaces",
+        "custom/pipe",
+        "group/links",
+        "custom/pipe",
+        "cpu",
+        "memory",
+        "temperature",
+    ],
+    "modules-center": [
+        "hyprland/window"
+    ],
+    "modules-right": [
+        "pulseaudio",
+        "clock",
+        "backlight",
+        "battery",
+        "custom/power",
+        "tray"
+    ],
+    "group/links": {
+        "orientation": "horizontal",
+        "modules": [
+            "custom/chatgpt",
+            "custom/bitwarden"
+        ]
+    },
+    "hyprland/workspaces": {
+        "disable-scroll": true,
+        "all-outputs": true,
+        "warp-on-scroll": false,
+        "format": "{icon}",
+        "format-icons": {
+            "1": "1", // terminal
+            "2": "2", // personal browser
+            "3": "3", // IDE
+            "4": "4", // tools (files..)
+            "5": "5", // second monitor stuff
+            "6": "6", // work browser 
+            "7": "7", // slack + obsidian 
+            "8": "8", // brush
+            "9": "9" // random
+        }
+    },
+    // Hyprland Window
+    "hyprland/window": {
+        "rewrite": {
+            "(.*) - Brave": "$1",
+            "(.*) - Brave Search": "$1",
+            "(.*) - Microsoft Edge": "$1",
+            "(.*) - Outlook": "$1",
+            "(.*) Microsoft Teams": "$1",
+            "tmux(.*)": "TMUX"
+        },
+        "separate-outputs": true
+    },
+    // Pipe
+    "custom/pipe": {
+        "format": "|"
+    },
+    // ChatGPT Launcher
+    "custom/chatgpt": {
+        "format": "",
+        "on-click": "brave --app=https://chat.openai.com",
+        "tooltip-format": "Open ChatGPT"
+    },
+    // Bitwarden Launcher
+    "custom/bitwarden": {
+        "format": "",
+        "on-click": "brave --app=https://vault.bitwarden.com/#/login",
+        "tooltip-format": "Open Bitwarden"
+    },
+    "keyboard-state": {
+        "numlock": true,
+        "capslock": true,
+        "format": "{name} {icon}",
+        "format-icons": {
+            "locked": "",
+            "unlocked": ""
+        }
+    },
+    "sway/mode": {
+        "format": "<span style=\"italic\">{}</span>"
+    },
+    "sway/scratchpad": {
+        "format": "{icon} {count}",
+        "show-empty": false,
+        "format-icons": [
+            "",
+            ""
+        ],
+        "tooltip": true,
+        "tooltip-format": "{app}: {title}"
+    },
+    "mpd": {
+        "format": "{stateIcon} {consumeIcon}{randomIcon}{repeatIcon}{singleIcon}{artist} - {album} - {title} ({elapsedTime:%M:%S}/{totalTime:%M:%S}) ⸨{songPosition}|{queueLength}⸩ {volume}% ",
+        "format-disconnected": "Disconnected ",
+        "format-stopped": "{consumeIcon}{randomIcon}{repeatIcon}{singleIcon}Stopped ",
+        "unknown-tag": "N/A",
+        "interval": 2,
+        "consume-icons": {
+            "on": " "
+        },
+        "random-icons": {
+            "off": "<span color=\"#f53c3c\"></span> ",
+            "on": " "
+        },
+        "repeat-icons": {
+            "on": " "
+        },
+        "single-icons": {
+            "on": "1 "
+        },
+        "state-icons": {
+            "paused": "",
+            "playing": ""
+        },
+        "tooltip-format": "MPD (connected)",
+        "tooltip-format-disconnected": "MPD (disconnected)"
+    },
+    "idle_inhibitor": {
+        "format": "{icon}",
+        "format-icons": {
+            "activated": "",
+            "deactivated": ""
+        }
+    },
+    "tray": {
+        "spacing": 10
+    },
+    "clock": {
+        "format": "{:%m-%d - %H:%M}",
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+        "format-alt": "{:%Y-%m-%d}",
+        "calendar": {
+            "mode": "year",
+            "mode-mon-col": 3,
+            "on-scroll": 1,
+            "on-click-right": "mode",
+            "format": {
+                "months": "<span color='#ffead3'><b>{}</b></span>",
+                "days": "<span color='#ecc6d9'><b>{}</b></span>",
+                "weeks": "<span color='#99ffdd'><b>W{}</b></span>",
+                "weekdays": "<span color='#ffcc66'><b>{}</b></span>",
+                "today": "<span color='#ff6699'><b><u>{}</u></b></span>"
+            }
+        },
+    },
+    "backlight": {
+        "device": "intel_backlight",
+        "format": "<span color='#2da14c'>{icon}</span> {percent}%",
+        "format-icons": ["", "", "", "", "", "", "", "", ""],
+        "on-scroll-up": "brightnessctl set +2%",
+        "on-scroll-down": "brightnessctl set 2%-",
+        "interval": 2
+    },
+    // CPU
+    "cpu": {
+        "format": "{usage}% ",
+        "tooltip": false,
+        "on-click": "alacritty -e htop"
+    },
+    // Memory
+    "memory": {
+        "format": "{}% ",
+        "on-click": "alacritty -e htop"
+    },
+    // Temperature
+    "temperature": {
+        "critical-threshold": 80,
+        "format": "{temperatureC}°C {icon}",
+        "format-icons": [
+            "",
+            "",
+            ""
+        ]
+    },
+    // Power Menu
+    "custom/power": {
+        "format": "󰐥",
+        "on-click": "wlogout",
+        "tooltip": false
+    },
+    "battery": {
+        "states": {
+            // "good": 95,
+            "warning": 30,
+            "critical": 15
+        },
+        "format": "{capacity}% {icon}",
+        "format-charging": "{capacity}% 󰂄",
+        "format-plugged": "{capacity}% ",
+        "format-alt": "{time} {icon}",
+        "format-icons": [
+            "",
+            "",
+            "",
+            "",
+            ""
+        ]
+    },
+    "battery#bat2": {
+        "bat": "BAT2"
+    },
+    "network": {
+        "format-wifi": "{essid} ({signalStrength}%) ",
+        "format-ethernet": "{ipaddr}/{cidr} ",
+        "tooltip-format": "{ifname} via {gwaddr} ",
+        "format-linked": "{ifname} (No IP) ",
+        "format-disconnected": "Disconnected ⚠",
+        "format-alt": "{ifname}: {ipaddr}/{cidr}"
+    },
+    "pulseaudio": {
+        "format": "{volume}% {icon} {format_source}",
+        "format-source-muted": "",
+        "format-icons": {
+            "headphone": "",
+            "phone": "",
+            "portable": "",
+            "car": "",
+            "default": [
+                "",
+                "",
+                ""
+            ]
+        },
+        "on-click": "pavucontrol"
+    }
+}
