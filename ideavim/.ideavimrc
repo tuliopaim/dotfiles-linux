@@ -60,8 +60,8 @@ nnoremap <leader>sk :action StretchSplitToTop<CR>
 nnoremap <leader>sj :action StretchSplitToBottom<CR>
 
 " Jump between methods
-nnoremap [[ <Action>(MethodUp)
-nnoremap ]] <Action>(MethodDown)
+nnoremap [[ :action MethodUp<CR>
+nnoremap ]] :action MethodDown<CR>
 
 " Tab Close / Pin
 nnoremap <leader>tp :action PinActiveTabToggle<CR>
@@ -73,7 +73,7 @@ nnoremap <leader>tr :action ActivateTerminalToolWindow<CR>
 
 " Tab navigation
 nnoremap gk :tabnext<CR>
-nnoremap gj :tabprev<CR>\
+nnoremap gj :tabprev<CR>
 
 " Hide all the non-code windows
 nnoremap <leader>ha :action HideAllWindows<CR>
@@ -83,12 +83,12 @@ vnoremap < <gv
 vnoremap > >gv
 
 " Git
-map <leader>gm <Action>(Git.Menu)
-map <leader>gs <Action>(ActivateVersionControlToolWindow)
-map <leader>gc <Action>(ActivateCommitToolWindow)
-map <leader>gb <Action>(Gt.Branches)
-map <leader>gpl <Action>(Gt.Pull)
-map <leader>gps <Action>(Gt.Push)
+map <leader>gm :action Git.Menu<CR>
+map <leader>gs :action ActivateVersionControlToolWindow<CR>
+map <leader>gc :action ActivateCommitToolWindow<CR>
+map <leader>gb :action Git.Branches<CR>
+map <leader>gpl :action Git.Pull<CR>
+map <leader>gps :action Git.Push<CR>
 
 " Regions
 nnoremap zc <action>(CollapseRegion)
@@ -119,26 +119,26 @@ map <leader>fa :action SearchEverywhere<CR>
 nnoremap = :action AutoIndentLines<CR>
 
 " Refactoring
-map <leader>rn <Action>(RenameElement)
-map <leader>rm <Action>(ExtractMethod)
-map <leader>rv <Action>(IntroduceVariable)
-map <leader>rf <Action>(IntroduceField)
-map <leader>rs <Action>(ChangeSignature)
-map <leader>rr <Action>(Refactorings.QuickListPopupAction)
+map <leader>rn :action RenameElement<CR>
+map <leader>rm :action ExtractMethod<CR>
+map <leader>rv :action IntroduceVariable<CR>
+map <leader>rf :action IntroduceField<CR>
+map <leader>rs :action ChangeSignature<CR>
+map <leader>rr :action Refactorings.QuickListPopupAction<CR>
 
 " LSP
-nnoremap gr <action>(FindUsages)
-nnoremap gi <action>(GotoImplementation)
-nnoremap gd <action>(GotoDeclaration)
-nnoremap gt <action>(GotoTest)
+nnoremap gr :action FindUsages<CR>
+nnoremap gi :action GotoImplementation<CR>
+nnoremap gd :action GotoDeclaration<CR>
+nnoremap gt :action GotoTest<CR>
 
 " Build
 nnoremap <leader>rs :action RebuildSolutionAction<CR>
 nnoremap <leader>rc :action CleanSolutionAction<CR>
 nnoremap <leader>rps :action RebuildStartupProject<CR>
 
-nnoremap ge <Action>(ReSharperGotoNextErrorInSolution)
-nnoremap gE <Action>(GotoPreviousError)
+nnoremap ge :action ReSharperGotoNextErrorInSolution<CR>
+nnoremap gE :action GotoPreviousError<CR>
 
 " paste the last yanked content
 map <leader>p "0p
@@ -151,10 +151,6 @@ map <leader>y "+y
 let g:NERDTreeMapJumpParent='h'
 map <Leader>. :NERDTreeFocus<CR>
 map <Leader>e :NERDTreeToggle<CR>
-
-
-" Which-key settings
-set which-key
 
 let g:WhichKey_FontSize = 16
 let g:WhichKey_CommandColor = "#41ead4"
