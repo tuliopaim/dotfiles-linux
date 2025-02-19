@@ -1,4 +1,4 @@
-{ username, ... }:
+{ username, pkgs, ... }:
 
 {
   home.username = username;
@@ -6,12 +6,33 @@
   home.stateVersion = "24.05";
 
   imports = [
-    ./apps.nix
-    ./dev.nix
     ../nix/home-manager/terminal/tmux.nix
-    ../nix/home-manager/terminal/zsh.nix
   ];
+  home.sessionVariables = {
+    EDITOR = "nvim";
+  };
 
+  home.packages = [
+    pkgs.exfat
+
+    # langs
+    (pkgs.lib.hiPrio pkgs.gcc)
+    (pkgs.lib.lowPrio pkgs.clang)
+    pkgs.cargo
+    pkgs.yarn
+    pkgs.go
+    pkgs.gopls
+    pkgs.nixd
+
+    # dev tools
+    pkgs.lazydocker
+    pkgs.terraform
+    pkgs.postgresql
+    pkgs.postgresql_jdbc
+
+    #dotnet stuff
+    pkgs.netcoredbg
+  ];
   programs = {
     home-manager = {
       enable = true;
