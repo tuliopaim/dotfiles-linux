@@ -15,28 +15,12 @@
     - name: Install Oh My Zsh
       become: yes
       shell: >
-        sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh | 
-        sed 's/env zsh -l//g')"
+        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
       args:
         creates: "{{ home }}/.oh-my-zsh"
       environment:
         ZSH: "{{ home }}/.oh-my-zsh"
       when: not zsh_folder.stat.exists
-
-    - name: Check if Powerlevel10k is installed
-      ansible.builtin.stat:
-        path: "{{ home }}/.oh-my-zsh/custom/themes/powerlevel10k"
-      register: powerlevel10k_folder
-
-    - name: Install Powerlevel10k
-      become: yes
-      git:
-        repo: https://github.com/romkatv/powerlevel10k.git
-        dest: "/usr/local/share/.oh-my-zsh/custom/themes/powerlevel10k"
-        clone: yes
-        depth: 1
-        force: yes
-      when: not powerlevel10k_folder.stat.exists
 
     - name: Check if zsh-autosuggestions is installed
       ansible.builtin.stat:
