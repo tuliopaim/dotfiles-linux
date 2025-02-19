@@ -88,7 +88,7 @@ return {
             })
 
             require("mason-lspconfig").setup({
-                ensure_installed = { "cssls", "docker_compose_language_service", "dockerls", "eslint", "rnix", "tsserver" }
+                ensure_installed = { "cssls", "docker_compose_language_service", "dockerls", "eslint", "rnix", "ts_ls" }
             })
 
             require('lspconfig').lua_ls.setup({
