@@ -89,7 +89,9 @@ return {
                 }
             })
 
-            require("mason-lspconfig").setup()
+            require("mason-lspconfig").setup({
+                ensure_installed = { "cssls", "docker_compose_language_service", "dockerls", "eslint", "rnix", "tsserver" }
+            })
 
             -- Default handlers for LSP
 			local default_handlers = {
