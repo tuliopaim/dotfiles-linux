@@ -25,7 +25,6 @@
     cinnamon.nemo-with-extensions
     mongodb-compass
     vesktop
-    virtualbox
     woeusb
     blueman
     baobab
