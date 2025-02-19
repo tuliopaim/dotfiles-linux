@@ -48,9 +48,9 @@ return {
         event = { "BufReadPre", "BufNewFile" },
         dependencies = {
             "neovim/nvim-lspconfig",
-			"hrsh7th/cmp-nvim-lsp",
             "folke/neodev.nvim",
             "Decodetalkers/csharpls-extended-lsp.nvim",
+            "folke/snacks.nvim"
         },
         config = function()
             vim.diagnostic.config({
@@ -59,17 +59,15 @@ return {
                 float = {
                     style = 'minimal',
                     border = 'rounded',
-                    source = 'always',
                     header = '',
                     prefix = '',
                 },
             })
 
-            local cmp_nvim_lsp = require("cmp_nvim_lsp")
             local capabilities = vim.tbl_deep_extend(
                 "force",
                 vim.lsp.protocol.make_client_capabilities(),
-                cmp_nvim_lsp.default_capabilities()
+                require('blink-cmp').get_lsp_capabilities()
             )
 
             require("mason-lspconfig").setup({
