@@ -16,7 +16,7 @@
       "ctrl+minus" = "change_font_size all -2.0";
     };
     settings = {
-      background_opacity = "0.9";
+      background_opacity = "0.95";
       enable_audio_bell = "no";
     };
   };

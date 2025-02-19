@@ -32,6 +32,7 @@
     shotcut
     ventoy-full
     mpv
+    gimp-with-plugins
 
     #qmk
     qmk
