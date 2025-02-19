@@ -42,15 +42,12 @@ export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -50'"
 source /usr/share/doc/fzf/examples/key-bindings.zsh
 
 #aliases
-
 alias ls='ls -la'
 alias ..='cd ..'
 alias ....='cd ../..'
 alias ......='cd ../../..'
-alias dev='cd /mnt/c/dev/'
-alias thinkb='cd /mnt/c/ThinkB/'
-alias c='cd /mnt/c/'
-alias tutpa='cd /mnt/c/Users/tutpa'
+alias dev='cd ~/dev/'
+alias tb='cd ~/dev/tb/'
 alias dotfiles='cd ~/.dotfiles'
 
 alias sshpersonal='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_personal_gh'
@@ -78,7 +75,6 @@ bindkey "^R" fzf-history-widget
 setopt no_beep
 
 export PATH="/usr/local/bin/nvim:$PATH"
-export GIT_CONFIG=~/.gitconfig
 
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
