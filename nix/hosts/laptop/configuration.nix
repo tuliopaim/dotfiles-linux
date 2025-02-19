@@ -7,6 +7,7 @@
       ../../system/sddm
       ../../system/nvidia.nix
       ../../system/nix.nix
+      ../../system/ssh.nix
       ../../system/boot.nix
       ../../system/bluetooth.nix
       ../../system/hyprland.nix
