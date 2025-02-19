@@ -39,6 +39,7 @@
           - git
           - unzip
           - gcc
+          - fzf
           - fonts-firacode
           - dotnet-sdk-6.0
           - dotnet-sdk-7.0
