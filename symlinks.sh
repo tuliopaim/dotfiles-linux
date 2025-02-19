@@ -1,2 +1,2 @@
 #! /usr/bin/env sh
-stow -v -t /home/tuliopaim/ zsh tmux nvim zsh alacritty ideavim
+stow -v -t /home/tuliopaim/ git zsh tmux nvim alacritty ideavim scripts
