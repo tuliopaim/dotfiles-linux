@@ -53,6 +53,7 @@ alias gc='git commit'
 alias gl='git log'
 alias lg='lazygit'
 alias lzd='lazydocker'
+alias us='/usr/local/share/.dotfiles/scripts/usersecrets.sh'
 
 bindkey '^ ' autosuggest-accept
 
