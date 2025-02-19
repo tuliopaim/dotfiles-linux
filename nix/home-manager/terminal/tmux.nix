@@ -74,6 +74,7 @@
         bind-key -r F run-shell "tmux neww -t 99 tmux-sessionizer"
         bind-key -r f run-shell "tmux neww -t 99 tmux-windownizer"
         bind-key -r H run-shell "tmux-dotfiles"
+        bind-key -r J run-shell "tmux-vault"
         
         # remove default binding since replacing
         unbind %
