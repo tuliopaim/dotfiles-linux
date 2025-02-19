@@ -139,6 +139,7 @@ nnoremap gr :action FindUsages<CR>
 nnoremap gi :action GotoImplementation<CR>
 nnoremap gd :action GotoDeclaration<CR>
 nnoremap gt :action GotoTest<CR>
+nnoremap <leader>k :action ShowErrorDescription<CR>
 
 " Build
 nnoremap <leader>rs :action RebuildSolutionAction<CR>
