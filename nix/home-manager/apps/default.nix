@@ -7,7 +7,6 @@
   ];
 
   home.packages = with pkgs; [
-    cinnamon.nemo-with-extensions
     spotify
     slack
     obsidian
@@ -19,15 +18,20 @@
     evince
     sxiv
     teams-for-linux
-    gnome.file-roller
     libreoffice
+    gnome.file-roller
     gnome.gnome-disk-utility
     gnome.gnome-calculator
+    cinnamon.nemo-with-extensions
     mongodb-compass
     vesktop
     virtualbox
     woeusb
     blueman
+    baobab
+    shotcut
+    ventoy-full
+    mpv
 
     #qmk
     qmk
