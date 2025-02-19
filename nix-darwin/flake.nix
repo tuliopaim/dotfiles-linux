@@ -23,8 +23,20 @@
     let
       inherit (self) outputs;
       system = "aarch64-darwin";
-      pkgs = import nixpkgs { inherit system; config.allowUnfree = true; };
-      pkgs-unstable = import inputs.nixpkgs-unstable { inherit system; config.allowUnfree = true; };
+      pkgs = import nixpkgs {
+        inherit system;
+        config = {
+          allowUnfree = true;
+          permittedInsecurePackages = [ "dotnet-sdk-6.0.428" ];
+        };
+      };
+      pkgs-unstable = import inputs.nixpkgs-unstable {
+        inherit system;
+        config = {
+          allowUnfree = true;
+          permittedInsecurePackages = [ "dotnet-sdk-6.0.428" ];
+        };
+      };
     in
     {
       darwinConfigurations."macos" = nix-darwin.lib.darwinSystem {
