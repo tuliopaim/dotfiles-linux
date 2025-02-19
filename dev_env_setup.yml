@@ -42,9 +42,6 @@
         - { src: 'zsh/.p10k.zsh', dest: '.p10k.zsh' }
         - { src: 'nvim', dest: '.config/nvim' }
 
-    - name: Setup SSH
-      include_tasks: ./ssh/ssh_tasks.yml
-
     - name: Setup ZSH
       include_tasks: ./zsh/zsh_tasks.yml
 
