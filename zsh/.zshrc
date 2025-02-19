@@ -68,7 +68,7 @@ bindkey "^R" fzf-history-widget
 # No error beep
 setopt no_beep
 
-
+export PATH="/usr/local/bin/nvim:$PATH"
 export GIT_CONFIG=~/.gitconfig
 
 ZSH_THEME="powerlevel10k/powerlevel10k"
