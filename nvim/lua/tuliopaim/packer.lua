@@ -21,17 +21,8 @@ return require('packer').startup(function(use)
         tag = 'nightly'
     }
 
-    -- Rose Pine Theme
-    use({
-        'rose-pine/neovim',
-        as = 'rose-pine',
-        config = function()
-            require("rose-pine").setup({
-                disable_italics = true,
-            })
-            vim.cmd('colorscheme rose-pine')
-        end
-    })
+    -- Theme
+    use { "catppuccin/nvim", as = "catppuccin" }
 
     use {
         'nvim-lualine/lualine.nvim',

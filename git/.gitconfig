@@ -16,3 +16,5 @@
 	directory = C:/Users/tutpa/.dotfiles
 [credential]
 	helper = store
+[pull]
+	rebase = true
