@@ -1,14 +1,12 @@
-- name: Fix Cedilla on Pop!_OS
-  hosts: localhost
+- name: Download fix-cedilla script
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/marcopaganini/gnome-cedilla-fix/master/fix-cedilla
+    dest: /tmp/fix-cedilla.sh
+    mode: '0755'
+  tags: ['cedilha']
 
-  tasks:
-    - name: Download fix-cedilla script
-      ansible.builtin.get_url:
-        url: https://raw.githubusercontent.com/marcopaganini/gnome-cedilla-fix/master/fix-cedilla
-        dest: /tmp/fix-cedilla
-        mode: '0755'
-
-    - name: Execute fix-cedilla script
-      ansible.builtin.shell: /tmp/fix-cedilla
-      args:
-        chdir: "{{ playbook_dir }}"
+- name: Execute fix-cedilla script
+  ansible.builtin.shell: /tmp/fix-cedilla.sh
+  args:
+    chdir: "{{ playbook_dir }}"
+  tags: ['cedilha']

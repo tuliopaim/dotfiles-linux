@@ -2,76 +2,70 @@
 - name: Setup Development Environment
   hosts: localhost
   gather_facts: yes
+  vars:
+    users:
+      - 'tuliopaim'
+      - 'p1'
+      - 'p2'
+
+    dotfiles: "{{ share }}/.dotfiles"
+    share: "/usr/local/share"
 
   tasks:
+    - name: Install packages
+      include_tasks: install_packages.yml
+      tags: ['packages']
 
-    - name: Install required packages
+    - name: Set necessary permissions on shared folders
       become: yes
-      ansible.builtin.apt:
-        name:
-          - htop
-          - curl
-          - tree
-          - bash-completion
-          - make
-          - python3-pip
-          - zsh
-          - tmux
-          - git
-          - unzip
-          - gcc
-          - fzf
-          - xclip
-          - libfuse2
-          - code
-          - alacritty
-          - ripgrep
-          - snapd
-        state: present
+      file:
+        path: "{{ item }}"
+        owner: 'root'
+        group: 'developer'
+        mode: '0775'
+        recurse: yes  
+      loop: "{{ links }}"
+      vars:
+        links:
+          - "{{ share }}"
+          - "{{ dotfiles }}"
+      tags: ['zsh', 'symbolic-links', 'permissions']
 
-    - name: Create symbolic links 
-      ansible.builtin.file:
-        src: "{{ ansible_user_dir }}/.dotfiles/{{ item.src }}"
-        dest: "{{ ansible_user_dir }}/{{ item.dest }}"
-        state: link
-        force: yes
-      loop:
-        - { src: 'zsh/.zshrc', dest: '.zshrc' }
-        - { src: 'zsh/.p10k.zsh', dest: '.p10k.zsh' }
-        - { src: 'nvim', dest: '.config/nvim' }
-        - { src: 'alacritty/alacritty.yml', dest: '.config/alacritty.yml' }
-        - { src: 'ideavim/.ideavimrc', dest: '.ideavimrc' }
-        - { src: 'ideavim/.ideavimrc', dest: '.ideavimrc' }
-        - { src: 'vscode/keybindings.json', dest: '.config/Code/User/keybindings.json' }
-        - { src: 'vscode/settings.json', dest: '.config/Code/User/settings.json' }
+    - name: Setup Oh My Zsh
+      include_tasks: install_oh_my_zsh.yml
+      tags: ['zsh']
 
-    - name: Setup ZSH
-      include_tasks: ../zsh/zsh_tasks.yml
+    - name: Setup firacode
+      include_tasks: install_firacode.yml
+      tags: ['firacode']
 
     - name: Setup Neovim
-      include_tasks: ../nvim/nvim_tasks.yml
+      include_tasks: install_nvim.yml
+      tags: ['nvim']
 
-    - name: Check if fnm install script exists
-      ansible.builtin.stat:
-        path: "/tmp/install_fnm.sh"
-      register: fnm_script_exists
+    - name: Setup tmux
+      include_tasks: install_tmux.yml
+      tags: ['tmux']
+
+    - name: Create symbolic links for all users
+      include_tasks: create_symlinks.yml
+      tags: ['symbolic-links', 'permissions']
+
+    - name: Setup dotnet
+      include_tasks: install_dotnet.yml
+      tags: ['dotnet']
+
+    - name: Setup docker
+      include_tasks: install_docker.yml
+      tags: ['docker']
+        
+    - name: Fix cedilha
+      include_tasks: fix_cedilha_popos.yml
+      tags: ['cedilha']
+
+    - name: Set Neovim as default Git editor for each user
       become: yes
-
-    - name: Download fnm install script
-      ansible.builtin.get_url:
-        url: "https://raw.githubusercontent.com/Schniz/fnm/master/.ci/install.sh"
-        dest: "/tmp/install_fnm.sh"
-        mode: "0755"
-      when: not fnm_script_exists.stat.exists
-
-    - name: Execute fnm install script
-      ansible.builtin.shell: "/tmp/install_fnm.sh"
-      become: yes
-      when: not fnm_script_exists.stat.exists
-
-- name: Install .NET
-  import_playbook: install_dotnet.yml
-
-- name: Fix cedilha
-  import_playbook: fix_cedilha_popos.yml
-
+      become_user: "{{ item }}"
+      ansible.builtin.shell:
+        cmd: git config --global core.editor "nvim"
+      loop: "{{ users }}"

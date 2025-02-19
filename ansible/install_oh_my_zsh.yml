@@ -1,0 +1,55 @@
+---
+- name: Install and configure ZSH
+  block:
+    - name: Changing Default Shell to ZSH for all users
+      become: yes
+      user:
+        name: "{{ item }}"
+        shell: /usr/bin/zsh
+      loop: "{{ users }}"
+
+    - name: Check if Oh My Zsh is installed
+      ansible.builtin.stat:
+        path: "{{ share }}/.oh-my-zsh"
+      register: zsh_folder
+
+    - name: Install Oh My Zsh
+      become: yes
+      shell: >
+        sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh | 
+        sed 's/env zsh -l//g')"
+      args:
+        creates: "{{ share }}/.oh-my-zsh"
+      environment:
+        ZSH: "{{ share }}/.oh-my-zsh"
+      when: not zsh_folder.stat.exists
+
+    - name: Check if Powerlevel10k is installed
+      ansible.builtin.stat:
+        path: "{{ share }}/.oh-my-zsh/custom/themes/powerlevel10k"
+      register: powerlevel10k_folder
+
+    - name: Install Powerlevel10k
+      become: yes
+      git:
+        repo: https://github.com/romkatv/powerlevel10k.git
+        dest: "/usr/local/share/.oh-my-zsh/custom/themes/powerlevel10k"
+        clone: yes
+        depth: 1
+        force: yes
+      when: not powerlevel10k_folder.stat.exists
+
+    - name: Check if zsh-autosuggestions is installed
+      ansible.builtin.stat:
+        path: "{{ share }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+      register: zsh_autosuggestions_folder
+
+    - name: Install zsh-autosuggestions
+      become: yes
+      git:
+        repo: https://github.com/zsh-users/zsh-autosuggestions.git
+        dest: "{{ share }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+        clone: yes
+        depth: 1
+        force: yes
+      when: not zsh_autosuggestions_folder.stat.exists
