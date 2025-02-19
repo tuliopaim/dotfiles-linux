@@ -5,9 +5,8 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-# Created by newuser for 5.8.1
 source ~/powerlevel10k/powerlevel10k.zsh-theme
-
+#
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
@@ -44,8 +43,7 @@ alias dev='cd /mnt/c/dev/'
 alias c='cd /mnt/c/'
 alias tutpa='cd /mnt/c/Users/tutpa'
 alias dotfiles='cd ~/.dotfiles'
-
-#dotnet
+alias sshconfig='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_tuliopaim_github'
 
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
