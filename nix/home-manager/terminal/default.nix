@@ -39,6 +39,7 @@
     mono
     exfat
     zlib
+    age
     lm_sensors
   ];
 }
