@@ -144,7 +144,7 @@ nnoremap <leader>k :action ShowErrorDescription<CR>
 " Build
 nnoremap <leader>rs :action RebuildSolutionAction<CR>
 nnoremap <leader>rc :action CleanSolutionAction<CR>
-nnoremap <leader>rps :action RebuildStartupProject<CR>
+nnoremap <leader>rp :action ManageRecentProjects<CR>
 
 nnoremap ge :action ReSharperGotoNextErrorInSolution<CR>
 nnoremap gE :action GotoPreviousError<CR>
@@ -159,6 +159,16 @@ map <leader>y "+y
 let g:NERDTreeMapJumpParent='h'
 map <Leader>. :NERDTreeFocus<CR>
 map <Leader>e :NERDTreeToggle<CR>
+
+" Harpoon
+nmap <leader>1 :action HarpoonerOpenFile0<cr>
+nmap <leader>2 :action HarpoonerOpenFile1<cr>
+nmap <leader>3 :action HarpoonerOpenFile2<cr>
+nmap <leader>4 :action HarpoonerOpenFile3<cr>
+
+nmap <leader>hh :action HarpoonerQuickMenu<cr>
+nmap <leader>hi :action HarpoonerAddFile<cr>
+
 
 let g:WhichKey_FontSize = 16
 let g:WhichKey_CommandColor = "#41ead4"
