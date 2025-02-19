@@ -1,0 +1,12 @@
+macos-titlebar-style = hidden
+
+theme = catppuccin-mocha
+
+background-opacity = 0.875
+background-blur-radius = 5
+
+font-size = 18
+
+window-padding-balance = true
+
+mouse-hide-while-typing = true
