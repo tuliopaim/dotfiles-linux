@@ -9,6 +9,7 @@
     yarn
     go
     gopls
+    nixd
 
     # dev tools
     pkgs-unstable.neovim
