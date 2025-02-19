@@ -74,4 +74,4 @@ eval "$(zoxide init zsh)"
 eval "$(fnm env --use-on-cd --shell zsh)"
 
 # Private 
-source $HOME/dotfiles/private.sh
+source $HOME/dotfiles/private/private.sh
