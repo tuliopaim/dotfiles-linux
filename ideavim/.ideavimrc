@@ -93,7 +93,7 @@ map <leader>gs :action ActivateVersionControlToolWindow<CR>
 map <leader>gc :action ActivateCommitToolWindow<CR>
 map <leader>gb :action Git.Branches<CR>
 map <leader>gpl :action Git.Pull<CR>
-map <leader>gps :action Git.Push<CR>
+map <leader>gps :action Git.PushUpToCommit<CR>
 
 " Regions
 nnoremap zc :action CollapseRegion<CR>
@@ -113,13 +113,11 @@ map <leader>dz :action ToggleZenMode<CR>
 map <leader>df :action ToggleFullScreen<CR>
 
 " File navigation
-map <leader>ff :action GotoFile<CR>
-map <leader>fr :action RecentFiles<CR>
-map <leader>fc :action FindInPath<CR>
-map <leader>fl :action RecentLocations<CR>
-map <leader>fs :action NewScratchFile<CR>
-map <leader>fa :action SearchEverywhere<CR>
-
+map <leader>ff :action SearchEverywhere<CR>
+map <leader>fa :action GotoAction<CR>
+map <leader>fn :action NewScratchFile<CR>
+map <leader>fd :action Find<CR>
+map <leader>fs :action FindInPath<CR>
 
 " Auto ident lines
 nnoremap = :action AutoIndentLines<CR>
@@ -150,7 +148,6 @@ nnoremap gE :action GotoPreviousError<CR>
 map <leader>p "0p
 
 "Copy to clipboard
-map <leader>y "+y
 map <leader>y "+y
 
 " nerd tree
