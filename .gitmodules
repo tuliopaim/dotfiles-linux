@@ -1,0 +1,3 @@
+[submodule "git-config"]
+	path = git-config
+	url = git@github.com-personal:tuliopaim/git-config.git
