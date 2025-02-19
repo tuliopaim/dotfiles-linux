@@ -21,5 +21,6 @@ create_symlink ~/dotfiles/nvim ~/.config/nvim
 create_symlink ~/dotfiles/ghostty ~/.config/ghostty
 create_symlink ~/dotfiles/aerospace ~/.config/aerospace
 create_symlink ~/dotfiles/ideavim/.ideavimrc ~/.ideavimrc
+create_symlink ~/dotfiles/private/.config/git ~/.config/git
 
 echo "Symlink creation completed!"
