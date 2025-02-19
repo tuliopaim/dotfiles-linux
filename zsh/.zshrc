@@ -84,6 +84,10 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 
 plugins=(zsh-autosuggestions)
 
+# dotnet 
+export DOTNET_ROOT=$HOME/.dotnet
+export PATH=$PATH:$HOME/.dotnet:$HOME/.dotnet/tools
+
 # fnm
 export PATH="/home/tuliopaim/.local/share/fnm:$PATH"
 eval "`fnm env`"
