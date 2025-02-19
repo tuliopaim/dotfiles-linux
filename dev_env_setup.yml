@@ -24,13 +24,11 @@
           - unzip
           - gcc
           - fzf
+          - xclip
           - fonts-firacode
           - dotnet-sdk-6.0
           - dotnet-sdk-7.0
         state: present
-
-    - name: Setup SSH keys
-      include_tasks: ssh/ssh_tasks.yml
 
     - name: Create symbolic links 
       ansible.builtin.file:
@@ -44,8 +42,11 @@
         - { src: 'zsh/.p10k.zsh', dest: '.p10k.zsh' }
         - { src: 'nvim', dest: '.config/nvim' }
 
+    - name: Setup SSH
+      include_tasks: ./ssh/ssh_tasks.yml
+
     - name: Setup ZSH
-      include_tasks: zsh/zsh_tasks.yml
+      include_tasks: ./zsh/zsh_tasks.yml
 
     - name: Setup Neovim
-      include_tasks: nvim/nvim_tasks.yml
+      include_tasks: ./nvim/nvim_tasks.yml
