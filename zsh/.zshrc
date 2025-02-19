@@ -37,6 +37,8 @@ alias sshpersonal='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_personal_gh'
 alias sshtb='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_tb_gh'
 alias tm='tmux-sessionizer'
 
+alias k='kubectl'
+
 alias lg='lazygit'
 alias lzd='lazydocker'
 alias us='~/.dotfiles/scripts/usersecrets.sh'
