@@ -62,45 +62,45 @@ vim.keymap.set({ "n", "v" }, "<leader>d", [["_d]])
 
 -- Press '<leader>fr' for quick find/replace for the word under the cursor
 vim.keymap.set("n", "<leader>fr", function()
-	local cmd = ":%s/<C-r><C-w>/<C-r><C-w>/gI<Left><Left><Left>"
-	local keys = vim.api.nvim_replace_termcodes(cmd, true, false, true)
-	vim.api.nvim_feedkeys(keys, "n", false)
+    local cmd = ":%s/<C-r><C-w>/<C-r><C-w>/gI<Left><Left><Left>"
+    local keys = vim.api.nvim_replace_termcodes(cmd, true, false, true)
+    vim.api.nvim_feedkeys(keys, "n", false)
 end)
 
 -- Goto next diagnostic of any severity
 vim.keymap.set("n", "]d", function()
-	vim.diagnostic.goto_next({})
-	vim.api.nvim_feedkeys("zz", "n", false)
+    vim.diagnostic.goto_next({})
+    vim.api.nvim_feedkeys("zz", "n", false)
 end)
 
 -- Goto previous diagnostic of any severity
 vim.keymap.set("n", "[d", function()
-	vim.diagnostic.goto_prev({})
-	vim.api.nvim_feedkeys("zz", "n", false)
+    vim.diagnostic.goto_prev({})
+    vim.api.nvim_feedkeys("zz", "n", false)
 end)
 
 -- Goto next error diagnostic
 vim.keymap.set("n", "]e", function()
-	vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.ERROR })
-	vim.api.nvim_feedkeys("zz", "n", false)
+    vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.ERROR })
+    vim.api.nvim_feedkeys("zz", "n", false)
 end)
 
 -- Goto previous error diagnostic
 vim.keymap.set("n", "[e", function()
-	vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.ERROR })
-	vim.api.nvim_feedkeys("zz", "n", false)
+    vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.ERROR })
+    vim.api.nvim_feedkeys("zz", "n", false)
 end)
 
 -- Goto next warning diagnostic
 vim.keymap.set("n", "]w", function()
-	vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.WARN })
-	vim.api.nvim_feedkeys("zz", "n", false)
+    vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.WARN })
+    vim.api.nvim_feedkeys("zz", "n", false)
 end)
 
 -- Goto previous warning diagnostic
 vim.keymap.set("n", "[w", function()
-	vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.WARN })
-	vim.api.nvim_feedkeys("zz", "n", false)
+    vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.WARN })
+    vim.api.nvim_feedkeys("zz", "n", false)
 end)
 
 -- Place all dignostics into a qflist
@@ -110,7 +110,7 @@ vim.keymap.set("n", "<leader>ld", vim.diagnostic.setqflist, { desc = "Quickfix [
 vim.keymap.set("n", "<leader>no", "<cmd>noh<cr>")
 
 vim.keymap.set("n", "<leader>oc", function()
-	require("copilot.panel").open({})
+    require("copilot.panel").open({})
 end, { desc = "[O]pen [C]opilot panel" })
 
 -- Create TODO command to open daily notes in a float window
@@ -146,4 +146,10 @@ vim.api.nvim_create_user_command("TODO", function()
 
     -- Try to read the file into the buffer
     vim.api.nvim_command("edit " .. file_path)
+end, {})
+
+-- Avante
+vim.api.nvim_create_user_command('AvanteReset', function()
+    vim.cmd('AvanteClear')
+    vim.cmd('AvanteRefresh')
 end, {})
