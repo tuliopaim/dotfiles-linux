@@ -123,7 +123,199 @@
                 "workbench.action.closePanel",
                 "workbench.action.closeSidebar"
             ]
-
+        },
+        // tab and split management
+        {
+            "before": [
+                "<leader>",
+                "v"
+            ],
+            "after": [],
+            "commands": [
+                {
+                    "command": "workbench.action.splitEditor"
+                }
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "b"
+            ],
+            "after": [],
+            "commands": [
+                {
+                    "command": "workbench.action.splitEditorDown"
+                }
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "w",
+                "l"
+            ],
+            "commands": [
+                "workbench.action.moveEditorToRightGroup"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "w",
+                "h"
+            ],
+            "commands": [
+                "workbench.action.moveEditorToLeftGroup"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "w",
+                "k"
+            ],
+            "commands": [
+                "workbench.action.moveEditorToAboveGroup"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "w",
+                "j"
+            ],
+            "commands": [
+                "workbench.action.moveEditorToBelowGroup"
+            ]
+        },
+        // split resize
+        {
+            "before": [
+                "<leader>",
+                "s",
+                "l"
+            ],
+            "commands": [
+                "workbench.action.increaseViewWidth"
+            ],
+        },
+        {
+            "before": [
+                "<leader>",
+                "s",
+                "h"
+            ],
+            "commands": [
+                "workbench.action.decreaseViewWidth"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "s",
+                "k"
+            ],
+            "commands": [
+                "workbench.action.increaseViewHeight"
+            ],
+        },
+        {
+            "before": [
+                "<leader>",
+                "s",
+                "j"
+            ],
+            "commands": [
+                "workbench.action.decreaseViewHeight"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "s",
+                "="
+            ],
+            "commands": [
+                "workbench.action.evenEditorWidths"
+            ]
+        },
+        // next/previous tab
+        {
+            "before": [
+                "g",
+                "k"
+            ],
+            "after": [
+                "g",
+                "t"
+            ]
+        },
+        {
+            "before": [
+                "g",
+                "j"
+            ],
+            "after": [
+                "g",
+                "T"
+            ]
+        },
+        // pin tab
+        {
+            "before": [
+                "<leader>",
+                "t",
+                "p"
+            ],
+            "after": [],
+            "commands": [
+                {
+                    "command": "workbench.action.pinEditor",
+                }
+            ]
+        },
+        // unpin tab
+        {
+            "before": [
+                "<leader>",
+                "t",
+                "u"
+            ],
+            "after": [],
+            "commands": [
+                {
+                    "command": "workbench.action.unpinEditor",
+                }
+            ]
+        },
+        // close tab
+        {
+            "before": [
+                "<leader>",
+                "t",
+                "x"
+            ],
+            "after": [],
+            "commands": [
+                {
+                    "command": "workbench.action.closeActiveEditor"
+                }
+            ]
+        },
+        // close all tabs
+        {
+            "before": [
+                "<leader>",
+                "t",
+                "a"
+            ],
+            "after": [],
+            "commands": [
+                {
+                    "command": "workbench.action.closeAllEditor"
+                }
+            ]
         },
         // Terminal
         {
@@ -136,7 +328,7 @@
                 "workbench.action.terminal.focus"
             ]
         },
-        // actions
+        // find 
         {
             "before": [
                 "<leader>",
@@ -150,6 +342,20 @@
                 }
             ]
         },
+        {
+            "before": [
+                "<leader>",
+                "f",
+                "a"
+            ],
+            "after": [],
+            "commands": [
+                {
+                    "command": "workbench.action.showCommands"
+                }
+            ]
+        },
+        // LSP
         {
             "before": [
                 "g",
@@ -197,83 +403,7 @@
                 }
             ]
         },
-        // editor management
-        {
-            "before": [
-                "<leader>",
-                "v"
-            ],
-            "after": [],
-            "commands": [
-                {
-                    "command": "workbench.action.splitEditor"
-                }
-            ]
-        },
-        {
-            "before": [
-                "<leader>",
-                "b"
-            ],
-            "after": [],
-            "commands": [
-                {
-                    "command": "workbench.action.splitEditorDown"
-                }
-            ]
-        },
-        {
-            "before": [
-                "<leader>",
-                "t",
-                "p"
-            ],
-            "after": [],
-            "commands": [
-                {
-                    "command": "workbench.action.pinEditor"
-                }
-            ]
-        },
-        {
-            "before": [
-                "<leader>",
-                "t",
-                "u"
-            ],
-            "after": [],
-            "commands": [
-                {
-                    "command": "workbench.action.unpinEditor"
-                }
-            ]
-        },
-        {
-            "before": [
-                "<leader>",
-                "t",
-                "x"
-            ],
-            "after": [],
-            "commands": [
-                {
-                    "command": "workbench.action.closeActiveEditor"
-                }
-            ]
-        },
-        {
-            "before": [
-                "<leader>",
-                "t",
-                "a"
-            ],
-            "after": [],
-            "commands": [
-                {
-                    "command": "workbench.action.closeAllEditor"
-                }
-            ]
-        },
+        // vertical navigation
         {
             "before": [
                 "<C-d>"
@@ -294,120 +424,7 @@
                 "z"
             ]
         },
-        {
-            "before": [
-                "g",
-                "k"
-            ],
-            "after": [
-                "g",
-                "t"
-            ]
-        },
-        {
-            "before": [
-                "g",
-                "j"
-            ],
-            "after": [
-                "g",
-                "T"
-            ]
-        },
-        {
-            "before": [
-                "<leader>",
-                "l"
-            ],
-            "commands": [
-                "workbench.action.moveEditorToNextGroup"
-            ]
-        },
-        {
-            "before": [
-                "<leader>",
-                "h"
-            ],
-            "commands": [
-                "workbench.action.moveEditorToPreviousGroup"
-            ]
-        },
-        {
-            "before": [
-                "<C-k>"
-            ],
-            "after": [
-                "<C-w>",
-                "k"
-            ]
-        },
-        {
-            "before": [
-                "<C-j>"
-            ],
-            "after": [
-                "<C-w>",
-                "j"
-            ]
-        },
-        {
-            "before": [
-                "<C-h>"
-            ],
-            "after": [
-                "<C-w>",
-                "h"
-            ]
-        },
-        {
-            "before": [
-                "<C-l>"
-            ],
-            "after": [
-                "<C-w>",
-                "l"
-            ]
-        },
-        {
-            "before": [
-                "<leader>",
-                "s",
-                "l"
-            ],
-            "commands": [
-                "workbench.action.increaseViewWidth"
-            ],
-        },
-        {
-            "before": [
-                "<leader>",
-                "s",
-                "h"
-            ],
-            "commands": [
-                "workbench.action.decreaseViewWidth"
-            ]
-        },
-        {
-            "before": [
-                "<leader>",
-                "s",
-                "k"
-            ],
-            "commands": [
-                "workbench.action.increaseViewHeight"
-            ],
-        },
-        {
-            "before": [
-                "<leader>",
-                "s",
-                "j"
-            ],
-            "commands": [
-                "workbench.action.decreaseViewHeight"
-            ]
-        },
+        // file tree
         {
             "before": [
                 "<space>",
@@ -426,6 +443,7 @@
                 "workbench.action.toggleSidebarVisibility"
             ]
         },
+        // git
         {
             "before": [
                 "<leader>",
@@ -458,6 +476,7 @@
                 "git.push"
             ]
         },
+        // build
         {
             "before": [
                 "<leader>",
@@ -482,6 +501,5 @@
     "workbench.colorTheme": "Catppuccin Mocha",
     "window.menuBarVisibility": "toggle",
     "vim.cursorStylePerMode.normal": "block",
-    "diffEditor.ignoreTrimWhitespace": false,
-    "window.zoomLevel": 2
+    "diffEditor.ignoreTrimWhitespace": false
 }
