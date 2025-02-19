@@ -32,6 +32,7 @@ sethandler <c-u> a:vim
 sethandler <c-j> a:vim
 sethandler <c-k> a:vim
 sethandler <c-i> a:vim
+sethandler <c-o> a:vim
 
 " ide shortcuts
 sethandler <c-f> a:ide
@@ -48,7 +49,6 @@ let mapleader = "\<Space>"
 nnoremap <leader>lc 0Dj
 
 " helpers
-
 nnoremap <c-d> <c-d>zz
 nnoremap <c-u> <c-u>zz
 nnoremap <leader>no :noh<CR>
