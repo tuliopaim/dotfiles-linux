@@ -10,8 +10,8 @@
         "memory",
         "temperature",
         "clock",
+        "custom/power",
         "tray"],
-    // Modules configuration
     "hyprland/workspaces": {
         "disable-scroll": true,
         "all-outputs": true,
@@ -19,12 +19,13 @@
         "format": "{icon}",
         "format-icons": {
             "1": "", // terminal
-            "2": "", // personal browser
+            "2": "", // personal browser
             "3": "", // IDE
             "4": "", // tools (files..)
-            "5": "", // not sure
-            "6": "󰇩", // work browser (second monitor)
+            "5": "", // second monitor stuff
+            "6": "󰇩", // work browser 
             "7": "󰒱", // slack + obsidian 
+            "8": "󰃣", // brush
         }
     },
     "hyprland/window": {
@@ -83,12 +84,12 @@
             "deactivated": ""
         }
     },
+
     "tray": {
-        // "icon-size": 21,
         "spacing": 10
     },
+
     "clock": {
-        // "timezone": "America/New_York",
         "format": "{:%m-%d - %H:%M}",
         "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
         "format-alt": "{:%Y-%m-%d}",
@@ -106,26 +107,34 @@
             }
         },
     },
+    
+    // CPU
     "cpu": {
         "format": "{usage}% ",
-        "tooltip": false
+        "tooltip": false,
+        "on-click": "alacritty -e htop"
     },
+
+    // Memory
     "memory": {
-        "format": "{}% "
+        "format": "{}% ",
+        "on-click": "alacritty -e htop"
     },
+
+    // Temperature
     "temperature": {
-        // "thermal-zone": 2,
-        // "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
         "critical-threshold": 80,
-        // "format-critical": "{temperatureC}°C {icon}",
         "format": "{temperatureC}°C {icon}",
         "format-icons": ["", "", ""]
     },
-    "backlight": {
-        // "device": "acpi_video1",
-        "format": "{percent}% {icon}",
-        "format-icons": ["", "", "", "", "", "", "", "", ""]
+
+    // Power Menu
+    "custom/power": {
+        "format": "󰐥",
+        "on-click": "wlogout",
+        "tooltip": false
     },
+
     "battery": {
         "states": {
             // "good": 95,
@@ -136,15 +145,12 @@
         "format-charging": "{capacity}% ",
         "format-plugged": "{capacity}% ",
         "format-alt": "{time} {icon}",
-        // "format-good": "", // An empty format will hide the module
-        // "format-full": "",
         "format-icons": ["", "", "", "", ""]
     },
     "battery#bat2": {
         "bat": "BAT2"
     },
     "network": {
-        // "interface": "wlp2*", // (Optional) To force the use of this interface
         "format-wifi": "{essid} ({signalStrength}%) ",
         "format-ethernet": "{ipaddr}/{cidr} ",
         "tooltip-format": "{ifname} via {gwaddr} ",
@@ -153,7 +159,6 @@
         "format-alt": "{ifname}: {ipaddr}/{cidr}"
     },
     "pulseaudio": {
-        // "scroll-step": 1, // %, can be a float
         "format": "{volume}% {icon} {format_source}",
         "format-source-muted": "",
         "format-icons": {
