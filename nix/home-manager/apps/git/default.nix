@@ -19,6 +19,9 @@
       merge = {
           tool = "nvim";
       };
+      pull = {
+        rebase = true;
+      };
       mergetool = {
           prompt = false;
           nvim = {
