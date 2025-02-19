@@ -52,6 +52,7 @@ alias gs='git status'
 alias gc='git commit'
 alias gl='git log'
 alias lg='lazygit'
+alias lzd='lazydocker'
 
 bindkey '^ ' autosuggest-accept
 
@@ -77,3 +78,4 @@ export PATH="/home/$USER/.local/bin:$PATH"
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
