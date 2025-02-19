@@ -52,6 +52,15 @@
           group: "{{ ansible_user_id }}"
           mode: '0600'
 
+    - name: Create symbolic links for .gitconfig
+      ansible.builtin.file:
+        src: "{{ ansible_user_dir }}/.dotfiles/{{ item.src }}"
+        dest: "{{ ansible_user_dir }}/{{ item.dest }}"
+        state: link
+        force: yes
+      loop:
+        - { src: 'git/.gitconfig', dest: '.gitconfig' }
+
     - name: Install and configure ZSH
       block:
 
