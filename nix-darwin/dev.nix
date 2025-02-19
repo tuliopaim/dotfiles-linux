@@ -21,7 +21,6 @@
     pkgs.typescript
 
     #dotnet stuff
-    pkgs-unstable.roslyn-ls
     pkgs.netcoredbg
   ];
 

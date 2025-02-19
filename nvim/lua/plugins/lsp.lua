@@ -21,7 +21,6 @@ return {
         "seblj/roslyn.nvim",
         ft = "cs",
         opts = {
-            exe = { "Microsoft.CodeAnalysis.LanguageServer" },
             config = {
                 on_attach = on_attach,
                 handlers = {
@@ -65,9 +64,18 @@ return {
                 require('blink-cmp').get_lsp_capabilities()
             )
 
-            require("mason-lspconfig").setup({
-                ensure_installed = { "cssls", "docker_compose_language_service", "dockerls", "eslint", "rnix", "ts_ls" }
-            })
+            require("mason-lspconfig").setup {
+                ensure_installed = {
+                    "cssls",
+                    "docker_compose_language_service",
+                    "dockerls",
+                    "eslint",
+                    "rnix",
+                    "ts_ls",
+                    "pylsp"
+                },
+                automatic_installation = true
+            }
 
             require('lspconfig').lua_ls.setup({
                 on_attach = on_attach,
@@ -117,9 +125,24 @@ return {
                 },
             })
 
+            require('lspconfig').pylsp.setup({
+                on_attach = on_attach,
+                capabilities = capabilities,
+                settings = {
+                    pylsp = {
+                        pyflakes = { enabled = false },
+                        pycodestayle = { enabled = false },
+                        autopep8 = { enabled = false },
+                        yapf = { enabled = false },
+                        mccabe = { enabled = false },
+                        pylsp_mypy = { enabled = false },
+                        pylsp_black = { enabled = false },
+                        pylsp_isort = { enabled = false },
+                    },
+                },
+            })
 
             require("mason-lspconfig").setup_handlers({
-
                 function(server_name)
                     require("lspconfig")[server_name].setup({
                         on_attach = on_attach,
@@ -127,41 +150,26 @@ return {
                     })
                 end,
 
-                ["lua_ls"] = function()
-                    require("neodev").setup()
-                    require("lspconfig").lua_ls.setup({
-                        on_attach = on_attach,
-                        capabilities = capabilities,
-                        settings = {
-                            Lua = {
-                                format = { enable = false },
-                                telemetry = { enable = false },
-                                workspace = { checkThirdParty = false },
-                            },
-                        },
-                    })
-                end,
-
-                ["csharp_ls"] = function()
-                    local lspconfig = require("lspconfig")
-                    lspconfig.csharp_ls.setup({
-                        handlers = {
-                            ["textDocument/definition"] = require('csharpls_extended').handler,
-                            ["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded" }),
-                            ["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded" }),
-                        },
-
-                        root_dir = function(startpath)
-                            return lspconfig.util.root_pattern("*.sln")(startpath)
-                                or lspconfig.util.root_pattern("*.csproj")(startpath)
-                                or lspconfig.util.root_pattern("*.fsproj")(startpath)
-                                or lspconfig.util.root_pattern(".git")(startpath)
-                        end,
-
-                        on_attach = on_attach,
-						capabilities = capabilities,
-                    })
-                end,
+						--           ["csharp_ls"] = function()
+						--               local lspconfig = require("lspconfig")
+						--               lspconfig.csharp_ls.setup({
+						--                   handlers = {
+						--                       ["textDocument/definition"] = require('csharpls_extended').handler,
+						--                       ["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded" }),
+						--                       ["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded" }),
+						--                   },
+						--
+						--                   root_dir = function(startpath)
+						--                       return lspconfig.util.root_pattern("*.sln")(startpath)
+						--                           or lspconfig.util.root_pattern("*.csproj")(startpath)
+						--                           or lspconfig.util.root_pattern("*.fsproj")(startpath)
+						--                           or lspconfig.util.root_pattern(".git")(startpath)
+						--                   end,
+						--
+						--                   on_attach = on_attach,
+						-- capabilities = capabilities,
+						--               })
+						--           end,
 
 			})
 
