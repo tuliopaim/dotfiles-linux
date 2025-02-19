@@ -1,44 +1,50 @@
 #!/usr/bin/env bash
 
+# Generate the list of directories and remove double slashes
 if [[ $# -eq 1 ]]; then
-    selected=$1
+    selected=$(echo "$1" | sed 's|//|/|g')
 else
     selected=$(find \
-        ~/dev/tb/ \
-        ~/dev/personal/ \
-        -mindepth 0 -maxdepth 2 -type d | fzf)
+        ~/dev/ems \
+        ~/dev/personal \
+        -not -path "*/.bare*" \
+        -mindepth 0 -maxdepth 2 -type d -print | fzf)
 fi
 
 if [[ -z $selected ]]; then
     exit 0
 fi
 
+# Extract repo and branch names from the selected path
 IFS="/" read -ra path_levels <<< "$selected"
-repo_name=${path_levels[-2]}
-branch_name=${path_levels[-1]}
+repo_name=${path_levels[-2]}  # Second-to-last folder is the repo
+branch_name=${path_levels[-1]}  # Last folder is the branch
 
+# Check if tmux is running
 tmux_running=$(pgrep tmux)
 
 # Start a new tmux session if tmux is not running and we're not inside tmux
 if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
-    tmux new-session -s $repo_name -n $branch_name -c $selected
+    tmux new-session -s "$repo_name" -n "$branch_name" -c "$selected"
     exit 0
 fi
 
 # Check if the session already exists
-if ! tmux has-session -t=$repo_name 2> /dev/null; then
-    tmux new-session -ds $repo_name -n $branch_name -c $selected
+if ! tmux has-session -t "$repo_name" 2>/dev/null; then
+    tmux new-session -ds "$repo_name" -n "$branch_name" -c "$selected"
 fi
 
 # Check if the window exists within the session
-if ! tmux list-windows -t $repo_name | grep -q "\b$branch_name\b"; then
-    tmux new-window -t $repo_name -n $branch_name -c $selected
+if ! tmux list-windows -t "$repo_name" | grep -q "\b$branch_name\b"; then
+    tmux new-window -t "$repo_name" -n "$branch_name" -c "$selected"
 fi
 
-# Switch to the session and window
-tmux switch-client -t $repo_name
-
-# Check again if the window exists before switching to it
-if tmux list-windows -t $repo_name | grep -q "\b$branch_name\b"; then
-    tmux select-window -t $branch_name
+# Attach to the session and switch to the correct window
+if [[ -z $TMUX ]]; then
+    tmux attach-session -t "$repo_name"
+else
+    tmux switch-client -t "$repo_name"
 fi
+
+# Ensure we're on the correct window
+tmux select-window -t "$repo_name:$branch_name"
