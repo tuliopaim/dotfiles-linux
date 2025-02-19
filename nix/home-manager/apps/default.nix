@@ -27,6 +27,7 @@
     vesktop
     virtualbox
     woeusb
+    blueman
 
     #qmk
     qmk
