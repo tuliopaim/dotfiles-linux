@@ -10,7 +10,8 @@ return {
 			"saadparwaiz1/cmp_luasnip",
 			"rafamadriz/friendly-snippets",
 			"onsails/lspkind.nvim",
-			"windwp/nvim-autopairs"
+			"windwp/nvim-autopairs",
+            "MattiasMTS/cmp-dbee"
 		},
         config = function()
             local cmp_autopairs = require("nvim-autopairs.completion.cmp")
@@ -70,6 +71,7 @@ return {
             cmp.setup.filetype({ "sql" }, {
                 sources = {
                     { name = "vim-dadbod-completion" },
+                    { name = "cmp-dbee" },
                     { name = "buffer" },
                 },
             })
