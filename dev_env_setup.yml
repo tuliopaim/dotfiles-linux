@@ -1,0 +1,94 @@
+---
+- name: Setup .NET Core development environment on WSL
+  hosts: localhost
+  gather_facts: yes
+
+  tasks:
+    - name: Install required packages
+      become: yes
+      ansible.builtin.apt:
+        name:
+          - htop
+          - curl
+          - tree
+          - bash-completion
+          - make
+          - python3-pip
+          - zsh
+          - neovim
+          - git
+          - unzip
+          - gcc
+        state: present
+
+    - name: debug id
+      debug:
+        var: ansible_user_id
+
+    - name: debug dir
+      debug:
+        var: ansible_user_dir
+
+    - name: Changing Default Shell to ZSH
+      become: yes
+      user: 
+        name: '{{ ansible_user_id }}'
+        shell: /bin/zsh
+
+    - name: Install .NET 6 and 7
+      block:
+        - name: Check if $HOME/dotnet folder exists
+          ansible.builtin.stat:
+            path: "{{ ansible_user_dir }}/dotnet"
+          register: dotnet_folder
+
+        - name: Create net6 and net7 folders inside $HOME/dotnet
+          ansible.builtin.file:
+            path: "{{ ansible_user_dir }}/dotnet/{{ item }}"
+            state: directory
+          with_items:
+            - net6
+            - net7
+
+        - name: Download .NET Core 6 SDK tarball
+          ansible.builtin.get_url:
+            url: https://download.visualstudio.microsoft.com/download/pr/868b2f38-62ca-4fd8-93ea-e640cf4d2c5b/1e615b6044c0cf99806b8f6e19c97e03/dotnet-sdk-6.0.407-linux-x64.tar.gz
+            dest: /tmp/dotnet-sdk-6.0.407-linux-x64.tar.gz
+            checksum: sha512:3cc230f21c0d60ffa4955c01d79cbb41887a41f4e97d0708170e4be8e4dc5bc261269c788c738416c28bbc7e8c6940a89cf3d010f16d1dc4cf25bbb0e2c033c1
+            force: no
+          when: not dotnet_folder.stat.exists
+
+        - name: Unzip the tarball into $HOME/dotnet
+          ansible.builtin.command:
+            cmd: tar zxf /tmp/dotnet-sdk-6.0.407-linux-x64.tar.gz -C "{{ ansible_user_dir }}/dotnet/net6"
+          when: not dotnet_folder.stat.exists
+
+        - name: Download .NET Core 7 SDK tarball
+          ansible.builtin.get_url:
+            url: https://download.visualstudio.microsoft.com/download/pr/bda88810-e1a6-4cf0-8139-7fd7fe7b2c7a/7a9ffa3e12e5f1c3d8b640e326c1eb14/dotnet-sdk-7.0.202-linux-x64.tar.gz
+            dest: /tmp/dotnet-sdk-7.0.202-linux-x64.tar.gz
+            checksum: sha512:f415a8e6c078421759a963aa0b232c092ecf2f0a8e014ba72092390aac792ed35e8f3c822b2ce91ed636cdee9342bba2b89fb4fdfd2d28dbb0ac856d828cb29f
+            force: no
+          when: not dotnet_folder.stat.exists
+
+        - name: Unzip the tarball into $HOME/dotnet
+          ansible.builtin.command:
+            cmd: tar zxf /tmp/dotnet-sdk-7.0.202-linux-x64.tar.gz -C "{{ ansible_user_dir }}/dotnet/net7"
+          when: not dotnet_folder.stat.exists
+
+    - name: .dotfiles
+      block:
+      - name: Check if .dotfiles folder exists
+        ansible.builtin.stat:
+          path: ~/.dotfiles
+        register: dotfiles_folder
+
+      - name: Create symbolic links for config files
+        ansible.builtin.file:
+          src: "{{ ansible_user_dir }}/.dotfiles/{{ item.src }}"
+          dest: "{{ ansible_user_dir }}/{{ item.dest }}"
+          state: link
+          force: yes
+        loop:
+          - { src: 'zsh/.zshrc', dest: '.zshrc' }
+
