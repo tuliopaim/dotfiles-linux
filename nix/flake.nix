@@ -59,5 +59,19 @@
           ./hosts/desktop/home.nix
         ];
       };
+
+      devShells.${system}.dotnet = (pkgs.buildFHSUserEnv {
+        name = "dotnet-env";
+        targetPkgs = pkgs: (with pkgs; [
+          icu
+          zlib
+          (with dotnetCorePackages; combinePackages [
+            sdk_6_0
+            sdk_7_0
+            sdk_8_0
+          ])
+        ]);
+        runScript = "zsh";
+      }).env;
     };
 }
