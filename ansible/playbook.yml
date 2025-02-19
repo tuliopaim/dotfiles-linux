@@ -6,7 +6,6 @@
     users:
       - 'tuliopaim'
       - 'p1'
-      - 'p2'
 
     dotfiles: "{{ share }}/.dotfiles"
     share: "/usr/local/share"
@@ -20,8 +19,8 @@
       become: yes
       file:
         path: "{{ item }}"
-        owner: 'root'
-        group: 'developer'
+        owner: 'tuliopaim'
+        group: 'tuliopaim'
         mode: '0775'
         recurse: yes  
       loop: "{{ links }}"
@@ -29,23 +28,46 @@
         links:
           - "{{ share }}"
           - "{{ dotfiles }}"
-      tags: ['zsh', 'symbolic-links', 'permissions']
+      tags: ['zsh', 'tmux', 'nvim', 'symbolic-links', 'permissions']
 
     - name: Setup Oh My Zsh
       include_tasks: install_oh_my_zsh.yml
       tags: ['zsh']
 
-    - name: Setup firacode
-      include_tasks: install_firacode.yml
-      tags: ['firacode']
+    - name: Install firacode
+      block:
+      - name: Ensure the script is present and executable
+        become: yes
+        copy: 
+          src: ./install_firacode.sh
+          dest: ./install_firacode.sh
+          mode: '0755'
+        tags: ['firacode']
+          
+      - name: Run the script
+        become: yes
+        shell: ./install_firacode.sh
+        tags: ['firacode']
 
     - name: Setup Neovim
       include_tasks: install_nvim.yml
       tags: ['nvim']
 
-    - name: Setup tmux
-      include_tasks: install_tmux.yml
-      tags: ['tmux']
+    - name: Setup tmux TPM
+      block:
+      - name: Check if tmux tpm is installed
+        stat:
+          path: "{{ share }}/.tmux/plugins/tpm"
+        register: tmux
+        tags: ['tmux']
+
+      - name: Clone tmux tpm
+        git:
+          repo: https://github.com/tmux-plugins/tpm
+          dest: "{{ share }}/.tmux/plugins/tpm"  
+          depth: 1
+        when: not tmux.stat.exists
+        tags: ['tmux']
 
     - name: Create symbolic links for all users
       include_tasks: create_symlinks.yml
@@ -63,13 +85,3 @@
       include_tasks: install_docker.yml
       tags: ['docker']
         
-    - name: Fix cedilha
-      include_tasks: fix_cedilha_popos.yml
-      tags: ['cedilha']
-
-    - name: Set Neovim as default Git editor for each user
-      become: yes
-      become_user: "{{ item }}"
-      ansible.builtin.shell:
-        cmd: git config --global core.editor "nvim"
-      loop: "{{ users }}"
