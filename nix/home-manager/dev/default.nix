@@ -7,6 +7,8 @@
     cargo
     nodejs
     yarn
+    go
+    gopls
 
     # dev tools
     pkgs-unstable.neovim
