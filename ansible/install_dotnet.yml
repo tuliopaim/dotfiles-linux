@@ -3,7 +3,11 @@
   ansible.builtin.stat:
     path: /tmp/dotnet/dotnet-install.sh
   register: dotnet_install_script
-  tags: ['dotnet']
+  tags: 
+    - dotnet
+    - dotnet6 
+    - dotnet7
+    - dotnet8
 
 - name: Create directory for dotnet-install.sh
   ansible.builtin.file:
@@ -11,7 +15,11 @@
     state: directory
     mode: '0755'
   when: not dotnet_install_script.stat.exists
-  tags: ['dotnet']
+  tags: 
+  - dotnet
+  - dotnet6 
+  - dotnet7
+  - dotnet8
 
 - name: Download dotnet-install.sh script
   ansible.builtin.get_url:
@@ -19,7 +27,11 @@
     dest: /tmp/dotnet/dotnet-install.sh
     mode: '0755'
   when: not dotnet_install_script.stat.exists
-  tags: ['dotnet']
+  tags: 
+  - dotnet
+  - dotnet6 
+  - dotnet7
+  - dotnet8
 
 - name: Execute dotnet-install.sh for channel 6.0
   become: yes
@@ -27,7 +39,7 @@
   ansible.builtin.shell: /tmp/dotnet/dotnet-install.sh --channel 6.0
   when: not dotnet_install_script.stat.exists
   loop: "{{ users }}"
-  tags: ['dotnet']
+  tags: ['dotnet', 'dotnet6']
 
 - name: Execute dotnet-install.sh for channel 7.0
   become: yes
@@ -35,4 +47,12 @@
   ansible.builtin.shell: /tmp/dotnet/dotnet-install.sh --channel 7.0
   when: not dotnet_install_script.stat.exists
   loop: "{{ users }}"
-  tags: ['dotnet']
+  tags: ['dotnet', 'dotnet7']
+
+- name: Execute dotnet-install.sh for channel 8.0
+  become: yes
+  become_user: "{{ item }}"
+  ansible.builtin.shell: /tmp/dotnet/dotnet-install.sh --channel 8.0
+  when: not dotnet_install_script.stat.exists
+  loop: "{{ users }}"
+  tags: ['dotnet', 'dotnet8']
