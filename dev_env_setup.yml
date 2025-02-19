@@ -84,6 +84,7 @@
         - { src: 'git/.gitconfig', dest: '.gitconfig' }
         - { src: 'zsh/.zshrc', dest: '.zshrc' }
         - { src: 'zsh/.p10k.zsh', dest: '.p10k.zsh' }
+        - { src: 'nvim', dest: '.config/nvim' }
 
     - name: Install and configure ZSH
       block:
@@ -146,32 +147,41 @@
             state: present
             backup: yes
 
-    - name: Download and install Neovim stable via AppImage
-      get_url:
-        url: https://github.com/neovim/neovim/releases/download/stable/nvim.appimage
-        dest: "{{ ansible_user_dir }}"
-        mode: 0755
-      become: yes
+    - name: Install and configure neovim
+      block:
+      - name: Download and install Neovim stable via AppImage
+        get_url:
+          url: https://github.com/neovim/neovim/releases/download/stable/nvim.appimage
+          dest: "{{ ansible_user_dir }}"
+          mode: 0755
+        become: yes
 
-    - name: Extract Neovim stable from AppImage
-      command: "{{ ansible_user_dir }}/nvim.appimage --appimage-extract"
-      args:
-        chdir: "{{ ansible_user_dir }}"
-      become: yes
+      - name: Extract Neovim stable from AppImage
+        command: "{{ ansible_user_dir }}/nvim.appimage --appimage-extract"
+        args:
+          chdir: "{{ ansible_user_dir }}"
+        become: yes
 
-    - name: Move Neovim stable
-      ansible.builtin.shell: "mv {{ ansible_user_dir }}/squashfs-root /opt/nvim"
-      become: yes
-      args:
-        creates: /opt/nvim
+      - name: Move Neovim stable
+        ansible.builtin.shell: "mv {{ ansible_user_dir }}/squashfs-root /opt/nvim"
+        become: yes
+        args:
+          creates: /opt/nvim
 
-    - name: Create symlink for Neovim stable
-      ansible.builtin.file:
-        src: /opt/nvim-stable/usr/bin/nvim
-        dest: /usr/local/bin/nvim
-        state: link
-        force: yes
-      become: true
+      - name: Create symlink for Neovim stable
+        ansible.builtin.file:
+          src: /opt/nvim-stable/usr/bin/nvim
+          dest: /usr/local/bin/nvim
+          state: link
+          force: yes
+        become: true
+
+      - name: Clone packer.nvim
+        git:
+          repo: https://github.com/wbthomason/packer.nvim
+          dest: "{{ ansible_user_dir }}/.local/share/nvim/site/pack/packer/start/packer.nvim"
+          depth: 1
+
 
 
 
