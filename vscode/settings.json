@@ -42,7 +42,6 @@
         "<C-c>": false,
         "<C-v>": false,
         "<C-z>": false,
-        "<C-n>": false,
         "<C-f>": false,
         "<C-r>": false,
     },
@@ -113,6 +112,19 @@
         }
     ],
     "vim.normalModeKeyBindingsNonRecursive": [
+        //Hide all
+        {
+            "before": [
+                "<leader>",
+                "h",
+                "a"
+            ],
+            "commands": [
+                "workbench.action.closePanel",
+                "workbench.action.closeSidebar"
+            ]
+
+        },
         // Terminal
         {
             "before": [
@@ -470,6 +482,6 @@
     "workbench.colorTheme": "Catppuccin Mocha",
     "window.menuBarVisibility": "toggle",
     "vim.cursorStylePerMode.normal": "block",
-    "window.zoomLevel": -1,
-    "diffEditor.ignoreTrimWhitespace": false
+    "diffEditor.ignoreTrimWhitespace": false,
+    "window.zoomLevel": 2
 }
