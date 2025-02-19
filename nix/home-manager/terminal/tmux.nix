@@ -60,8 +60,8 @@
         # vim-like pane resizing  
         bind -r C-k resize-pane -U
         bind -r C-j resize-pane -D
-        bind -r C-h resize-pane -L
-        bind -r C-l resize-pane -R
+        bind -r C-h resize-pane -L 5
+        bind -r C-l resize-pane -R 5
         
         # vim-like window switching
         bind -n M-H previous-window 
