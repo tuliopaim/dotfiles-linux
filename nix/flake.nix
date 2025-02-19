@@ -21,7 +21,7 @@
       inherit (self) outputs;
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; config.allowUnfree = true; };
-      pkgs-unstable = import nixpkgs-unstable { inherit system; config.allowUnfree = true; };
+      pkgs-unstable = import inputs.nixpkgs-unstable { inherit system; config.allowUnfree = true; };
     in
     {
       nixosConfigurations.iso = nixpkgs.lib.nixosSystem {
@@ -32,7 +32,7 @@
           ./hosts/iso/configuration.nix
         ];
         specialArgs = {
-          inherit inputs outputs;
+          inherit inputs;
         };
       };
 
@@ -42,6 +42,7 @@
           inherit pkgs inputs outputs;
           username = "tuliopaim";
           hostname = "nixos";
+          inherit inputs;
         };
         modules = [
           ./hosts/laptop/configuration.nix
@@ -51,8 +52,7 @@
       homeConfigurations."tuliopaim" = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
         extraSpecialArgs = {
-          inherit inputs outputs;
-          inherit pkgs-unstable;
+          inherit inputs system pkgs-unstable;
           username = "tuliopaim";
           hyprlandProfile = "laptop";
         };
