@@ -23,6 +23,7 @@
     postgresql
     postgresql_jdbc
     typescript
+    dbeaver-bin
   ];
 
   home.sessionVariables = {
