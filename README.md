@@ -31,8 +31,8 @@ All configurations are applied for my 3 users.
      - user-theme
 
 ### TODO:
-- [ ] Script to set users to developer group
-- [ ] Script to change the ownership/permissions on the shared folders
 - [ ] Install lazygit and lazydocker
 - [ ] Make ansible files work with Arch
-
+- [ ] Save sway config  
+- [ ] Screenshot stuff
+    - grim, slurp, wl-copy

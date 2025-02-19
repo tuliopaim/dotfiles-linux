@@ -1,0 +1,10 @@
+2024-02-08 11:41:37 - [main.c:1201] Found config at /etc/swaylock/config
+2024-02-08 11:41:37 - [main.c:1090] Config Line #6: image=/usr/share/backgrounds/default.png
+2024-02-08 11:41:37 - [pam.c:88] Prepared to authorize user tuliopaim
+2024-02-08 11:41:37 - [main.c:486] Loaded image /usr/share/backgrounds/default.png for output *
+2024-02-08 11:41:37 - [main.c:1090] Config Line #7: scaling=fill
+2024-02-08 11:41:37 - [main.c:1211] Parsing CLI Args
+2024-02-08 11:41:37 - [main.c:1268] Using ext-session-lock-v1
+2024-02-08 11:41:41 - [comm.c:22] received pw check request
+2024-02-08 11:41:43 - [pam.c:105] pam_authenticate failed: invalid credentials
+2024-02-08 11:41:50 - [comm.c:22] received pw check request

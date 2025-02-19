@@ -1,35 +1,76 @@
----
+- name: Install packages
+  include_tasks: install_packages.yml
+  tags: ['packages']
+
 - name: Install and configure ZSH
   block:
+    - name: Install common packages
+      block:
+        - name: Install dnf-plugins-core
+          become: yes
+          command: dnf install -y dnf-plugins-core
+          tags: ['packages']
+          
+        - name: Install required packages (Fedora)
+          become: yes
+          ansible.builtin.dnf:
+            name:
+              - htop
+              - curl
+              - tree
+              - bash-completion
+              - make
+              - pip
+              - zsh
+              - tmux
+              - git
+              - unzip
+              - gcc
+              - gcc-c++
+              - fzf
+              - fd-find
+              - xclip
+              - alacritty
+              - ripgrep
+              - snapd
+              - flameshot
+              - copyq
+              - bat
+              - obs-studio
+              - docker-ce
+              - docker-ce-cli
+              - containerd.io 
+              - docker-buildx-plugin
+              - docker-compose-plugin
+            state: present
+          when: ansible_distribution == 'Fedora'
+          tags: ['packages']
 
-    - name: Install dnf-plugins-core
-      become: yes
-      command: dnf install dnf-plugins-core
-      tags: ['packages']
+        - name: Install FNM and Node (Fedora)
+          shell: |
+            curl -fsSL https://fnm.vercel.app/install | bash
+            fnm install 20.11
+          when: ansible_distribution == 'Fedora'
+          tags: ['packages']
+      when: ansible_distribution == 'Fedora'
 
-    - name: Add Docker repository
+    - name: Install required packages (Arch)
       become: yes
-      command: dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
-      tags: ['packages']
-
-    - name: Install required packages
-      become: yes
-      ansible.builtin.dnf:
+      pacman:
         name:
           - htop
           - curl
           - tree
           - bash-completion
           - make
-          - pip
+          - python-pip
           - zsh
           - tmux
           - git
           - unzip
           - gcc
-          - gcc-c++
           - fzf
-          - fd-find
+          - fd
           - xclip
           - alacritty
           - ripgrep
@@ -38,19 +79,14 @@
           - copyq
           - bat
           - obs-studio
-          - docker-ce
-          - docker-ce-cli
-          - containerd.io 
-          - docker-buildx-plugin
-          - docker-compose-plugin
-        state: present
+          - docker
       tags: ['packages']
+      when: ansible_distribution == 'Arch'
 
-    - name: Install FNM
-      shell: curl -fsSL https://fnm.vercel.app/install | bash
+    - name: Install FNM and Node (Arch)
+      become: yes
+      shell: |
+        curl -fsSL https://fnm.vercel.app/install | bash
+        fnm install 20.11
       tags: ['packages']
-
-    - name: Install Node
-      command: fnm install 20.11
-      tags: ['packages']
-
+      when: ansible_distribution == 'Arch'
