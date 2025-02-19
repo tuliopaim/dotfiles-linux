@@ -45,6 +45,8 @@ alias tutpa='cd /mnt/c/Users/tutpa'
 alias dotfiles='cd ~/.dotfiles'
 alias sshconfig='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_tuliopaim_github'
 
+export GIT_CONFIG=~/.gitconfig
+
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
 plugins=(zsh-autosuggestions)
