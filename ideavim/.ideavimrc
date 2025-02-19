@@ -33,10 +33,10 @@ sethandler <c-j> a:vim
 sethandler <c-k> a:vim
 sethandler <c-i> a:vim
 sethandler <c-o> a:vim
+sethandler <c-r> a:vim
 
 " ide shortcuts
 sethandler <c-f> a:ide
-sethandler <c-r> a:ide
 sethandler <c-c> a:ide
 sethandler <c-v> a:ide
 sethandler <c-t> a:ide
@@ -131,7 +131,7 @@ map <leader>fn :action NewScratchFile<CR>
 map <leader>fs :action FindInPath<CR>
 
 " Auto ident lines
-nnoremap = :action AutoIndentLines<CR>
+nnoremap <leader>gf :action AutoIndentLines<CR>
 
 " Refactoring
 map <leader>rn :action RenameElement<CR>
@@ -148,15 +148,14 @@ nnoremap gd :action GotoDeclaration<CR>
 nnoremap gt :action GotoTest<CR>
 nnoremap fd :action FileStructurePopup<CR>
 nnoremap <leader>k :action ShowErrorDescription<CR>
-nnoremap <leader>ca :action CallInlineCompletionAction<CR>
-
+nnoremap <leader>ca :action ShowIntentionActions<CR>
 
 " Build
 nnoremap <leader>rs :action RebuildSolutionAction<CR>
 nnoremap <leader>rc :action CleanSolutionAction<CR>
 nnoremap <leader>rp :action ManageRecentProjects<CR>
 
-nnoremap ]e :action GotoNextError<CR>
+nnoremap ]e :action ReSharperGotoNextErrorInSolution<CR>
 nnoremap ge :action ReSharperGotoNextErrorInSolution<CR>
 nnoremap gE :action GotoPreviousError<CR>
 
