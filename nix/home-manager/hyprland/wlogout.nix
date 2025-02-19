@@ -1,0 +1,46 @@
+{ pkgs, config, ... }:
+
+{
+  programs.wlogout = {
+    enable = true;
+    layout = [
+      {
+        label = "lock";
+        action = "sleep 1; ${pkgs.swaylock-effects}/bin/swaylock --screenshots --clock --indicator --effect-pixelate 6 --effect-blur 4x4";
+        text = "Lock";
+        keybind = "l";
+      }
+      {
+        label = "hibernate";
+        action = "sleep 1; systemctl hibernate";
+        text = "Hibernate";
+        keybind = "h";
+      }
+      {
+        label = "logout";
+        action = "sleep 1; hyprctl dispatch exit";
+        text = "Exit";
+        keybind = "e";
+      }
+      {
+        label = "shutdown";
+        action = "sleep 1; systemctl poweroff";
+        text = "Shutdown";
+        keybind = "s";
+      }
+      {
+        label = "suspend";
+        action = "sleep 1; systemctl suspend";
+        text = "Suspend";
+        keybind = "u";
+      }
+      {
+        label = "reboot";
+        action = "sleep 1; systemctl reboot";
+        text = "Reboot";
+        keybind = "r";
+      }
+    ];
+  };
+
+}
