@@ -73,8 +73,12 @@ nnoremap <leader>ax :action CloseAllEditors<CR>
 
 " Terminal
 nnoremap <leader>tr :action ActivateTerminalToolWindow<CR>
+
 " Tests
 nnoremap <leader>tt :action ActivateUnitTestsToolWindow<CR>
+nnoremap <leader>rd :action RiderUnitTestDebugContextAction<CR>
+nnoremap <leader>rt :action RiderUnitTestRunContextAction<CR>
+
 
 " Tab navigation
 nnoremap gk :tabnext<CR>

@@ -42,12 +42,16 @@ alias ....='cd ../..'
 alias ......='cd ../../..'
 alias dev='cd ~/dev/'
 alias dotfiles='cd /usr/local/share/.dotfiles'
+alias via='/usr/local/bin/via.AppImage'
 
 alias sshpersonal='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_personal_gh'
 
 alias gp='git pull'
 alias gps='git push'
 alias gs='git status'
+alias gc='git commit'
+alias gl='git log'
+alias lg='lazygit'
 
 bindkey '^ ' autosuggest-accept
 
@@ -67,3 +71,9 @@ export FZF_DEFAULT_OPTS="--color=16 --color=fg+:#FF5E7D --color=bg+:#002B36 --co
 # fnm
 export PATH="/home/$USER/.local/share/fnm:$PATH"
 eval "`fnm env`"
+
+export PATH="/home/$USER/.local/bin:$PATH"
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
