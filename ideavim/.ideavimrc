@@ -41,11 +41,14 @@ sethandler <c-v> a:ide
 " map leader from , to space
 let mapleader = "\<Space>"
 
+" line clean
+nnoremap <leader>lc 0Dj
+
 " Split
 nnoremap <leader>v :action SplitVertically<CR>
 nnoremap <leader>b :action SplitHorizontally<CR>
-nnoremap <leader>= :action Unsplit<CR>
-nnoremap <leader>l :action MoveEditorToOppositeTabGroup<CR>
+nnoremap <leader>w= :action Unsplit<CR>
+nnoremap <leader>wl :action MoveEditorToOppositeTabGroup<CR>
 
 " Move between splits
 nnoremap <c-h> <c-w>h
@@ -54,10 +57,10 @@ nnoremap <c-k> <c-w>k
 nnoremap <c-j> <c-w>j
 
 " Resize splits
-nnoremap <leader>wh :action StretchSplitToLeft<CR>
-nnoremap <leader>wl :action StretchSplitToRight<CR>
-nnoremap <leader>wk :action StretchSplitToTop<CR>
-nnoremap <leader>wj :action StretchSplitToBottom<CR>
+nnoremap <leader>sh :action StretchSplitToLeft<CR>
+nnoremap <leader>sl :action StretchSplitToRight<CR>
+nnoremap <leader>sk :action StretchSplitToTop<CR>
+nnoremap <leader>sj :action StretchSplitToBottom<CR>
 
 " Jump between methods
 nnoremap [[ :action MethodUp<CR>
@@ -178,14 +181,14 @@ let g:WhichKeyDesc_unfold_all = "<leader>zo Unfold all regions"
 
 let g:WhichKeyDesc_window_split_vertical = "<leader>v Split Vertically"
 let g:WhichKeyDesc_window_split_horizontal = "<leader>b Split Horizontally"
-let g:WhichKeyDesc_window_split_insplit = "<leader>= Unsplit"
-let g:WhichKeyDesc_window_split_move_editor = "<leader>l Move editor to opposite"
+let g:WhichKeyDesc_window_split_unsplit = "<leader>w= Unsplit"
+let g:WhichKeyDesc_window_split_move_editor = "<leader>wl Move editor to opposite"
 
-let g:WhichKeyDesc_window = "<leader>w Resize Splits"
-let g:WhichKeyDesc_window_resize_split_left = "<leader>wh Resize left"
-let g:WhichKeyDesc_window_resize_split_right = "<leader>wl Resize right"
-let g:WhichKeyDesc_window_resize_split_bottom = "<leader>wj Resize Bottom"
-let g:WhichKeyDesc_window_resize_split_top = "<leader>wk Resize Top"
+let g:WhichKeyDesc_window = "<leader>s Resize Splits"
+let g:WhichKeyDesc_window_stretch_split_left = "<leader>sh Resize left"
+let g:WhichKeyDesc_window_stretch_split_right = "<leader>sl Resize right"
+let g:WhichKeyDesc_window_stretch_split_bottom = "<leader>sj Resize Bottom"
+let g:WhichKeyDesc_window_stretch_split_top = "<leader>sk Resize Top"
 
 let g:WhichKeyDesc_display = "<leader>d Display options"
 let g:WhichKeyDesc_zen_mode = "<leader>dz Toggle Zen mode"

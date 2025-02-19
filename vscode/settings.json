@@ -42,8 +42,7 @@
         "<C-c>": false,
         "<C-v>": false,
         "<C-z>": false,
-        "<C-f>": false,
-        "<C-r>": false,
+        "<C-f>": false
     },
     "vim.visualModeKeyBindingsNonRecursive": [
         {
@@ -64,7 +63,7 @@
             ],
             "after": [
                 "\"",
-                "+",
+                "0",
                 "p"
             ]
         },
@@ -84,7 +83,6 @@
                 "editor.action.indentLines"
             ]
         },
-        // Move selected lines while staying in visual mode
         {
             "before": [
                 "J"
@@ -112,7 +110,6 @@
         }
     ],
     "vim.normalModeKeyBindingsNonRecursive": [
-        //Hide all
         {
             "before": [
                 "<leader>",
@@ -521,6 +518,5 @@
     "workbench.colorTheme": "Catppuccin Mocha",
     "window.menuBarVisibility": "toggle",
     "vim.cursorStylePerMode.normal": "block",
-    "diffEditor.ignoreTrimWhitespace": false,
-    "window.zoomLevel": -1
+    "diffEditor.ignoreTrimWhitespace": false
 }
