@@ -40,7 +40,7 @@
             "6": "6", // work browser 
             "7": "7", // slack + obsidian 
             "8": "8", // brush
-            "9": "9," // random
+            "9": "9" // random
         }
     },
     // Hyprland Window
@@ -51,7 +51,7 @@
             "(.*) - Microsoft Edge": "$1",
             "(.*) - Outlook": "$1",
             "(.*) Microsoft Teams": "$1",
-            "tmux(.*)": "Tmux"
+            "tmux(.*)": "TMUX"
         },
         "separate-outputs": true
     },
