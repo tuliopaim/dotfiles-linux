@@ -7,9 +7,10 @@
     },
     "github.copilot.enable": {
         "*": true,
-        "yaml": true,
         "plaintext": false,
-        "markdown": false
+        "markdown": true,
+        "scminput": false,
+        "yaml": true
     },
     "grammarly.files.include": [
         "**/*.md",
@@ -21,6 +22,7 @@
     "workbench.iconTheme": "vscode-icons",
     "editor.suggest.insertMode": "replace",
     "workbench.startupEditor": "newUntitledFile",
+    "git.autofetch": true,
     "diffEditor.wordWrap": "off",
     "terminal.integrated.fontFamily": "'Fira Code Nerd Font', Consolas, 'Courier New', monospace",
     "explorer.confirmDragAndDrop": false,
@@ -32,10 +34,9 @@
     "editor.lineNumbers": "relative",
     "editor.acceptSuggestionOnCommitCharacter": false,
     //VIM
-    "vim.foldfix": false,
+    "vim.cursorStypePerMode.normal": "block",
     "vim.smartRelativeLine": true,
     "vim.searchHighlightColor": "rgba(150, 255, 255, 0.3)",
-    "vim.highlightedyank.enable": true,
     "vim.incsearch": true,
     "vim.hlsearch": true,
     "vim.useSystemClipboard": false,
@@ -326,26 +327,6 @@
                 "workbench.view.testing.focus"
             ]
         },
-        {
-            "before": [
-                "<leader>",
-                "r",
-                "t"
-            ],
-            "commands": [
-                "testing.runAtCursor"
-            ]
-        },
-        {
-            "before": [
-                "<leader>",
-                "r",
-                "d"
-            ],
-            "commands": [
-                "testing.debugAtCursor"
-            ]
-        },
         // Terminal
         {
             "before": [
@@ -420,20 +401,6 @@
                 }
             ]
         },
-        {
-            "before": [
-                "<leader>",
-                "r",
-                "n"
-            ],
-            "after": [],
-            "commands": [
-                {
-                    "command": "editor.action.rename"
-                }
-            ]
-        },
-
         // LSP
         {
             "before": [
@@ -620,10 +587,5 @@
     "window.menuBarVisibility": "toggle",
     "vim.cursorStylePerMode.normal": "block",
     "diffEditor.ignoreTrimWhitespace": false,
-    "explorer.autoReveal": false,
-    "files.watcherExclude": {
-        "**/.bloop": true,
-        "**/.metals": true,
-        "**/.ammonite": true
-    }
+    "window.zoomLevel": 1
 }
