@@ -1,4 +1,4 @@
-{ pkgs, config, ... }:
+{ config, ... }:
 
 {
   programs.zsh = {
@@ -8,7 +8,7 @@
     syntaxHighlighting.enable = true;
 
     shellAliases = {
-      ls = "ls -la";
+      ls = "eza -la";
       update = "sudo nixos-rebuild switch --flake ~/.dotfiles/nix";
       ".." = "cd ..";
       "...." = "cd ../..";
