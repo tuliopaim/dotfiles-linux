@@ -9,6 +9,7 @@
       ../../system/boot.nix
       ../../system/bluetooth.nix
       ../../system/ssh.nix
+      ../../system/firewall.nix
       ../../system/hyprland.nix
       ../../system/locale.nix
       ../../system/docker.nix
