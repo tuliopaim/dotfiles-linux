@@ -47,3 +47,8 @@
   ansible.builtin.shell: /tmp/dotnet/dotnet-install.sh --channel 8.0
   when: not dotnet_install_script.stat.exists
   tags: ['dotnet', 'dotnet8']
+
+- name: Install dotnet ef
+  ansible.builtin.shell: dotnet tool install -g dotnet-ef
+  when: not dotnet_install_script.stat.exists
+  tags: ['dotnet', 'ef']
