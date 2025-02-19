@@ -99,6 +99,7 @@ return {
             vim.keymap.set("n", "<F7>", dap.step_out)
             vim.keymap.set("n", "<F6>", dap.step_back)
             vim.keymap.set("n", "<F2>", dap.restart)
+            vim.keymap.set("n", "<F4>", "<cmd>lua require'dap'.disconnect({ terminateDebuggee = true })<CR><cmd>lua require'dap'.close()<CR>")
 
             vim.keymap.set("n", "<leader>de", function()
                 local expr = vim.fn.input("Evaluate Expression: ")

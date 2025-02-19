@@ -42,5 +42,6 @@
     age
     lm_sensors
     glow
+    gnumake
   ];
 }
