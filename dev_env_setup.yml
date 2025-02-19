@@ -24,18 +24,33 @@
           - ruby-dev
         state: present
 
-    - name: Decrypt github SSH key
-      ansible.builtin.include_vars:
-        file: ssh/id_tuliopaim_github.yml
-        name: ssh_key_vars
+    - name: Copy Github SSH key
+      block:
+      - name: Ensure the SSH folder exists
+        ansible.builtin.file:
+          path: "{{ ansible_user_dir }}/.ssh/"
+          state: directory
 
-    - name: Copy decrypted github SSH key to ~/.ssh/
-      ansible.builtin.copy:
-        content: "{{ ssh_key_vars.ssh_private_key }}"
-        dest: "{{ ansible_user_dir }}/.ssh-teste/id_tuliopaim_github"
-        owner: "{{ ansible_user_id }}"
-        group: "{{ ansible_user_id }}"
-        mode: '0600'
+      - name: Decrypt github SSH key
+        ansible.builtin.include_vars:
+          file: ssh/id_tuliopaim_github.yml
+          name: ssh_key_vars
+
+      - name: Copy decrypted github SSH key to ~/.ssh/
+        ansible.builtin.copy:
+          content: "{{ ssh_key_vars.ssh_private_key }}"
+          dest: "{{ ansible_user_dir }}/.ssh/id_tuliopaim_github"
+          owner: "{{ ansible_user_id }}"
+          group: "{{ ansible_user_id }}"
+          mode: '0600'
+
+      - name: Copy public github SSH key 
+        ansible.builtin.copy:
+          content: "{{ ansible_user_dir }}/.dotfiles/ssh/id_tuliopaim_github.pub"
+          dest: "{{ ansible_user_dir }}/.ssh/id_tuliopaim_github.pub"
+          owner: "{{ ansible_user_id }}"
+          group: "{{ ansible_user_id }}"
+          mode: '0600'
 
     - name: Install and configure ZSH
       block:
@@ -148,5 +163,17 @@
           ansible.builtin.command:
             cmd: tar zxf /tmp/dotnet-sdk-7.0.202-linux-x64.tar.gz -C "{{ ansible_user_dir }}/dotnet/net7"
           when: not dotnet_folder.stat.exists
+
+        - name: Setup .NET environment variables
+          ansible.builtin.lineinfile:
+            path: "{{ ansible_user_dir }}/.profile"
+            line: "export {{ item }}"
+            state: present
+            insertafter: EOF
+            regexp: "^export {{ item }}"
+          loop:
+            - "DOTNET_ROOT=$HOME/dotnet"
+            - "PATH=$PATH:$HOME/dotnet/net6"
+            - "PATH=$PATH:$HOME/dotnet/net7"
 
 
