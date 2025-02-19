@@ -7,6 +7,8 @@ esac
 # Path to your oh-my-bash installation.
 export OSH='/home/tuliopaim/.oh-my-bash'
 
+export QT_QPA_PLATFORM=wayland
+
 set -o vi
 
 # Set name of the theme to load. Optionally, if you set this to "random"
@@ -20,7 +22,6 @@ set opt no_beep
 
 # dotnet 
 export DOTNET_ROOT="/home/$USER/.dotnet"
-export QT_QPA_PLATFORM=wayland
 
 export PATH=$PATH:/home/$USER/.dotnet:~/.dotnet/tools
 
