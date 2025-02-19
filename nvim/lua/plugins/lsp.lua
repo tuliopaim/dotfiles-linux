@@ -1,42 +1,45 @@
 local on_attach = function(client, bufnr)
-
-    local map = function(keys, func, desc)
-        if desc then
-            desc = "LSP: " .. desc
-        end
-
-        vim.keymap.set("n", keys, func, { buffer = bufnr, desc = desc })
-    end
-
-    local imap = function(keys, func, desc)
-        if desc then
-            desc = "LSP: " .. desc
-        end
-
-        vim.keymap.set("i", keys, func, { buffer = bufnr, desc = desc })
-    end
-
-    map("gi", vim.lsp.buf.implementation, "[G]oto [I]mplementation")
-
     local telescope_builtin = require("telescope.builtin")
 
-    map('gd', telescope_builtin.lsp_definitions, '[G]oto [D]efinition')
-    map("gr", telescope_builtin.lsp_references, "LSP: [G]oto [R]eferences" )
-    map("gi", telescope_builtin.lsp_implementations, "[G]o to [I]mplementations")
-    map('<leader>D', telescope_builtin.lsp_type_definitions, 'Type [D]efinition')
-    map("<leader>ds", telescope_builtin.lsp_document_symbols, "[D]ocument [S]ymbols")
-    map("<leader>ws", telescope_builtin.lsp_dynamic_workspace_symbols, "[W]orkspace [S]ymbols")
+    vim.keymap.set("n", "gi", vim.lsp.buf.implementation, {buffer = bufnr, desc = "[G]oto [I]mplementation"})
 
-    map("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
-    map("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
+    vim.keymap.set("n", 'gd', telescope_builtin.lsp_definitions, {buffer = bufnr, desc = '[G]oto [D]efinition' })
+    vim.keymap.set("n", "gr", telescope_builtin.lsp_references, {buffer = bufnr, desc = "LSP: [G]oto [R]eferences" })
+    vim.keymap.set("n", "gi", telescope_builtin.lsp_implementations, {buffer = bufnr, desc = "[G]o to [I]mplementations"})
+    vim.keymap.set("n", '<leader>D', telescope_builtin.lsp_type_definitions, {buffer = bufnr, desc = 'Type [D]efinition'})
+    vim.keymap.set("n", "<leader>ds", telescope_builtin.lsp_document_symbols, {buffer = bufnr, desc = "[D]ocument [S]ymbols"})
+    vim.keymap.set("n", "<leader>ws", telescope_builtin.lsp_dynamic_workspace_symbols, {buffer = bufnr, desc = "[W]orkspace [S]ymbols"})
 
-    map("K", vim.lsp.buf.hover, "Hover Documentation")
-    map("<leader>k", vim.diagnostic.open_float, "Float Documentation")
-    map("<leader>K", vim.lsp.buf.signature_help, "Signature Help")
-    imap("<c-k>", vim.lsp.buf.signature_help, "Signature Help")
+    vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, {buffer = bufnr, desc = "[R]e[n]ame"})
+    vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, {buffer = bufnr, desc = "[C]ode [A]ction"})
+
+    vim.keymap.set("n", "K", vim.lsp.buf.hover, {buffer = bufnr, desc = "Hover Documentation"})
+    vim.keymap.set("n", "<leader>k", vim.diagnostic.open_float, {buffer = bufnr, desc = "Float Documentation"})
+    vim.keymap.set("n", "<leader>K", vim.lsp.buf.signature_help, {buffer = bufnr, desc = "Signature Help"})
+
+    vim.keymap.set("i", "<c-k>", vim.lsp.buf.signature_help, {buffer = bufnr, desc = "Signature Help"})
 end
 
 return {
+
+    {
+        "seblj/roslyn.nvim",
+        ft = "cs",
+        opts = {
+            exe = { "Microsoft.CodeAnalysis.LanguageServer" },
+            config = {
+                on_attach = on_attach,
+                handlers = {
+                    ["textDocument/hover"] = function(err, result, ctx, config)
+                        if result and result.contents and result.contents.value then
+                            result.contents.value = result.contents.value:gsub("\\([^%w])", "%1")
+                        end
+                        vim.lsp.handlers["textDocument/hover"](err, result, ctx, config)
+                    end,
+                },
+            },
+        }
+    },
 
     { "williamboman/mason.nvim", config = true },
 
@@ -47,11 +50,9 @@ return {
             "neovim/nvim-lspconfig",
 			"hrsh7th/cmp-nvim-lsp",
             "folke/neodev.nvim",
-            "seblj/roslyn.nvim",
             "Decodetalkers/csharpls-extended-lsp.nvim",
         },
         config = function()
-
             vim.diagnostic.config({
                 virtual_text = true,
                 severity_sort = true,
@@ -70,22 +71,6 @@ return {
                 vim.lsp.protocol.make_client_capabilities(),
                 cmp_nvim_lsp.default_capabilities()
             )
-
-            -- DOTNET LSP
-            require("roslyn").setup({
-                exe = { "Microsoft.CodeAnalysis.LanguageServer" },
-                config = {
-                    on_attach = on_attach,
-                    handlers = {
-                        ["textDocument/hover"] = function(err, result, ctx, config)
-                            if result and result.contents and result.contents.value then
-                                result.contents.value = result.contents.value:gsub("\\([^%w])", "%1")
-                            end
-                            vim.lsp.handlers["textDocument/hover"](err, result, ctx, config)
-                        end,
-                    },
-                },
-            })
 
             require("mason-lspconfig").setup({
                 ensure_installed = { "cssls", "docker_compose_language_service", "dockerls", "eslint", "rnix", "ts_ls" }
