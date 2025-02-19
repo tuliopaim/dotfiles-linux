@@ -5,6 +5,7 @@
       ./hardware-configuration.nix
       ../../hosts/desktop/users/tuliopaim
       ../../system/sddm
+      ../../system/nvidia.nix
       ../../system/nix.nix
       ../../system/boot.nix
       ../../system/hyprland.nix
