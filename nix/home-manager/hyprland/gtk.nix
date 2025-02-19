@@ -1,9 +1,16 @@
-{ config , pkgs , inputs , ... }:
+{ pkgs, ... }:
 {
   dconf.settings = {
     "org/gnome/desktop/interface" = {
       color-scheme = "prefer-dark";
     };
+  };
+
+  home.pointerCursor = {
+    gtk.enable = true;
+    package = pkgs.bibata-cursors;
+    name = "Bibata-Modern-Classic";
+    size = 16;
   };
 
   gtk = {
@@ -13,8 +20,12 @@
       size = 12;
     };
     theme = {
-      name = "Adwaita-dark";
       package = pkgs.gnome.gnome-themes-extra;
+      name = "Adwaita-dark";
+    };
+    iconTheme = {
+      package = pkgs.gnome.adwaita-icon-theme;
+      name = "Adwaita";
     };
   };
 
