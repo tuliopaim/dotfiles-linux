@@ -1,0 +1,71 @@
+---
+- name: Install and configure ZSH
+  block:
+    - name: Changing Default Shell to ZSH
+      become: yes
+      user: 
+        name: '{{ ansible_user_id }}'
+        shell: /bin/zsh
+
+    - name: Check if Oh My Zsh is installed
+      ansible.builtin.stat:
+        path: "{{ ansible_user_dir }}/.oh-my-zsh"
+      register: zsh_folder
+
+    - name: Install Oh My Zsh
+      shell: sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+      args:
+        creates: "{{ ansible_user_dir }}/.oh-my-zsh"
+      when: not zsh_folder.stat.exists
+
+    - name: Check if Powerlevel10k is installed
+      ansible.builtin.stat:
+        path: "{{ ansible_user_dir }}/.oh-my-zsh/custom/themes/powerlevel10k"
+      register: powerlevel10k_folder
+
+    - name: Install Powerlevel10k
+      git:
+        repo: https://github.com/romkatv/powerlevel10k.git
+        dest: "{{ ansible_user_dir }}/.oh-my-zsh/custom/themes/powerlevel10k"
+        clone: yes
+        depth: 1
+        force: yes
+      when: not powerlevel10k_folder.stat.exists
+
+    - name: Set Zsh theme to Powerlevel10k
+      lineinfile:
+        path: "{{ ansible_user_dir }}/.zshrc"
+        regexp: '^ZSH_THEME='
+        line: 'ZSH_THEME="powerlevel10k/powerlevel10k"'
+        state: present
+        backup: yes
+
+    - name: Check if zsh-autosuggestions is installed
+      ansible.builtin.stat:
+        path: "{{ ansible_user_dir }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+      register: zsh_autosuggestions_folder
+
+    - name: Install zsh-autosuggestions
+      git:
+        repo: https://github.com/zsh-users/zsh-autosuggestions.git
+        dest: "{{ ansible_user_dir }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+        clone: yes
+        depth: 1
+        force: yes
+      when: not zsh_autosuggestions_folder.stat.exists
+
+    - name: Add zsh-autosuggestions to plugins list
+      lineinfile:
+        path: "{{ ansible_user_dir }}/.zshrc"
+        regexp: '^plugins='
+        line: 'plugins=(zsh-autosuggestions)'
+        state: present
+        backup: yes
+
+    - name: Set FiraCode NF font in terminal
+      lineinfile:
+        path: "{{ ansible_user_dir }}/.zshrc"
+        regexp: '^export FZF_DEFAULT_OPTS='
+        line: 'export FZF_DEFAULT_OPTS="--color=16 --color=fg+:#FF5E7D --color=bg+:#002B36 --color=hl:#B48EAD --color=fg:#839496"'
+        state: present
+        backup: yes
