@@ -6,7 +6,10 @@
   tags: ['cedilha']
 
 - name: Execute fix-cedilla script
+  become: yes
+  become_user: "{{item}}"
   ansible.builtin.shell: /tmp/fix-cedilla.sh
   args:
     chdir: "{{ playbook_dir }}"
+  loop: "{{users}}"
   tags: ['cedilha']
