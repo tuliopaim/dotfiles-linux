@@ -1,7 +1,9 @@
 ---
 - name: Setup Development Environment
+  hosts: localhost
+  gather_facts: yes
 
-  block:
+  tasks:
 
     - name: Setup APT repositories
       include_tasks: ./apt-repositories_tasks.yml
@@ -30,6 +32,7 @@
           - code
           - alacritty
           - ripgrep
+          - snapd
         state: present
 
     - name: Create symbolic links 
@@ -43,6 +46,7 @@
         - { src: 'zsh/.zshrc', dest: '.zshrc' }
         - { src: 'zsh/.p10k.zsh', dest: '.p10k.zsh' }
         - { src: 'nvim', dest: '.config/nvim' }
+        - { src: 'alacritty/alacritty.yml', dest: '.config/alacritty.yml' }
 
     - name: Setup ZSH
       include_tasks: ./zsh/zsh_tasks.yml
