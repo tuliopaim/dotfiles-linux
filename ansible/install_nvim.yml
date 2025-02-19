@@ -1,62 +1,34 @@
 ---
-- name: Install and configure neovim
+- name: Simplified Neovim installation
+  hosts: all
+  become: yes  # Using 'become: yes' at the play level to apply it for all tasks that require sudo.
   vars:
-    neovim_url: https://github.com/neovim/neovim/releases/download/stable/nvim.appimage
+    neovim_url: https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage
 
-  block:
-    - name: Check if Neovim AppImage is downloaded
-      stat:
-        path: "{{ share }}/nvim.appimage"
-      register: nvim_appimage
-
-    - name: Download and install Neovim stable via AppImage
-      become: yes
+  tasks:
+    - name: Download Neovim AppImage
       get_url:
         url: "{{ neovim_url }}"
-        dest: "{{ ansible_user_dir }}"
-        mode: 0755
-      when: not nvim_appimage.stat.exists
+        dest: "{{ home }}/nvim.appimage"  # Downloads directly to the user's home directory.
+        mode: '0755'
+      register: download_task
+      become: no  # Download as the user, not root.
 
-    - name: Extract, move, set permissions and symlink Neovim if not already done
-      block:
-        - name: Check if Neovim is extracted
-          stat:
-            path: "{{ share }}/squashfs-root"
-          register: nvim_extracted
+    - name: Extract Neovim AppImage
+      command: "./nvim.appimage --appimage-extract"
+      args:
+        chdir: "{{ home }}"
+      when: download_task.changed
+      become: no  # Extract as the user, not root.
 
-        - name: Extract Neovim stable from AppImage
-          command: "{{ ansible_user_dir }}/nvim.appimage --appimage-extract"
-          become: yes
-          args:
-            chdir: "{{ ansible_user_dir }}"
-          when: not nvim_extracted.stat.exists
+    - name: Move extracted directory to root
+      command: "mv {{ home }}/squashfs-root /"
+      when: download_task.changed
 
-        - name: Ensure /opt/nvim directory exists and has correct permissions for developer group
-          become: yes
-          ansible.builtin.file:
-            path: /opt/nvim
-            state: directory
-            mode: '0775'
-            group: developer
-            recurse: yes 
+    - name: Create symlink for Neovim
+      file:
+        src: "/squashfs-root/AppRun"
+        dest: "/usr/bin/nvim"
+        state: link
+      when: download_task.changed
 
-        - name: Move Neovim stable
-          become: yes
-          ansible.builtin.shell: "mv {{ ansible_user_dir }}/squashfs-root/* /usr/local/bin/"
-          when: not nvim_extracted.stat.exists
-
-        - name: Set executable permissions for Neovim binary
-          ansible.builtin.file:
-            path: /usr/local/bin/nvim
-            mode: "u+x,g+x,o+x"
-            group: developer
-            state: file
-          become: yes
-          when: not nvim_extracted.stat.exists
-
-    - name: Set Neovim as default Git editor for each user
-      become: yes
-      become_user: "{{ item }}"
-      ansible.builtin.shell:
-        cmd: git config --global core.editor "nvim"
-      loop: "{{ users }}"
