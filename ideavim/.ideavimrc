@@ -44,6 +44,11 @@ let mapleader = "\<Space>"
 " line clean
 nnoremap <leader>lc 0Dj
 
+" helpers
+
+nnoremap <c-d> <c-d>zz
+nnoremap <c-u> <c-u>zz
+
 " Split
 nnoremap <leader>v :action SplitVertically<CR>
 nnoremap <leader>b :action SplitHorizontally<CR>
@@ -78,7 +83,6 @@ nnoremap <leader>tr :action ActivateTerminalToolWindow<CR>
 nnoremap <leader>tt :action ActivateUnitTestsToolWindow<CR>
 nnoremap <leader>rd :action RiderUnitTestDebugContextAction<CR>
 nnoremap <leader>rt :action RiderUnitTestRunContextAction<CR>
-
 
 " Tab navigation
 nnoremap gk :tabnext<CR>
@@ -117,7 +121,7 @@ map <leader>dz :action ToggleZenMode<CR>
 map <leader>df :action ToggleFullScreen<CR>
 
 " File navigation
-map <leader>ff :action SearchEverywhere<CR>
+map <leader>ff :action GotoFile<CR>
 map <leader>fa :action GotoAction<CR>
 map <leader>fn :action NewScratchFile<CR>
 map <leader>fd :action Find<CR>
@@ -169,6 +173,7 @@ nmap <leader>4 :action HarpoonerOpenFile3<cr>
 nmap <leader>hh :action HarpoonerQuickMenu<cr>
 nmap <leader>hi :action HarpoonerAddFile<cr>
 
+command W w
 
 let g:WhichKey_FontSize = 16
 let g:WhichKey_CommandColor = "#41ead4"
