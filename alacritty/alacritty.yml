@@ -35,8 +35,11 @@ font:
 
 colors:
   primary:
-    background: '0x191919'
+    background: '0x181825'
     foreground: '0xeaeaea'
+
+window:
+  opacity: .9
 
 # Mouse bindings
 #
