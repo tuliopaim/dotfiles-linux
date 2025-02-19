@@ -8,6 +8,7 @@
       ../../system/nvidia.nix
       ../../system/nix.nix
       ../../system/boot.nix
+      ../../system/bluetooth.nix
       ../../system/hyprland.nix
       ../../system/locale.nix
       ../../system/docker.nix
