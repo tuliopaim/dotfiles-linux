@@ -2,7 +2,7 @@
 - name: Install and configure neovim
   vars:
     neovim_url: https://github.com/neovim/neovim/releases/download/stable/nvim.appimage
-    packer_repo: https://github.com/wbthomason/packer.nvim
+
   block:
     - name: Check if Neovim AppImage is downloaded
       stat:
@@ -53,46 +53,6 @@
             state: file
           become: yes
           when: not nvim_extracted.stat.exists
-
-    - name: Create destination directory for packer.nvim for user
-      become: yes
-      file:
-        path: "/home/{{ item }}/.local/share/nvim/site/pack/packer/start/packer.nvim"
-        state: directory
-        owner: "{{ item }}"
-        group: "{{ item }}"
-        mode: 0755
-      loop: "{{ users }}"
-
-    - name: Clone packer.nvim for each user if not already done and set correct ownership
-      block:
-      - name: Create necessary directories for each user
-        become: yes
-        become_user: "{{ item }}"
-        ansible.builtin.file:
-          path: "/home/{{ item }}/.local/share/nvim/site/pack/packer/start"
-          state: directory
-          mode: '0755'
-        loop: "{{ users }}"
-        
-      - name: Clone packer.nvim for each user
-        become: yes
-        become_user: "{{ item }}"
-        git:
-          repo: "https://github.com/wbthomason/packer.nvim"
-          dest: "/home/{{ item }}/.local/share/nvim/site/pack/packer/start/packer.nvim"
-          depth: 1
-        loop: "{{ users }}"
-        
-      - name: Set correct ownership for packer.nvim directory for each user
-        become: yes
-        ansible.builtin.file:
-          path: "/home/{{ item }}/.local/share/nvim/site/pack/packer"
-          owner: "{{ item }}"
-          group: "{{ item }}"
-          recurse: yes
-        loop: "{{ users }}"
-      tags: ['neovim', 'packer.nvim']
 
     - name: Set Neovim as default Git editor for each user
       become: yes
