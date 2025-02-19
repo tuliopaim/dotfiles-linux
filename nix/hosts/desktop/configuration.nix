@@ -14,6 +14,7 @@
       ../../system/pipewire.nix
       ../../system/redshift.nix
       ../../system/fonts.nix
+      ../../system/via.nix
     ];
 
   environment = {
