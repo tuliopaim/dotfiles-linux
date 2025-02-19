@@ -17,6 +17,8 @@ sethandler <c-n> a:vim
 sethandler <c-p> a:vim
 sethandler <c-a> a:vim
 sethandler <c-g> a:vim
+sethandler <c-d> a:vim
+sethandler <c-u> a:vim
 
 " ide shortcuts
 sethandler <c-f> a:ide
@@ -39,12 +41,12 @@ nnoremap <c-l> <c-w>l
 nnoremap <c-k> <c-w>k
 nnoremap <c-j> <c-w>j
 
-nnoremap <c-s>h :action StretchSplitToLeft<CR>
-nnoremap <c-s>l :action StretchSplitToRight<CR>
-nnoremap <c-s>k :action StretchSplitToTop<CR>
-nnoremap <c-s>j :action StretchSplitToBottom<CR>
+nnoremap <leader>ih :action StretchSplitToLeft<CR>
+nnoremap <leader>il :action StretchSplitToRight<CR>
+nnoremap <leader>ik :action StretchSplitToTop<CR>
+nnoremap <leader>ij :action StretchSplitToBottom<CR>
 
-noremap <leader>x :action CloseEditor<CR>
+nnoremap <leader>x :action CloseEditor<CR>
 nnoremap <leader>ax :action CloseAllEditors<CR>
 nnoremap <leader>gm :action Git.Menu<CR>
 
@@ -82,8 +84,9 @@ nnoremap <c-g> :action Vcs.QuickListPopupAction<CR>
 " Source Code Navigation
 set incsearch
 
-nnoremap <c-p> :action GotoAction<CR>
+nnoremap <c-p> :action SearchEverywhere<CR>
 nnoremap <c-t> :action GotoFile<CR>
+nnoremap <leader>f :action GotoFile<CR>
 nnoremap gr :action FindUsages<CR>
 nnoremap gi :action GotoImplementation<CR>
 nnoremap gd :action GotoDeclaration<CR>

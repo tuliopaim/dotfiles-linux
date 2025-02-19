@@ -45,6 +45,7 @@ alias dotfiles='cd /usr/local/share/.dotfiles'
 
 alias sshpersonal='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_personal_gh'
 alias sshtb='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_tb_gh'
+alias sshhe='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_he_gh'
 
 alias gp='git pull'
 alias gps='git push'
@@ -63,8 +64,8 @@ export PATH="/usr/local/bin/nvim:$PATH"
 export DOTNET_ROOT=/usr/local/share/.dotnet
 export PATH=$PATH:/usr/local/share/.dotnet:~/.dotnet/tools
 
-# fnm
-# export PATH="/usr/local/share/.fnm:$PATH"
-# eval "`fnm env`"
-
 export FZF_DEFAULT_OPTS="--color=16 --color=fg+:#FF5E7D --color=bg+:#002B36 --color=hl:#B48EAD --color=fg:#839496"
+
+# fnm
+export PATH="/home/$USER/.local/share/fnm:$PATH"
+eval "`fnm env`"
