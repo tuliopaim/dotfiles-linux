@@ -1,4 +1,10 @@
 #! /usr/bin/zsh
 
+#NVIM
 ln -s $HOME/.dotfiles/nvim/ $HOME/.config/
-ln -s $HOME/.dotfiles/.zshrc $HOME
+
+#ZSH
+ln -s $HOME/.dotfiles/zsh/.zshrc $HOME
+
+#GIT
+ln -s $HOME/.dotfiles/git/.gitconfig $HOME
