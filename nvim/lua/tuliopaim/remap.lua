@@ -29,6 +29,7 @@ vim.api.nvim_set_keymap("n", "<leader>tN", ":tabnew<CR>", opts)
 vim.api.nvim_set_keymap("n", "<leader>tp", ":tabprevious<CR>", opts)
 vim.api.nvim_set_keymap("n", "<leader>tn", ":tabnext<CR>", opts)
 vim.api.nvim_set_keymap("n", "<leader>tc", ":tabclose<CR>", opts)
+vim.api.nvim_set_keymap("n", "<leader>ts", ":tab split<CR>", opts)
 
 vim.api.nvim_set_keymap("n", "gj", ":bp<CR>", opts)
 vim.api.nvim_set_keymap("n", "gk", ":bn<CR>", opts)
