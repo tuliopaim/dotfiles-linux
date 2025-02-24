@@ -19,7 +19,8 @@ return {
             require('render-markdown').setup({
                 heading = {
                     enabled = false,
-                }
+                },
+                latex = { enabled = false }
             })
         end
     }
