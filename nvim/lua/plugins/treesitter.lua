@@ -7,6 +7,7 @@ return {
             local config = require("nvim-treesitter.configs")
             config.setup({
                 ensure_installed = {
+                    "regex",
                     "bash",
                     "c",
                     "css",
