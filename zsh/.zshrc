@@ -14,6 +14,9 @@ source $(brew --prefix)/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
 
 source $ZSH/oh-my-zsh.sh
 
+# Append a command directly
+zvm_after_init_commands+=('[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh && bindkey "^F" fzf-cd-widget')
+
 # Enable vi mode
 bindkey -v
 
@@ -76,3 +79,4 @@ eval "$(fnm env --use-on-cd --shell zsh)"
 
 # Private 
 source $HOME/dotfiles/private/private.sh
+
