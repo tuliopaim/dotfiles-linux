@@ -80,3 +80,7 @@ eval "$(fnm env --use-on-cd --shell zsh)"
 # Private 
 source $HOME/dotfiles/private/private.sh
 
+# Exports
+export QMK_HOME='~/qmk_firmware'
+export EDITOR=nvim
+
