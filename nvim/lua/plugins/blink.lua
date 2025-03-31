@@ -1,6 +1,9 @@
 return {
     'saghen/blink.cmp',
-    dependencies = 'rafamadriz/friendly-snippets',
+    dependencies = {
+        'rafamadriz/friendly-snippets',
+        'Kaiser-Yang/blink-cmp-avante'
+    },
     version = '*',
     opts = {
         keymap = { preset = 'default' },
@@ -10,8 +13,9 @@ return {
         },
 
         sources = {
-            default = { 'lsp', 'path', 'snippets', 'buffer', 'dadbod'},
+            default = { 'lsp', 'path', 'snippets', 'buffer', 'dadbod', 'avante'},
             providers = {
+                avante = { name = 'Avante',  module = 'blink-cmp-avante' },
                 dadbod = { name = "Dadbod", module = "vim_dadbod_completion.blink" },
             }
         },

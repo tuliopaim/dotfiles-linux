@@ -22,7 +22,7 @@ return {
                 nvimtree = true,
                 neotree = true,
                 symbols_outline = true,
-                telescope = true,
+                telescope = false,
                 treesitter = true,
                 treesitter_context = true,
             },
