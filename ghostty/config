@@ -6,6 +6,7 @@ background-opacity = 0.9
 background-blur-radius = 5
 
 font-size = 18
+font-family = "JetBrainsMono NFM Regular"
 
 window-padding-balance = true
 
