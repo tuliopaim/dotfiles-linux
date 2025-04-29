@@ -146,7 +146,7 @@ nnoremap gr :action FindUsages<CR>
 nnoremap gi :action GotoImplementation<CR>
 nnoremap gd :action GotoDeclaration<CR>
 nnoremap gt :action GotoTest<CR>
-nnoremap fd :action FileStructurePopup<CR>
+nnoremap <leader>ds :action FileStructurePopup<CR>
 nnoremap <leader>k :action ShowErrorDescription<CR>
 nnoremap <leader>ca :action ShowIntentionActions<CR>
 

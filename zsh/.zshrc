@@ -43,6 +43,7 @@ alias lg="lazygit"
 alias lz="lazydocker"
 alias cd="z"
 alias db="dotnet build"
+alias dt="dotnet test"
 alias tm="tmux-windownizer"
 
 # History configuration
