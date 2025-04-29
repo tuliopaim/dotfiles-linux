@@ -119,8 +119,8 @@ vim.api.nvim_create_user_command("TODO", function()
     local file_path = vim.fn.expand("~/vault/DAILY NOTES.md")
 
     -- Calculate window size (% of editor size)
-    local width = math.floor(vim.api.nvim_get_option("columns") * 0.5)
-    local height = math.floor(vim.api.nvim_get_option("lines") * 0.5)
+    local width = math.floor(vim.api.nvim_get_option("columns") * 0.6)
+    local height = math.floor(vim.api.nvim_get_option("lines") * 0.8)
 
     -- Calculate starting position to center the window
     local row = 0

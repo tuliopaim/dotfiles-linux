@@ -4,6 +4,8 @@ local on_attach = function(_, bufnr)
     vim.keymap.set("n", "gi", function() Snacks.picker.lsp_implementations() end, { buffer = bufnr, desc = "[G]o to [I]mplementations" })
     vim.keymap.set("n", "<leader>ds", function() Snacks.picker.lsp_symbols() end, { buffer = bufnr, desc = "[D]ocument [S]ymbols" })
     vim.keymap.set("n", "<leader>ws", function() Snacks.picker.lsp_workspace_symbols() end, { buffer = bufnr, desc = "[W]orkspace [S]ymbols" })
+    vim.keymap.set("n", "<leader>cl", function() vim.lsp.codelens.refresh() end, { buffer = bufnr, desc = "[C]ode [L]ens" })
+    vim.keymap.set("n", "<leader>ih", function() vim.lsp.inlay_hint.enable() end, { buffer = bufnr, desc = "[C]ode [L]ens" })
 
     vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, {buffer = bufnr, desc = "[R]e[n]ame"})
     vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, {buffer = bufnr, desc = "[C]ode [A]ction"})
