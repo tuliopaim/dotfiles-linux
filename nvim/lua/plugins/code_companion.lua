@@ -34,7 +34,7 @@ return {
             }
         })
 
-        vim.keymap.set({ "n", "v" }, "<C-a>", "<cmd>CodeCompanionActions<cr>", { noremap = true, silent = true })
+        vim.keymap.set({ "n", "v" }, "<leader>cc", "<cmd>CodeCompanionActions<cr>", { noremap = true, silent = true })
         vim.keymap.set({ "n", "v" }, "<leader>aa", ":CodeCompanionChat Toggle<CR>",
             { noremap = true, silent = true, desc = "Trigger Code Companion" })
         vim.keymap.set("v", "ga", ":CodeCompanionChat Add<CR>",
