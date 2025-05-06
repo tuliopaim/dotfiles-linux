@@ -14,8 +14,6 @@
     liberation_ttf
   ];
 
-  services.nix-daemon.enable = true;
-
   nix.settings.experimental-features = "nix-command flakes";
 
   system.configurationRevision = outputs.rev or outputs.dirtyRev or null;
@@ -25,10 +23,10 @@
   nixpkgs.hostPlatform = "aarch64-darwin";
 
   users.users.tuliopaim.home = "/Users/tuliopaim";
-  security.pam.enableSudoTouchIdAuth = false;
   home-manager.backupFileExtension = "backup";
-  nix.configureBuildUsers = true;
-  nix.useDaemon = true;
+
+  nix.enable = true;
+  security.pam.services.sudo_local.touchIdAuth = false;
 
   system.defaults = {
     dock.autohide = true;

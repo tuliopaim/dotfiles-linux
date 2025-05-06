@@ -15,6 +15,7 @@
 
     extraConfig = ''
         set -g default-command /bin/zsh
+
         # set prefix
         unbind C-b
         set -g prefix C-s
