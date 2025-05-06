@@ -24,6 +24,13 @@ return {
         ft = "cs",
         opts = {
             config = {
+                cmd = {
+                    "dotnet",
+                    "/Users/tuliopaim/.local/share/nvim/roslyn/Microsoft.CodeAnalysis.LanguageServer.dll",
+                    "--logLevel=Information",
+                    "--extensionLogDirectory=" .. vim.fs.dirname(vim.lsp.get_log_path()),
+                    "--stdio",
+                },
                 on_attach = on_attach,
                 handlers = {
                     ["textDocument/hover"] = function(err, result, ctx, config)
