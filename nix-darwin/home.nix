@@ -5,9 +5,6 @@
   home.homeDirectory = "/Users/" + username;
   home.stateVersion = "24.05";
 
-  imports = [
-    ../nix/home-manager/terminal/tmux.nix
-  ];
   home.sessionVariables = {
     EDITOR = "nvim";
   };
@@ -25,7 +22,6 @@
     pkgs.nixd
 
     # dev tools
-    pkgs.lazydocker
     pkgs.terraform
     pkgs.postgresql
     pkgs.postgresql_jdbc

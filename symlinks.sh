@@ -17,6 +17,7 @@ mkdir -p ~/.config
 
 # Create symlinks
 create_symlink ~/dotfiles/zsh/.zshrc ~/.zshrc
+create_symlink ~/dotfiles/tmux/.tmux.conf ~/.tmux.conf
 create_symlink ~/dotfiles/nvim ~/.config/nvim
 create_symlink ~/dotfiles/ghostty ~/.config/ghostty
 create_symlink ~/dotfiles/aerospace ~/.config/aerospace
