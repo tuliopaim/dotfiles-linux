@@ -13,6 +13,9 @@ return {
             desc = "Buffer Diagnostics (Trouble)",
         },
     },
+    config = function()
+        require("trouble").setup();
+    end,
     specs = {
         "folke/snacks.nvim",
         opts = function(_, opts)
