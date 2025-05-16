@@ -73,20 +73,14 @@ return {
                 require('blink-cmp').get_lsp_capabilities()
             )
 
-            require("mason-lspconfig").setup {
-                ensure_installed = {
-                    "cssls",
-                    "docker_compose_language_service",
-                    "dockerls",
-                    "eslint",
-                    "rnix",
-                    "ts_ls",
-                    "pylsp"
-                },
-                automatic_installation = true
-            }
+            -- Set default configuration for all servers
+            vim.lsp.config('*', {
+                on_attach = on_attach,
+                capabilities = capabilities,
+            })
 
-            require('lspconfig').lua_ls.setup({
+            -- Configure lua_ls
+            vim.lsp.config.lua_ls = {
                 on_attach = on_attach,
                 capabilities = capabilities,
                 settings = {
@@ -97,33 +91,10 @@ return {
                         diagnostics = { globals = { "vim" } }
                     },
                 },
-            })
+            }
 
-            require("lspconfig").nixd.setup({
-                on_attach = on_attach,
-                capabilities = capabilities,
-                cmd = { "nixd" },
-                settings = {
-                    nixd = {
-                        nixpkgs = {
-                            expr = "import <nixpkgs> { }",
-                        },
-                        formatting = {
-                            command = { "nixpkgs-fmt"},
-                        }
-                    },
-                    options = {
-                        nixos = {
-                            expr = '(builtins.getFlake "/home/tuliopaim/dotfiles/nix).nixosConfigurations.nixos.options'
-                        },
-                        home_manager = {
-                            expr = '(builtins.getFlake "/home/tuliopaim/dotfiles/nix).homeManagerConfigurations.tuliopaim.options'
-                        }
-                    }
-                }
-            })
-
-            require('lspconfig').gopls.setup({
+            -- Configure gopls
+            vim.lsp.config.gopls = {
                 on_attach = on_attach,
                 capabilities = capabilities,
                 settings = {
@@ -132,9 +103,10 @@ return {
                         gofumpt = false,
                     },
                 },
-            })
+            }
 
-            require('lspconfig').pylsp.setup({
+            -- Configure pylsp
+            vim.lsp.config.pylsp = {
                 on_attach = on_attach,
                 capabilities = capabilities,
                 settings = {
@@ -149,41 +121,25 @@ return {
                         pylsp_isort = { enabled = false },
                     },
                 },
-            })
+            }
 
-            require("mason-lspconfig").setup_handlers({
-                function(server_name)
-                    require("lspconfig")[server_name].setup({
-                        on_attach = on_attach,
-                        capabilities = capabilities,
-                    })
-                end,
-
-						--           ["csharp_ls"] = function()
-						--               local lspconfig = require("lspconfig")
-						--               lspconfig.csharp_ls.setup({
-						--                   handlers = {
-						--                       ["textDocument/definition"] = require('csharpls_extended').handler,
-						--                       ["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded" }),
-						--                       ["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded" }),
-						--                   },
-						--
-						--                   root_dir = function(startpath)
-						--                       return lspconfig.util.root_pattern("*.sln")(startpath)
-						--                           or lspconfig.util.root_pattern("*.csproj")(startpath)
-						--                           or lspconfig.util.root_pattern("*.fsproj")(startpath)
-						--                           or lspconfig.util.root_pattern(".git")(startpath)
-						--                   end,
-						--
-						--                   on_attach = on_attach,
-						-- capabilities = capabilities,
-						--               })
-						--           end,
-
-			})
+            -- Setup mason-lspconfig
+            require("mason-lspconfig").setup {
+                ensure_installed = {
+                    "cssls",
+                    "docker_compose_language_service",
+                    "dockerls",
+                    "eslint",
+                    "rnix",
+                    "ts_ls",
+                    "pylsp"
+                },
+                -- Note: in v2.0.0, automatic_enable was replaced with automatic_installation
+                automatic_installation = true
+            }
 
             -- Configure borderd for LspInfo ui
-			require("lspconfig.ui.windows").default_options.border = "rounded"
-		end,
-	}
+            require("lspconfig.ui.windows").default_options.border = "rounded"
+        end,
+    }
 }
