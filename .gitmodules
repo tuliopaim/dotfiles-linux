@@ -1,3 +1,6 @@
 [submodule "private"]
 	path = private
 	url = git@github.com-personal:tuliopaim/dotfiles-private.git
+[submodule "nvim"]
+	path = nvim
+	url = ../nvim
