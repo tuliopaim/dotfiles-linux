@@ -23,5 +23,9 @@ create_symlink ~/dotfiles/ghostty ~/.config/ghostty
 create_symlink ~/dotfiles/aerospace ~/.config/aerospace
 create_symlink ~/dotfiles/ideavim/.ideavimrc ~/.ideavimrc
 create_symlink ~/dotfiles/private/.config/git ~/.config/git
+create_symlink ~/dotfiles/vscode/Code/User/settings.json ~/Library/Application\ Support/Cursor/User/settings.json
+create_symlink ~/dotfiles/vscode/Code/User/keybindings.json ~/Library/Application\ Support/Cursor/User/keybindings.json
+create_symlink ~/dotfiles/vscode/Code/User/settings.json ~/Library/Application\ Support/Code/User/settings.json
+create_symlink ~/dotfiles/vscode/Code/User/keybindings.json ~/Library/Application\ Support/Code/User/keybindings.json
 
 echo "Symlink creation completed!"
