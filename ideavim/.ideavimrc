@@ -129,6 +129,7 @@ map <leader>ff :action GotoFile<CR>
 map <leader>fa :action GotoAction<CR>
 map <leader>fn :action NewScratchFile<CR>
 map <leader>fs :action FindInPath<CR>
+map <leader><leader> :action RecentFiles<CR>
 
 " Auto ident lines
 nnoremap <leader>gf :action AutoIndentLines<CR>

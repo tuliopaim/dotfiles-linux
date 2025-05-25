@@ -5,6 +5,10 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="amuse"
 
+if [[ "$TERM_PROGRAM" == "ghostty" ]]; then
+    export TERM=xterm-256color
+fi
+
 # Oh My Zsh plugins
 plugins=(git fzf-zsh-plugin)
 
@@ -32,7 +36,6 @@ export FZF_CTRL_T_OPTS="--preview 'bat --color=always --line-range :50 {}'"
 
 # Aliases
 alias ls="eza -la"
-alias update="darwin-rebuild switch --flake ~/dotfiles/nix-darwin/.#macos"
 alias ..="cd .."
 alias ....="cd ../.."
 alias ......="cd ../../.."
