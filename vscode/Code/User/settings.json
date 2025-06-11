@@ -18,7 +18,7 @@
     ],
     "zenMode.hideLineNumbers": false,
     "editor.stickyScroll.enabled": true,
-    "workbench.iconTheme": "material-icon-theme",
+    "workbench.iconTheme": "vscode-icons",
     "editor.suggest.insertMode": "replace",
     "git.autofetch": true,
     "diffEditor.wordWrap": "off",
@@ -43,6 +43,29 @@
         "<C-f>": false
     },
     "vim.visualModeKeyBindingsNonRecursive": [
+        {
+            "before": [
+                ":",
+                "W"
+            ],
+            "after": [
+                ":",
+                "w"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "n",
+                "o"
+            ],
+            "after": [
+                ":",
+                "n",
+                "o",
+                "h"
+            ]
+        }
         {
             "before": [
                 "<leader>",
@@ -108,6 +131,57 @@
         }
     ],
     "vim.normalModeKeyBindingsNonRecursive": [
+        {
+            "before": [
+                "<leader>",
+                "c",
+                "a"
+            ],
+            "commands": [
+                {
+                    "command": "editor.action.codeAction"
+                }
+            ]
+        },
+        {
+            "before": [
+                "]",
+                "e"
+            ],
+            "commands": [
+                "editor.action.marker.next"
+            ]
+        },
+        {
+            "before": [
+                "[",
+                "e"
+            ],
+            "commands": [
+                "editor.action.marker.prev"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "r",
+                "n"
+            ],
+            "commands": [
+                "editor.action.rename"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "f",
+                "w"
+            ],
+            "commands": [
+                "editor.action.addSelectionToNextFindMatch",
+                "workbench.action.findInFiles"
+            ]
+        },
         {
             "before": [
                 "<leader>",
@@ -641,8 +715,49 @@
             ]
         }
     ],
+    "vim.commandLineModeKeyBindings": [
+        {
+            "before": [
+                "W"
+            ],
+            "after": [
+                "w"
+            ]
+        }
+    ],
     "workbench.colorTheme": "Catppuccin Mocha",
     "vim.cursorStylePerMode.normal": "block",
     "diffEditor.ignoreTrimWhitespace": false,
-    "window.zoomLevel": 1
+    "window.zoomLevel": 1,
+    "pgsql.serverGroups": [
+        {
+            "name": "Servers",
+            "id": "858E5DE5-9ADD-4D95-A36F-8DE6B3612FCE",
+            "isDefault": true
+        },
+        {
+            "id": "D5951B2C-9497-40A7-AE33-2BE727E7A91E",
+            "name": "EMS ",
+            "description": ""
+        }
+    ],
+    "pgsql.connections": [
+        {
+            "id": "95C436FB-6F17-4C6E-B43F-64B3CCDFBA3B",
+            "groupId": "D5951B2C-9497-40A7-AE33-2BE727E7A91E",
+            "authenticationType": "SqlLogin",
+            "connectTimeout": 15,
+            "applicationName": "vscode-pgsql",
+            "clientEncoding": "utf8",
+            "sslmode": "prefer",
+            "server": "127.0.0.1",
+            "user": "postgres",
+            "port": "5433",
+            "database": "ems-local",
+            "password": "",
+            "savePassword": true,
+            "profileName": "EMS2 - Local",
+            "expiresOn": 0
+        }
+    ]
 }
