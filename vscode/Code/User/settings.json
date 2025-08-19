@@ -45,29 +45,6 @@
     "vim.visualModeKeyBindingsNonRecursive": [
         {
             "before": [
-                ":",
-                "W"
-            ],
-            "after": [
-                ":",
-                "w"
-            ]
-        },
-        {
-            "before": [
-                "<leader>",
-                "n",
-                "o"
-            ],
-            "after": [
-                ":",
-                "n",
-                "o",
-                "h"
-            ]
-        }
-        {
-            "before": [
                 "<leader>",
                 "y"
             ],
@@ -131,6 +108,29 @@
         }
     ],
     "vim.normalModeKeyBindingsNonRecursive": [
+        {
+            "before": [
+                ":",
+                "W"
+            ],
+            "after": [
+                ":",
+                "w"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "n",
+                "o"
+            ],
+            "after": [
+                ":",
+                "n",
+                "o",
+                "h"
+            ]
+        }
         {
             "before": [
                 "<leader>",
