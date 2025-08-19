@@ -14,36 +14,95 @@ if [[ -z $selected ]]; then
     exit 0
 fi
 
-# Extract repo and branch names from the selected path
+# Extract job, repo and branch names from the selected path
 IFS="/" read -ra path_levels <<< "$selected"
-repo_name=${path_levels[-2]}  # Second-to-last folder is the repo
-branch_name=${path_levels[-1]}  # Last folder is the branch
+
+# Debug: show path structure
+echo "Selected path: $selected"
+echo "Path levels: ${#path_levels[@]}"
+
+# Determine what level was selected based on path structure
+# Expected structure: ~/dev/[category]/[repo]/[branch]
+category_name=""
+repo_name=""
+branch_name=""
+session_name=""
+window_name=""
+
+# Find the dev folder index
+dev_index=-1
+for i in "${!path_levels[@]}"; do
+    if [[ "${path_levels[$i]}" == "dev" ]]; then
+        dev_index=$i
+        break
+    fi
+done
+
+if [[ $dev_index -eq -1 ]]; then
+    echo "Error: 'dev' folder not found in path"
+    exit 1
+fi
+
+# Extract components relative to dev folder
+levels_after_dev=$((${#path_levels[@]} - dev_index - 1))
+
+if [[ $levels_after_dev -eq 1 ]]; then
+    # Selected at category level: ~/dev/[category]
+    category_name=${path_levels[$((dev_index + 1))]}
+    session_name="$category_name"
+    window_name="main"
+    echo "Selected category: $category_name"
+elif [[ $levels_after_dev -eq 2 ]]; then
+    # Selected at repo level: ~/dev/[category]/[repo]
+    category_name=${path_levels[$((dev_index + 1))]}
+    repo_name=${path_levels[$((dev_index + 2))]}
+    session_name="$repo_name"
+    window_name="main"
+    echo "Selected repo: $repo_name (in $category_name)"
+elif [[ $levels_after_dev -eq 3 ]]; then
+    # Selected at worktree level: ~/dev/[category]/[repo]/[branch]
+    category_name=${path_levels[$((dev_index + 1))]}
+    repo_name=${path_levels[$((dev_index + 2))]}
+    branch_name=${path_levels[$((dev_index + 3))]}
+    session_name="$repo_name"
+    window_name="$branch_name"
+    echo "Selected worktree: $branch_name (repo: $repo_name, category: $category_name)"
+else
+    echo "Error: Unexpected path structure. Expected ~/dev/[category]/[repo]/[branch]"
+    exit 1
+fi
 
 # Check if tmux is running
 tmux_running=$(pgrep tmux)
 
 # Start a new tmux session if tmux is not running and we're not inside tmux
 if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
-    tmux new-session -s "$repo_name" -n "$branch_name" -c "$selected"
+    echo "Creating new session: $session_name with window: $window_name"
+    tmux new-session -s "$session_name" -n "$window_name" -c "$selected"
     exit 0
 fi
 
 # Check if the session already exists
-if ! tmux has-session -t "$repo_name" 2>/dev/null; then
-    tmux new-session -ds "$repo_name" -n "$branch_name" -c "$selected"
+if ! tmux has-session -t "$session_name" 2>/dev/null; then
+    echo "Creating new detached session: $session_name"
+    tmux new-session -ds "$session_name" -n "$window_name" -c "$selected"
 fi
 
 # Check if the window exists within the session
-if ! tmux list-windows -t "$repo_name" | grep -q "\b$branch_name\b"; then
-    tmux new-window -t "$repo_name" -n "$branch_name" -c "$selected"
+if ! tmux list-windows -t "$session_name" | grep -q "\b$window_name\b"; then
+    echo "Creating new window: $window_name in session: $session_name"
+    tmux new-window -t "$session_name" -n "$window_name" -c "$selected"
 fi
 
 # Attach to the session and switch to the correct window
 if [[ -z $TMUX ]]; then
-    tmux attach-session -t "$repo_name"
+    echo "Attaching to session: $session_name"
+    tmux attach-session -t "$session_name"
 else
-    tmux switch-client -t "$repo_name"
+    echo "Switching to session: $session_name"
+    tmux switch-client -t "$session_name"
 fi
 
 # Ensure we're on the correct window
-tmux select-window -t "$repo_name:$branch_name"
+echo "Selecting window: $session_name:$window_name"
+tmux select-window -t "$session_name:$window_name"
