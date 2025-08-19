@@ -114,7 +114,7 @@ nnoremap <leader>zc :action CollapseAllRegions<CR>
 nnoremap <leader>zo :action ExpandAllRegions<CR>
 
 " Comment lines
-map <leader>c :action CommentByLineComment<CR>
+map <leader>gc :action CommentByLineComment<CR>
 
 " Jump around with easymotion
 map <leader>j <Plug>(easymotion-s)
@@ -169,7 +169,7 @@ map <leader>y "+y
 " nerd tree
 let g:NERDTreeMapJumpParent='h'
 map <Leader>. :NERDTreeFocus<CR>
-map <Leader>e :NERDTreeToggle<CR>
+map <Leader>es :NERDTreeToggle<CR>
 
 " Harpoon
 nmap <leader>1 :action HarpoonerOpenFile0<cr>
