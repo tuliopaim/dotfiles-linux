@@ -1,6 +1,6 @@
 macos-titlebar-style = hidden
 
-theme = catppuccin-mocha
+theme = Catppuccin Mocha
 
 background-opacity = 0.9
 background-blur-radius = 5
