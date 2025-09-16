@@ -17,6 +17,10 @@ if [[ "$TERM_PROGRAM" == "ghostty" ]]; then
     export TERM=xterm-256color
 fi
 
+if [[ -n $GHOSTTY_RESOURCES_DIR ]]; then
+  source "$GHOSTTY_RESOURCES_DIR"/shell-integration/zsh/ghostty-integration
+fi
+
 plugins=(git fzf-zsh-plugin)
 
 source $ZSH/oh-my-zsh.sh
@@ -54,7 +58,7 @@ alias ..="cd .."
 alias ....="cd ../.."
 alias ......="cd ../../.."
 alias ssh1='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_1_gh'
-alias ssh2='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_2_gh'
+alias ssh2='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_2'
 alias sshpersonal='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_personal_gh'
 alias lg="lazygit"
 alias lz="lazydocker"
@@ -99,3 +103,10 @@ function killp(){
 
 # Private 
 source $HOME/dotfiles/private/private.sh
+
+# bun completions
+[ -s "/Users/tuliopaim/.bun/_bun" ] && source "/Users/tuliopaim/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
