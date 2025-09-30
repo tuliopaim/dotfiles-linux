@@ -1,6 +1,3 @@
-# Initialize Homebrew
-eval "$(/opt/homebrew/bin/brew shellenv)"
-
 # Initialize zoxide (if its init script adds to PATH)
 if [ -z "$DISABLE_ZOXIDE" ]; then
     eval "$(zoxide init zsh)"
@@ -21,20 +18,15 @@ if [[ -n $GHOSTTY_RESOURCES_DIR ]]; then
   source "$GHOSTTY_RESOURCES_DIR"/shell-integration/zsh/ghostty-integration
 fi
 
-plugins=(git fzf-zsh-plugin)
+plugins=(git fzf vi-mode)
 
 source $ZSH/oh-my-zsh.sh
-
-source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-source $(brew --prefix)/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
 
 # Enable vi mode
 bindkey -v
 
-# Append a command directly (after zsh-vi-mode is loaded and bindkey -v is set)
-zvm_after_init_commands+=('bindkey "^F" fzf-cd-widget')
-zvm_after_init_commands+=('bindkey "^R" fzf-history-widget')
+bindkey "^F" fzf-cd-widget
+bindkey "^R" fzf-history-widget
 
 # FZF configuration
 export FZF_DEFAULT_OPTS=" \
@@ -57,7 +49,7 @@ alias ls="eza -la"
 alias ..="cd .."
 alias ....="cd ../.."
 alias ......="cd ../../.."
-alias ssh1='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_1_gh'
+alias ssh1='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_1'
 alias ssh2='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_2'
 alias sshpersonal='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_personal_gh'
 alias lg="lazygit"
@@ -78,7 +70,6 @@ export QMK_HOME='~/qmk_firmware'
 export EDITOR=nvim
 
 # PATH additions
-export PATH="/opt/homebrew/bin:$PATH"
 export PATH="$HOME/.docker/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="/usr/local/share/dotnet:/Users/tuliopaim/.dotnet/tools:$PATH"
