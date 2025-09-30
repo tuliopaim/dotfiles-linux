@@ -4,10 +4,11 @@
 if [[ $# -eq 1 ]]; then
     selected=$(echo "$1" | sed 's|//|/|g')
 else
-    selected=$(find \
-        ~/dev/* \
-        -not -path "*/.bare*" \
-        -mindepth 0 -maxdepth 2 -type d -print | fzf)
+     selected=$(find \
+         ~/dev/* \
+         -mindepth 0 -maxdepth 2 \
+         -not -path "*/.bare*" \
+         -type d -print | fzf)
 fi
 
 if [[ -z $selected ]]; then
