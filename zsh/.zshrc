@@ -101,6 +101,11 @@ function killp(){
     ps aux | fzf --height 40% --layout=reverse --prompt="Select a process to kill: " | awk '{print $2}' | xargs -r sudo kill
 }
 
+# Git cherry-pick merge commit
+gcpm() {
+  git cherry-pick "$1" -m 1
+}
+
 # Private 
 source $HOME/dotfiles/private/private.sh
 
