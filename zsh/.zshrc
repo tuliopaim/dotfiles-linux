@@ -58,7 +58,6 @@ alias cd="z"
 alias db="dotnet build"
 alias dt="dotnet test"
 alias tm="tmux-windownizer"
-alias claude="$HOME/.claude/local/claude"
 
 # History configuration
 HISTSIZE=100000
