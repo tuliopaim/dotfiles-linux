@@ -18,7 +18,7 @@ if [[ -n $GHOSTTY_RESOURCES_DIR ]]; then
   source "$GHOSTTY_RESOURCES_DIR"/shell-integration/zsh/ghostty-integration
 fi
 
-plugins=(git fzf vi-mode)
+plugins=(git fzf vi-mode zsh-autosuggestions)
 
 source $ZSH/oh-my-zsh.sh
 
