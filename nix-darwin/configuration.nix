@@ -28,6 +28,7 @@
   nix.enable = true;
   security.pam.services.sudo_local.touchIdAuth = false;
 
+  system.primaryUser = "tuliopaim";
   system.defaults = {
     dock.autohide = true;
     dock.mru-spaces = false;
