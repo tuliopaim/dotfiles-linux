@@ -1,12 +1,62 @@
 { pkgs, outputs, ... }:
 {
-  environment.systemPackages =
-    [
-      pkgs.vim
-      pkgs.neovim
-      pkgs.ansible
-      pkgs.mkalias
-    ];
+  system = {
+    stateVersion = 5;
+    configurationRevision = outputs.rev or outputs.dirtyRev or null;
+    primaryUser = "tuliopaim";
+
+    defaults = {
+      dock = {
+        autohide = true;
+        mru-spaces = false;
+      };
+
+      finder = {
+        AppleShowAllExtensions = true;
+        FXPreferredViewStyle = "clmv";
+      };
+
+      loginwindow = {
+        LoginwindowText = "tuliopaim";
+        GuestEnabled = false;
+      };
+
+      NSGlobalDomain = {
+        AppleInterfaceStyle = "Dark";
+      };
+    };
+  };
+
+  nix = {
+    enable = true;
+    optimise.automatic = true;
+
+    settings = {
+      experimental-features = "nix-command flakes";
+      extra-platforms = [ "x86_64-darwin" "aarch64-darwin" ];
+      max-jobs = 8;
+      cores = 0;
+    };
+
+    gc = {
+      automatic = true;
+      interval = { Weekday = 0; Hour = 2; Minute = 0; };
+      options = "--delete-older-than 30d";
+    };
+  };
+
+  nixpkgs.hostPlatform = "aarch64-darwin";
+
+  users.users.tuliopaim.home = "/Users/tuliopaim";
+  home-manager.backupFileExtension = "backup";
+
+  security.pam.services.sudo_local.touchIdAuth = true;
+
+  environment.systemPackages = [
+    pkgs.vim
+    pkgs.neovim
+    pkgs.ansible
+  ];
 
   fonts.packages = with pkgs; [
     nerd-fonts.fira-code
@@ -14,30 +64,7 @@
     liberation_ttf
   ];
 
-  nix.settings.experimental-features = "nix-command flakes";
-
-  system.configurationRevision = outputs.rev or outputs.dirtyRev or null;
-
-  system.stateVersion = 5;
-
-  nixpkgs.hostPlatform = "aarch64-darwin";
-
-  users.users.tuliopaim.home = "/Users/tuliopaim";
-  home-manager.backupFileExtension = "backup";
-
-  nix.enable = true;
-  security.pam.services.sudo_local.touchIdAuth = false;
-
-  system.primaryUser = "tuliopaim";
-  system.defaults = {
-    dock.autohide = true;
-    dock.mru-spaces = false;
-    finder.AppleShowAllExtensions = true;
-    finder.FXPreferredViewStyle = "clmv";
-    loginwindow.LoginwindowText = "tuliopaim";
-    loginwindow.GuestEnabled = false;
-    NSGlobalDomain.AppleInterfaceStyle = "Dark";
-  };
+  programs.zsh.enable = true;
 
   homebrew = {
     enable = true;
@@ -45,8 +72,7 @@
     onActivation = {
       autoUpdate = true;
       upgrade = true;
-      # 'zap': Uninstalls all formulae(and casks) not listed here.
-      cleanup = "zap";
+      cleanup = "zap"; # Uninstalls all formulae and casks not listed here
     };
 
     taps = [
@@ -55,81 +81,79 @@
     ];
 
     brews = [
+      # Shell
       "mas"
-      "zsh"
-      "zsh-autosuggestions"
-      "zsh-vi-mode"
-      "zsh-syntax-highlighting"
-      "tmux"
-      "mono-libgdiplus"
-      "python@3.13"
-      "cask"
+
+      # Development tools
+      "direnv"
       "fnm"
+      "poetry"
+      "python@3.13"
+
+      # Databases & Related
       { name = "libpq"; link = true; }
       "mongosh"
-      "sevenzip"
-      "yazi"
-      "poetry"
-      "typescript"
-      "clipboard"
-      "ansible"
-      "zlib"
-      "make"
-      "direnv"
-      "awscli"
-      "awscli-local"
-      "hg"
-      "imagemagick"
-      "qmk/qmk/qmk"
-      "angular-cli"
       "redis"
-      "gdu"
+
+      # Cloud & DevOps
+      "awscli-local"
+
+      # Other
+      "mono-libgdiplus"
+      "cask"
+      "zlib"
+      "qmk/qmk/qmk"
     ];
 
-    # GUI Apps
     casks = [
-      "aerospace"
-      "balenaetcher"
-      "bitwarden"
+      # Browsers
       "brave-browser"
+      "firefox"
+      "google-chrome"
+      "microsoft-edge"
+
+      # Development
       "cursor"
       "dbeaver-community"
-      "discord"
-      "drawio"
-      "firefox"
-      "font-fira-code-nerd-font"
-      "font-jetbrains-mono-nerd-font"
       "ghostty"
-      "google-chrome"
+      "postman"
+      "rider"
+      "visual-studio-code"
+
+      # Database Tools
+      "mongodb-compass"
+      "pgadmin4"
+
+      # Productivity
+      "bitwarden"
+      "obsidian"
+      "pdf-expert"
+      "raycast"
+
+      # Communication
+      "discord"
+      "microsoft-teams"
+      "slack"
+
+      # Utilities
+      "aerospace"
+      "balenaetcher"
+      "drawio"
       "istat-menus"
       "karabiner-elements"
       "localsend"
       "logi-options+"
       "microsoft-auto-update"
-      "microsoft-edge"
-      "microsoft-teams"
-      "mongodb-compass"
       "obs"
-      "obsidian"
-      "pdf-expert"
-      "pgadmin4"
-      "postman"
       "qmk-toolbox"
-      "raycast"
-      "rider"
       "scroll-reverser"
       "shottr"
-      "slack"
-      "soundsource"
-      "spotify"
       "via"
-      "visual-studio-code"
-      "wezterm"
-    ];
 
-    # Mac App Store Apps (requires 'mas' in brews)
-    masApps = {
-      # "Xcode" = 497799835;
-    };
+
+
+      # Entertainment
+      "spotify"
+    ];
   };
 }
