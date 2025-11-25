@@ -128,7 +128,7 @@ map <leader>df :action ToggleFullScreen<CR>
 map <leader>ff :action GotoFile<CR>
 map <leader>fa :action SearchEverywhere<CR>
 map <leader>fn :action NewScratchFile<CR>
-map <leader>fs :action FindInPath<CR>
+map <leader>fg :action FindInPath<CR>
 map <leader><leader> :action RecentFiles<CR>
 
 " Auto ident lines
