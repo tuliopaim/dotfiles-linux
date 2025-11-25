@@ -2,12 +2,12 @@
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # Initialize zoxide (if its init script adds to PATH)
-if [ -z "$DISABLE_ZOXIDE" ]; then
+if [ -z "$DISABLE_ZOXIDE" ] && command -v zoxide &> /dev/null; then
     eval "$(zoxide init zsh)"
 fi
 
 # Initialize fnm
-eval "$(fnm env --use-on-cd --shell zsh)"
+eval "$(fnm env --use-on-cd --shell zsh --log-level=quiet)"
 
 # Oh My Zsh configuration
 export ZSH="$HOME/.oh-my-zsh"
@@ -21,22 +21,16 @@ if [[ -n $GHOSTTY_RESOURCES_DIR ]]; then
   source "$GHOSTTY_RESOURCES_DIR"/shell-integration/zsh/ghostty-integration
 fi
 
-plugins=(git fzf-zsh-plugin)
+plugins=(git)
 
 source $ZSH/oh-my-zsh.sh
-
-source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-source $(brew --prefix)/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
 
 # Enable vi mode
 bindkey -v
 
-# Append a command directly (after zsh-vi-mode is loaded and bindkey -v is set)
-zvm_after_init_commands+=('bindkey "^F" fzf-cd-widget')
-zvm_after_init_commands+=('bindkey "^R" fzf-history-widget')
 
 # FZF configuration
+
 export FZF_DEFAULT_OPTS=" \
   --ansi --extended \
   --height 40% --layout=reverse --border \
@@ -46,20 +40,21 @@ export FZF_DEFAULT_OPTS=" \
 
 export FZF_DEFAULT_COMMAND='fd --type f --strip-cwd-prefix -H --no-ignore'
 
-export FZF_ALT_C_COMMAND="fd --type d . -H --strip-cwd-prefix"
-export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
-
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_CTRL_T_OPTS="--preview 'bat --color=always --theme=OneHalfDark --line-range :50 {}'"
+
+bindkey '^F' fzf-cd-widget
+
+source <(fzf --zsh)
 
 # Aliases
 alias ls="eza -la"
 alias ..="cd .."
 alias ....="cd ../.."
 alias ......="cd ../../.."
-alias ssh1='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_1_gh'
-alias ssh2='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_2'
-alias sshpersonal='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_personal_gh'
+alias ssh1='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/git_1'
+alias ssh2='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/git_2'
+alias sshpersonal='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/git_0'
 alias lg="lazygit"
 alias lz="lazydocker"
 alias cd="z"
@@ -67,6 +62,9 @@ alias db="dotnet build"
 alias dt="dotnet test"
 alias tm="tmux-windownizer"
 alias claude="$HOME/.claude/local/claude"
+alias fupdate="nix flake update --flake ~/dotfiles/nix-darwin/";
+alias fswitch="sudo darwin-rebuild switch --flake ~/dotfiles/nix-darwin/.#macos";
+
 
 # History configuration
 HISTSIZE=100000
@@ -77,14 +75,8 @@ SAVEHIST=100000
 export QMK_HOME='~/qmk_firmware'
 export EDITOR=nvim
 
-# PATH additions
-export PATH="/opt/homebrew/bin:$PATH"
-export PATH="$HOME/.docker/bin:$PATH"
-export PATH="$HOME/.local/bin:$PATH"
-export PATH="/usr/local/share/dotnet:/Users/tuliopaim/.dotnet/tools:$PATH"
-export PATH="$HOME/dotfiles/scripts:$PATH"
-export PATH="$BUN_INSTALL/bin:$PATH"
-export PATH=/Users/tuliopaim/.opencode/bin:$PATH
+# PATH additions (consolidated)
+export PATH="$HOME/.local/bin:$HOME/.docker/bin:$HOME/dotfiles/scripts:/usr/local/share/dotnet:$HOME/.dotnet/tools:$BUN_INSTALL/bin:$HOME/.opencode/bin:/opt/homebrew/bin:$PATH"
 
 # Yazi function
 function yy() {
@@ -115,3 +107,17 @@ source $HOME/dotfiles/private/private.sh
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+# SSH
+# Check if ssh-agent is running, if not, start it.
+if ! pgrep -q ssh-agent; then
+  eval "$(ssh-agent -s)" > /dev/null
+fi
+
+# Add your SSH keys to the agent
+# Use 'ssh-add -K' on macOS to store the key in the Keychain,
+# even if it's passwordless, for better integration.
+# Make sure these paths are correct for your system.
+ssh-add -K ~/.ssh/git_0 &>/dev/null
+ssh-add -K ~/.ssh/git_1 &>/dev/null
+ssh-add -K ~/.ssh/git_2 &>/dev/null
