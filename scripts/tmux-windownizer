@@ -1,109 +1,113 @@
 #!/usr/bin/env bash
 
-# Generate the list of directories and remove double slashes
+# --- Configuration ---
+# Set the base directory for your development worktrees.
+# This can be an absolute path or relative to HOME.
+# Example: BASE_DIR="${HOME}/dev"
+# Example: BASE_DIR="/mnt/data/code"
+BASE_DIR="${HOME}/dev"
+
+DEBUG="true"
+
+# --- Helper function for logging debug messages ---
+_log_debug() {
+    [[ "$DEBUG" == "true" ]] && echo "DEBUG: $@" >&2
+}
+
+# --- 1. Select the worktree/directory ---
+# Remove double slashes for consistency if a path is passed as argument
 if [[ $# -eq 1 ]]; then
-    selected=$(echo "$1" | sed 's|//|/|g')
+    selected_path=$(echo "$1" | tr -s '/')
 else
-     selected=$(find \
-         ~/dev/* \
-         -mindepth 0 -maxdepth 2 \
-         -not -path "*/.bare*" \
-         -type d -print | fzf)
+    # Find directories under BASE_DIR, up to 3 levels deep, excluding .bare
+    selected_path=$(find \
+        "${BASE_DIR}" \
+        -mindepth 1 -maxdepth 3 \
+        -type d \
+        -not -path "*/.bare*" \
+        -print | fzf)
 fi
 
-if [[ -z $selected ]]; then
+# Exit if no path was selected
+if [[ -z "$selected_path" ]]; then
     exit 0
 fi
 
-# Extract job, repo and branch names from the selected path
-IFS="/" read -ra path_levels <<< "$selected"
+_log_debug "Selected path: $selected_path"
 
-# Debug: show path structure
-echo "Selected path: $selected"
-echo "Path levels: ${#path_levels[@]}"
+# --- 2. Parse selected path to determine session and window names ---
+# Dynamically create the regex pattern based on BASE_DIR
+# Escape slashes in BASE_DIR for the regex pattern
+escaped_base_dir=$(printf %s "$BASE_DIR" | sed 's/\//\\\//g')
+regex_pattern="^${escaped_base_dir}/([^/]+)(/([^/]+))?(/([^/]+))?$"
 
-# Determine what level was selected based on path structure
-# Expected structure: ~/dev/[category]/[repo]/[branch]
-category_name=""
-repo_name=""
-branch_name=""
-session_name=""
-window_name=""
+_log_debug "Regex pattern: $regex_pattern"
 
-# Find the dev folder index
-dev_index=-1
-for i in "${!path_levels[@]}"; do
-    if [[ "${path_levels[$i]}" == "dev" ]]; then
-        dev_index=$i
-        break
+if [[ "$selected_path" =~ $regex_pattern ]]; then
+    category="${BASH_REMATCH[1]}"
+    repo="${BASH_REMATCH[3]}" # Optional, could be empty if only category selected
+    branch="${BASH_REMATCH[5]}" # Optional, could be empty if only category/repo selected
+
+    _log_debug "Category: '$category', Repo: '$repo', Branch: '$branch'"
+
+    session_name="$repo" # Default to repo name for session
+    window_name="$branch" # Default to branch name for window
+
+    if [[ -z "$repo" ]]; then
+        # Path is BASE_DIR/[category]
+        session_name="$category"
+        window_name="main"
+    elif [[ -z "$branch" ]]; then
+        # Path is BASE_DIR/[category]/[repo]
+        # session_name is already set to repo, window_name remains "main"
+        window_name="main"
     fi
-done
 
-if [[ $dev_index -eq -1 ]]; then
-    echo "Error: 'dev' folder not found in path"
-    exit 1
-fi
-
-# Extract components relative to dev folder
-levels_after_dev=$((${#path_levels[@]} - dev_index - 1))
-
-if [[ $levels_after_dev -eq 1 ]]; then
-    # Selected at category level: ~/dev/[category]
-    category_name=${path_levels[$((dev_index + 1))]}
-    session_name="$category_name"
-    window_name="main"
-    echo "Selected category: $category_name"
-elif [[ $levels_after_dev -eq 2 ]]; then
-    # Selected at repo level: ~/dev/[category]/[repo]
-    category_name=${path_levels[$((dev_index + 1))]}
-    repo_name=${path_levels[$((dev_index + 2))]}
-    session_name="$repo_name"
-    window_name="main"
-    echo "Selected repo: $repo_name (in $category_name)"
-elif [[ $levels_after_dev -eq 3 ]]; then
-    # Selected at worktree level: ~/dev/[category]/[repo]/[branch]
-    category_name=${path_levels[$((dev_index + 1))]}
-    repo_name=${path_levels[$((dev_index + 2))]}
-    branch_name=${path_levels[$((dev_index + 3))]}
-    session_name="$repo_name"
-    window_name="$branch_name"
-    echo "Selected worktree: $branch_name (repo: $repo_name, category: $category_name)"
+    # Sanitize session_name: tmux doesn't allow periods and some other characters
+    # Replace periods, colons, and other problematic characters with underscores
+    session_name=$(echo "$session_name" | tr '.:#' '_')
 else
-    echo "Error: Unexpected path structure. Expected ~/dev/[category]/[repo]/[branch]"
+    echo "Error: Unexpected path structure. Expected ${BASE_DIR}/[category]/[repo]/[branch]" >&2
     exit 1
 fi
 
-# Check if tmux is running
-tmux_running=$(pgrep tmux)
+# Ensure window_name is never empty
+[[ -z "$window_name" ]] && window_name="main"
 
-# Start a new tmux session if tmux is not running and we're not inside tmux
-if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
-    echo "Creating new session: $session_name with window: $window_name"
-    tmux new-session -s "$session_name" -n "$window_name" -c "$selected"
-    exit 0
+_log_debug "Determined Session: '$session_name', Window: '$window_name'"
+
+# --- 3. Handle tmux session/window creation and switching ---
+session_target="$session_name"
+window_target="$session_name:$window_name"
+
+# If not inside tmux and no tmux server is running, start a new session
+if [[ -z "$TMUX" ]] && ! pgrep -x tmux >/dev/null; then
+    echo "Starting new tmux session: $session_name with window: $window_name"
+    tmux new-session -s "$session_target" -n "$window_name" -c "$selected_path"
+    exit 0 # Exit after starting new session
 fi
 
-# Check if the session already exists
-if ! tmux has-session -t "$session_name" 2>/dev/null; then
+# Check if the session exists, create if not
+if ! tmux has-session -t "$session_target" 2>/dev/null; then
     echo "Creating new detached session: $session_name"
-    tmux new-session -ds "$session_name" -n "$window_name" -c "$selected"
-fi
-
-# Check if the window exists within the session
-if ! tmux list-windows -t "$session_name" | grep -q "\b$window_name\b"; then
-    echo "Creating new window: $window_name in session: $session_name"
-    tmux new-window -t "$session_name" -n "$window_name" -c "$selected"
-fi
-
-# Attach to the session and switch to the correct window
-if [[ -z $TMUX ]]; then
-    echo "Attaching to session: $session_name"
-    tmux attach-session -t "$session_name"
+    tmux new-session -ds "$session_target" -n "$window_name" -c "$selected_path"
+    # Note: If the session was just created, the window will also have been created
+    # so we don't need a separate new-window check if the session was new.
 else
-    echo "Switching to session: $session_name"
-    tmux switch-client -t "$session_name"
+    # Session exists, check if the window exists within it
+    if ! tmux list-windows -t "$session_target" -F "#{window_name}" | grep -q "^${window_name}$"; then
+        echo "Creating new window: $window_name in session: $session_name"
+        tmux new-window -t "$session_target" -n "$window_name" -c "$selected_path"
+    fi
 fi
 
-# Ensure we're on the correct window
-echo "Selecting window: $session_name:$window_name"
-tmux select-window -t "$session_name:$window_name"
+# Switch to the session and select the correct window
+if [[ -z "$TMUX" ]]; then
+    # Not in a tmux session, attach to the target session
+    echo "Attaching to session: $session_name"
+    tmux attach-session -t "$session_target"
+else
+    # Already in a tmux session, switch client to the target session/window
+    echo "Switching to session: $session_name and selecting window: $window_name"
+    tmux switch-client -t "$window_target"
+fi
