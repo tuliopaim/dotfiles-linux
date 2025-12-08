@@ -61,7 +61,6 @@ alias cd="z"
 alias db="dotnet build"
 alias dt="dotnet test"
 alias tm="tmux-windownizer"
-alias claude="$HOME/.claude/local/claude"
 alias fupdate="nix flake update --flake ~/dotfiles/nix-darwin/";
 alias fswitch="sudo darwin-rebuild switch --flake ~/dotfiles/nix-darwin/.#macos";
 

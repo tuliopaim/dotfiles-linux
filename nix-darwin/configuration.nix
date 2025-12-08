@@ -119,6 +119,8 @@
       "postman"
       "rider"
       "visual-studio-code"
+      "orbstack"
+      "claude-code"
 
       # Database Tools
       "mongodb-compass"
@@ -149,8 +151,6 @@
       "scroll-reverser"
       "shottr"
       "via"
-
-
 
       # Entertainment
       "spotify"
