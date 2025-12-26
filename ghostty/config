@@ -11,3 +11,5 @@ font-family = "JetBrainsMono NFM Regular"
 window-padding-balance = true
 
 mouse-hide-while-typing = true
+
+keybind = shift+enter=text:\x1b[13;2u
