@@ -1,0 +1,139 @@
+" ============================================================================
+" Basic Settings
+" ============================================================================
+set scrolloff=10
+set number relativenumber
+set showmode
+set showcmd
+set visualbell
+
+set ignorecase smartcase
+set incsearch
+set hlsearch
+
+" ============================================================================
+" Leader Key
+" ============================================================================
+let mapleader = "\<Space>"
+
+" ============================================================================
+" Helper Commands
+" ============================================================================
+nnoremap <c-d> <c-d>zz
+nnoremap <c-u> <c-u>zz
+nnoremap <leader>no :noh<CR>
+nnoremap <leader>lc 0Dj
+
+" ============================================================================
+" Split/Window Management
+" ============================================================================
+
+" Create splits
+nnoremap <leader>v :vsc Window.NewVerticalTabGroup<CR>
+nnoremap <leader>b :vsc Window.NewHorizontalTabGroup<CR>
+nnoremap <leader>w= :vsc Window.CloseDocumentWindow<CR>
+
+" Navigate between splits
+nnoremap <c-h> <c-w>h
+nnoremap <c-l> <c-w>l
+nnoremap <c-k> <c-w>k
+nnoremap <c-j> <c-w>j
+
+" Move between tab groups
+nnoremap <leader>wh :vsc Window.MoveToPreviousTabGroup<CR>
+nnoremap <leader>wl :vsc Window.MoveToNextTabGroup<CR>
+
+" Resize splits (VsVim may have limited support for these)
+nnoremap <leader>rh <c-w><
+nnoremap <leader>rl <c-w>>
+nnoremap <leader>rk <c-w>+
+nnoremap <leader>rj <c-w>-
+
+" ============================================================================
+" Tab Management
+" ============================================================================
+nnoremap gk gt
+nnoremap gj gT
+nnoremap <leader>tp :vsc Window.PinTab<CR>
+nnoremap <leader>x :vsc File.Close<CR>
+nnoremap <leader>ax :vsc Window.CloseAllDocuments<CR>
+
+" ============================================================================
+" File Navigation
+" ============================================================================
+nnoremap <leader>ff :vsc Edit.GoToFile<CR>
+nnoremap <leader>fa :vsc Edit.GoToAll<CR>
+nnoremap <leader>fg :vsc Edit.FindInFiles<CR>
+nnoremap <leader><leader> :vsc Window.QuickLaunch<CR>
+nnoremap <leader>fn :vsc File.NewFile<CR>
+
+" ============================================================================
+" LSP & Navigation
+" ============================================================================
+
+" Go to actions
+nnoremap gd :vsc Edit.GoToDefinition<CR>
+nnoremap gi :vsc Edit.GoToImplementation<CR>
+nnoremap gr :vsc Edit.FindAllReferences<CR>
+nnoremap gt :vsc EditorContextMenus.CodeWindow.CreateUnitTests<CR>
+
+" Info and actions
+nnoremap K :vsc Edit.QuickInfo<CR>
+nnoremap <leader>k :vsc View.PeekDefinition<CR>
+nnoremap <leader>ca :vsc View.QuickActions<CR>
+nnoremap <leader>ds :vsc View.ClassView<CR>
+
+" Error navigation
+nnoremap ]e :vsc View.NextError<CR>
+nnoremap ge :vsc View.NextError<CR>
+nnoremap [e :vsc View.PreviousError<CR>
+nnoremap gE :vsc View.PreviousError<CR>
+
+" Jump between methods
+nnoremap [[ :vsc Edit.PreviousMethod<CR>
+nnoremap ]] :vsc Edit.NextMethod<CR>
+
+" ============================================================================
+" Refactoring
+" ============================================================================
+nnoremap <leader>rn :vsc Refactor.Rename<CR>
+nnoremap <leader>rm :vsc Refactor.ExtractMethod<CR>
+
+" ============================================================================
+" Git Operations
+" ============================================================================
+nnoremap <leader>gs :vsc Team.Git.GoToGitChanges<CR>
+nnoremap <leader>gc :vsc Team.Git.Commit<CR>
+nnoremap <leader>gb :vsc Team.Git.ManageBranches<CR>
+nnoremap <leader>gm :vsc Team.Git.ViewHistory<CR>
+
+" ============================================================================
+" Build Commands
+" ============================================================================
+nnoremap <leader>rs :vsc Build.BuildSolution<CR>
+nnoremap <leader>rc :vsc Build.CleanSolution<CR>
+
+" ============================================================================
+" UI Helpers
+" ============================================================================
+nnoremap <leader>. :vsc View.SolutionExplorer<CR>
+nnoremap <leader>tr :vsc View.Terminal<CR>
+nnoremap <leader>tt :vsc TestExplorer.ShowTestExplorer<CR>
+nnoremap <leader>ha :vsc Window.AutoHideAll<CR>
+
+" ============================================================================
+" Visual Mode
+" ============================================================================
+vnoremap < <gv
+vnoremap > >gv
+
+" ============================================================================
+" Clipboard Operations
+" ============================================================================
+
+" Paste the last yanked content
+nnoremap <leader>p "0p
+
+" Copy to clipboard
+nnoremap <leader>y "+y
+vnoremap <leader>y "+y
