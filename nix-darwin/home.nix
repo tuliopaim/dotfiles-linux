@@ -38,6 +38,7 @@ in
     pkgs.zoxide
     pkgs.lazygit
     pkgs.lazydocker
+    pkgs.jujutsu
     pkgs.glow
     pkgs.wget
     pkgs.unzip
@@ -58,6 +59,8 @@ in
     pkgs.nodePackages."@angular/cli"
     pkgs.awscli2
     pkgs.gh
+    pkgs.sesh
+    pkgs.nmap
   ];
 
   # 1. Enable Home Manager to manage Zsh (Replaces Brew zsh plugins)

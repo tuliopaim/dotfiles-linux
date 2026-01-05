@@ -144,13 +144,13 @@
       "istat-menus"
       "karabiner-elements"
       "localsend"
-      "logi-options+"
       "microsoft-auto-update"
       "obs"
       "qmk-toolbox"
       "scroll-reverser"
       "shottr"
       "via"
+      "google-drive"
 
       # Entertainment
       "spotify"
