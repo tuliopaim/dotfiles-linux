@@ -11,14 +11,25 @@ echo "Fetching merge commit information..."
 
 # For each PR, find the merge commit and its date
 for pr in "${PRS[@]}"; do
-    # Find merge commit for this PR
+    # Find merge commit for this PR (try exact match first)
     COMMIT=$(git log --merges --all --grep="Merge pull request #${pr}" --format="%H|%ci|%s" | head -1)
+
+    # If not found, try a more flexible pattern (in case of different merge styles)
+    if [ -z "$COMMIT" ]; then
+        COMMIT=$(git log --merges --all --grep="#${pr}" --format="%H|%ci|%s" | head -1)
+    fi
 
     if [ -n "$COMMIT" ]; then
         echo "$COMMIT|$pr" >> "$TEMP_FILE"
         echo "Found PR #${pr}"
     else
         echo "WARNING: Could not find merge commit for PR #${pr}"
+        echo "  Trying to find any mention of #${pr} in recent commits..."
+        POSSIBLE=$(git log --all --oneline --grep="#${pr}" | head -3)
+        if [ -n "$POSSIBLE" ]; then
+            echo "  Possible commits mentioning #${pr}:"
+            echo "$POSSIBLE" | sed 's/^/    /'
+        fi
     fi
 done
 
@@ -30,8 +41,8 @@ echo "PRs ordered by merge date (oldest to newest):"
 echo "=============================================="
 
 # Display ordered PRs
-cat "$SORTED_FILE" | while IFS='|' read -r hash date time timezone message pr; do
-    echo "$date $time | PR #$pr | $hash"
+cat "$SORTED_FILE" | while IFS='|' read -r hash datetime message pr; do
+    echo "$datetime | PR #$pr | $hash"
     echo "  $message"
     echo ""
 done
@@ -41,8 +52,8 @@ echo "Cherry-pick commands in order:"
 echo "==============================="
 
 # Generate cherry-pick commands
-cat "$SORTED_FILE" | while IFS='|' read -r hash date time timezone message pr; do
-    echo "git cherry-pick -m 1 $hash  # PR #$pr - $date"
+cat "$SORTED_FILE" | while IFS='|' read -r hash datetime message pr; do
+    echo "git cherry-pick -m 1 $hash  # PR #$pr - $datetime"
 done
 
 echo ""
@@ -57,11 +68,11 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo "  - To abort everything: git cherry-pick --abort"
     echo ""
 
-    cat "$SORTED_FILE" | while IFS='|' read -r hash date time timezone message pr; do
+    cat "$SORTED_FILE" | while IFS='|' read -r hash datetime message pr; do
         echo ""
         echo "=========================================="
         echo "Cherry-picking PR #$pr ($hash)..."
-        echo "Date: $date $time"
+        echo "Date: $datetime"
         echo "=========================================="
 
         if git cherry-pick -m 1 "$hash"; then
@@ -87,9 +98,9 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
 
             # Show remaining commits
             FOUND=0
-            cat "$SORTED_FILE" | while IFS='|' read -r h d t tz m p; do
+            cat "$SORTED_FILE" | while IFS='|' read -r h dt m p; do
                 if [ "$FOUND" -eq 1 ]; then
-                    echo "git cherry-pick -m 1 $h  # PR #$p - $d"
+                    echo "git cherry-pick -m 1 $h  # PR #$p - $dt"
                 fi
                 if [ "$h" = "$hash" ]; then
                     FOUND=1
