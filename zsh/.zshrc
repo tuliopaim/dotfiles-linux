@@ -64,6 +64,10 @@ alias tm="tmux-windownizer"
 alias fupdate="nix flake update --flake ~/dotfiles/nix-darwin/";
 alias fswitch="sudo darwin-rebuild switch --flake ~/dotfiles/nix-darwin/.#macos";
 
+# Open buffer line in editor
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey '^e' edit-command-line
 
 # History configuration
 HISTSIZE=100000
@@ -76,27 +80,6 @@ export EDITOR=nvim
 
 # PATH additions (consolidated)
 export PATH="$HOME/.local/bin:$HOME/.docker/bin:$HOME/dotfiles/scripts:/usr/local/share/dotnet:$HOME/.dotnet/tools:$BUN_INSTALL/bin:$HOME/.opencode/bin:/opt/homebrew/bin:$PATH"
-
-# Yazi function
-function yy() {
-    local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
-    yazi "$@" --cwd-file="$tmp"
-    if cwd="$(cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
-        builtin cd -- "$cwd"
-    fi
-    rm -f -- "$tmp"
-}
-
-# Kill process function
-function killp(){
-    ps aux | fzf --height 40% --layout=reverse --prompt="Select a process to kill: " | awk '{print $2}' | xargs -r sudo kill
-}
-
-# Git cherry-pick merge commit
-gcpm() {
-  git cherry-pick "$1" -m 1
-}
-
 # Private 
 source $HOME/dotfiles/private/private.sh
 
@@ -120,3 +103,23 @@ fi
 ssh-add -K ~/.ssh/git_0 &>/dev/null
 ssh-add -K ~/.ssh/git_1 &>/dev/null
 ssh-add -K ~/.ssh/git_2 &>/dev/null
+
+# Yazi
+function yy() {
+    local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
+    yazi "$@" --cwd-file="$tmp"
+    if cwd="$(cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+        builtin cd -- "$cwd"
+    fi
+    rm -f -- "$tmp"
+}
+
+# Kill process function
+function killp(){
+    ps aux | fzf --height 40% --layout=reverse --prompt="Select a process to kill: " | awk '{print $2}' | xargs -r sudo kill
+}
+
+# Git cherry-pick merge commit
+function gcpm() {
+  git cherry-pick "$1" -m 1
+}
