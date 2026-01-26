@@ -63,6 +63,7 @@ alias dt="dotnet test"
 alias tm="tmux-windownizer"
 alias fupdate="nix flake update --flake ~/dotfiles/nix-darwin/";
 alias fswitch="sudo darwin-rebuild switch --flake ~/dotfiles/nix-darwin/.#macos";
+alias gdrive="cd /Users/tuliopaim/Google Drive/My Drive/Documentos GD"
 
 # Open buffer line in editor
 autoload -Uz edit-command-line
@@ -78,8 +79,9 @@ SAVEHIST=100000
 export QMK_HOME='~/qmk_firmware'
 export EDITOR=nvim
 
-# PATH additions (consolidated)
-export PATH="$HOME/.local/bin:$HOME/.docker/bin:$HOME/dotfiles/scripts:/usr/local/share/dotnet:$HOME/.dotnet/tools:$BUN_INSTALL/bin:$HOME/.opencode/bin:/opt/homebrew/bin:$PATH"
+# PATH additions 
+export PATH="$HOME/.aspire/bin:$HOME/.local/bin:$HOME/.docker/bin:$HOME/dotfiles/scripts:/usr/local/share/dotnet:$HOME/.dotnet/tools:$BUN_INSTALL/bin:$HOME/.opencode/bin:/opt/homebrew/bin:$PATH"
+
 # Private 
 source $HOME/dotfiles/private/private.sh
 
@@ -89,6 +91,9 @@ source $HOME/dotfiles/private/private.sh
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+# docker
+export DOCKER_HOST=unix://$HOME/.orbstack/run/docker.sock
 
 # SSH
 # Check if ssh-agent is running, if not, start it.
