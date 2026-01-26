@@ -139,7 +139,7 @@
       "slack"
 
       # Utilities
-      "aerospace"
+      "nikitabobko/tap/aerospace"
       "balenaetcher"
       "drawio"
       "istat-menus"
