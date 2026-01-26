@@ -78,6 +78,7 @@
     taps = [
       "mongodb/brew"
       "nikitabobko/tap"
+      "anomalyco/tap"
     ];
 
     brews = [
@@ -89,6 +90,7 @@
       "fnm"
       "poetry"
       "python@3.13"
+      "anomalyco/tap/opencode"
 
       # Databases & Related
       { name = "libpq"; link = true; }
@@ -107,7 +109,6 @@
 
     casks = [
       # Browsers
-      "brave-browser"
       "firefox"
       "google-chrome"
       "microsoft-edge"
