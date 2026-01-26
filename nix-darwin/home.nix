@@ -25,9 +25,6 @@ in
     pkgs.postgresql
     pkgs.postgresql_jdbc
 
-    # dotnet stuff
-    pkgs.netcoredbg
-
     # cli tools
     pkgs.jq
     pkgs.fd
@@ -39,6 +36,7 @@ in
     pkgs.lazygit
     pkgs.lazydocker
     pkgs.jujutsu
+    pkgs.jjui
     pkgs.glow
     pkgs.wget
     pkgs.unzip
