@@ -18,50 +18,55 @@ This repository contains my personal dotfiles for macOS, including configuration
 
 ### Using nix-darwin (Recommended)
 
-1. **Clone the repository**
+1. **Install Homebrew**
    ```bash
-   git clone https://github.com/yourusername/dotfiles.git ~/dotfiles
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+   ```
+
+2. **Install Nix**
+
+   Follow the instructions at https://lix.systems/install/#on-any-other-linuxmacos-system
+
+3. **Initialize nix-darwin**
+   ```bash
+   nix run nix-darwin -- init --flake ~/dotfiles/nix-darwin
+   ```
+
+4. **Configure the SSH keys**
+
+5. **Clone the repository**
+   ```bash
+   git clone ssh@github.com-personal:tuliopaim/dotfiles-linux.git ~/dotfiles
    cd ~/dotfiles
    ```
 
-2. **Initialize submodules** (for nvim and private configs)
+6. **Initialize submodules** (for nvim and private configs)
    ```bash
    git submodule update --init --recursive
    ```
 
-3. **Apply nix-darwin configuration**
+7. **Apply nix-darwin configuration**
    ```bash
    nix run nix-darwin -- switch --flake ~/dotfiles/nix-darwin
    ```
 
-   This will:
-   - Install all system packages (development tools, CLI utilities, databases)
-   - Configure Homebrew and install/manage casks
-   - Apply macOS system settings (dock, finder, dark mode, TouchID for sudo)
-   - Create symlinks for Neovim, AeroSpace, and Ghostty configs
-   - Set up Zsh with completions, autosuggestions, and syntax highlighting
-   - Configure Tmux with custom keybindings
+    This will:
+    - Install all system packages (development tools, CLI utilities, databases)
+    - Configure Homebrew and install/manage casks
+    - Apply macOS system settings (dock, finder, dark mode, TouchID for sudo)
+    - Create symlinks for Neovim, AeroSpace, and Ghostty configs
+    - Set up Zsh with completions, autosuggestions, and syntax highlighting
+    - Configure Tmux with custom keybindings
 
-4. **Rebuild after configuration changes**
+8. **Rebuild after configuration changes**
    ```bash
    darwin-rebuild switch --flake ~/dotfiles/nix-darwin
    ```
 
-### Alternative: Using Homebrew Only
+9. **Install Oh My Zsh and TPM**
+   - https://github.com/ohmyzsh/ohmyzsh
+   - https://github.com/tmux-plugins/tpm
 
-For a manual setup without nix-darwin, you can use Homebrew:
-
-1. **Clone and initialize** as above
-2. **Create symlinks**
-   ```bash
-   ./symlinks.sh
-   ```
-3. **Install Homebrew packages**
-   ```bash
-   brew update && brew bundle install --cleanup --file ~/dotfiles/brew/Brewfile && brew upgrade
-   ```
-
-   This will update Homebrew, install packages from the Brewfile, remove unlisted packages, and upgrade everything.
 
 ## Nix-Darwin Configuration
 
