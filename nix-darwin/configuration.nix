@@ -122,10 +122,12 @@
       "visual-studio-code"
       "orbstack"
       "claude-code"
+      "codex"
 
       # Database Tools
       "mongodb-compass"
       "pgadmin4"
+      "beekeeper-studio"
 
       # Productivity
       "bitwarden"
