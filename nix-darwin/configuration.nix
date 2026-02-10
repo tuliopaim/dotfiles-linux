@@ -141,6 +141,7 @@
       "slack"
 
       # Utilities
+      "tailscale"
       "nikitabobko/tap/aerospace"
       "balenaetcher"
       "drawio"
