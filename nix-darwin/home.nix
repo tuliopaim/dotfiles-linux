@@ -92,6 +92,7 @@ in
     "nvim".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/nvim";
     "ghostty".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/ghostty";
     "aerospace".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/aerospace";
+    "opencode".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode";
   };
 
   home.file = {
