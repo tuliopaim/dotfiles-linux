@@ -101,14 +101,6 @@ if ! pgrep -q ssh-agent; then
   eval "$(ssh-agent -s)" > /dev/null
 fi
 
-# Add your SSH keys to the agent
-# Use 'ssh-add -K' on macOS to store the key in the Keychain,
-# even if it's passwordless, for better integration.
-# Make sure these paths are correct for your system.
-ssh-add -K ~/.ssh/git_0 &>/dev/null
-ssh-add -K ~/.ssh/git_1 &>/dev/null
-ssh-add -K ~/.ssh/git_2 &>/dev/null
-
 # Yazi
 function yy() {
     local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
