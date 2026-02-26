@@ -64,6 +64,7 @@ alias tm="tmux-windownizer"
 alias fupdate="nix flake update --flake ~/dotfiles/nix-darwin/";
 alias fswitch="sudo darwin-rebuild switch --flake ~/dotfiles/nix-darwin/.#macos";
 alias gdrive="cd /Users/tuliopaim/Google Drive/My Drive/Documentos GD"
+alias gsu="git submodule update --init --recursive"
 
 # Open buffer line in editor
 autoload -Uz edit-command-line
