@@ -3,6 +3,7 @@
     "plugin": [
         "opencode-anthropic-auth",
     ],
+    "theme": "catppuccin",
     "autoupdate": true,
     "permission": {
         "external_directory": {
