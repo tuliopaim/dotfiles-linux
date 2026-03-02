@@ -21,9 +21,11 @@ in
     pkgs.nixd
 
     # dev tools
+    pkgs.git
     pkgs.terraform
     pkgs.postgresql
     pkgs.postgresql_jdbc
+    pkgs.bun
 
     # cli tools
     pkgs.jq
