@@ -90,7 +90,7 @@ RUN mkdir -p ~/.config/tmux/plugins \
     && git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/tpm
 
 # Dotfiles
-RUN git clone https://github.com/tuliopaim/dotfiles-linux.git ~/dotfiles \
+RUN git clone --branch dotnet-container https://github.com/tuliopaim/dotfiles-linux.git ~/dotfiles \
     && git clone https://github.com/tuliopaim/nvim.git ~/.config/nvim \
     && ln -sf ~/dotfiles/zsh/.zshrc ~/.zshrc \
     && mkdir -p ~/.config/tmux \
