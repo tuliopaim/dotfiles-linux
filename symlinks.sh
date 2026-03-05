@@ -28,4 +28,14 @@ create_symlink ~/dotfiles/vscode/Code/User/keybindings.json ~/Library/Applicatio
 create_symlink ~/dotfiles/vscode/Code/User/settings.json ~/Library/Application\ Support/Code/User/settings.json
 create_symlink ~/dotfiles/vscode/Code/User/keybindings.json ~/Library/Application\ Support/Code/User/keybindings.json
 
+# Hyprland configs (protect from Omarchy updates overwriting customizations)
+mkdir -p ~/.config/hypr
+create_symlink ~/dotfiles/omarchy/hypr/hyprland.conf ~/.config/hypr/hyprland.conf
+create_symlink ~/dotfiles/omarchy/hypr/bindings.conf ~/.config/hypr/bindings.conf
+create_symlink ~/dotfiles/omarchy/hypr/input.conf ~/.config/hypr/input.conf
+create_symlink ~/dotfiles/omarchy/hypr/looknfeel.conf ~/.config/hypr/looknfeel.conf
+create_symlink ~/dotfiles/omarchy/hypr/autostart.conf ~/.config/hypr/autostart.conf
+create_symlink ~/dotfiles/omarchy/hypr/envs.conf ~/.config/hypr/envs.conf
+# monitors.conf is already symlinked
+
 echo "Symlink creation completed!"
