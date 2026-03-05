@@ -6,7 +6,8 @@ A comprehensive macOS development environment configuration featuring modern CLI
 
 This repository contains my personal dotfiles for macOS, including configurations for:
 
-- **Shell**: Zsh with Oh My Zsh, syntax highlighting, and autosuggestions
+- **Shell**: Zsh with Oh My Zsh, syntax highlighting, and autosuggestions (split into shared + macOS-specific)
+- **Dev Containers**: Isolated sandbox environments for AI agent workflows (claude-code, opencode)
 - **Terminal Emulators**: Ghostty and WezTerm
 - **Editors**: Neovim (with custom config), IdeaVim (extensive JetBrains IDE keybindings), VS Code/Cursor
 - **Window Management**: AeroSpace (tiling window manager for macOS)
@@ -497,6 +498,82 @@ All tools and applications are installed and managed via nix-darwin's integrated
 |------------|--------|
 | `Alt+Enter` | Open Ghostty terminal |
 
+
+## Dev Containers (AI Agent Sandboxes)
+
+Isolated Docker-based sandbox environments for AI agent workflows. Agents (claude-code, opencode) run inside containers with your full dev setup (neovim, lazygit, zsh config) but can only touch files inside `/workspace`.
+
+### How It Works
+
+The zsh config is split into `zsh/.zshrc.shared` (portable) and `zsh/.zshrc.macos` (macOS-only). Containers mount the shared config and skip macOS-specific stuff automatically via a `uname` check in `.zshrc`.
+
+### Quick Start
+
+```bash
+# 1. Build the base image (one-time)
+docker build -t dotfiles-devcontainer-base ~/dotfiles/devcontainers/base/
+
+# 2. Initialize a project with a devcontainer template
+devcontainer-init dotnet /path/to/my-project
+
+# 3. Start the container and drop into a zsh shell
+devcontainer-start /path/to/my-project
+
+# Inside the container: neovim, lazygit, dotnet, claude, opencode all work
+claude
+opencode
+```
+
+### Available Templates
+
+| Template | Description |
+|----------|-------------|
+| `dotnet` | .NET development with SDKs 8.0, 9.0, and 10.0 pre-installed |
+
+### What's Included in Containers
+
+**Base image** (`devcontainers/base/Dockerfile`):
+- lazygit, yazi, eza, bat
+- oh-my-zsh with zsh-autosuggestions and zsh-syntax-highlighting
+
+**Devcontainer features** (installed via `devcontainer.json`):
+- neovim, ripgrep, fd, fzf, zoxide, direnv, gh, node
+
+**Bind mounts** (read-only from host):
+- `~/dotfiles/zsh` — zsh config (shared + entry point)
+- `~/dotfiles/nvim` — neovim config (lazy.nvim auto-bootstraps)
+- `~/.ssh` — SSH keys for git operations
+
+**Post-create setup** (runs once after container creation):
+- Symlinks `.zshrc` to home
+- Installs `claude-code` and `opencode`
+- Pre-installs neovim plugins
+
+**Environment variables** (forwarded from host, never baked in):
+- `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`
+
+### End-to-End Workflow
+
+```bash
+# Clone with existing bare repo workflow
+clone-wt git@github.com:company/my-api.git
+cd my-api && git worktree add feature-xyz origin/main
+
+# Initialize and start devcontainer
+cd feature-xyz
+devcontainer-init dotnet .
+devcontainer-start .
+
+# Inside: fully sandboxed to /workspace
+# zsh with your aliases, neovim, lazygit, .NET, claude, opencode
+```
+
+### Notes
+
+- No tmux inside containers — you exec into zsh from a host tmux pane
+- The base Docker image is built automatically on first `devcontainer-start` if it doesn't exist
+- .NET 8.0, 9.0, and 10.0 are all installed side by side — use `global.json` to pin per project
+
 ## Configuration Details
 
 ### Directory Structure
@@ -506,10 +583,14 @@ dotfiles/
 ├── aerospace/          # AeroSpace window manager config
 ├── brew/              # Homebrew bundle file
 ├── cs2/               # Counter-Strike 2 configs
+├── devcontainers/     # Dev container sandbox setup
+│   ├── base/          #   Base image (Dockerfile + post-create.sh)
+│   ├── dotnet/        #   .NET template (Dockerfile + devcontainer.json)
+│   └── scripts/       #   Helper scripts (devcontainer-init, devcontainer-start)
 ├── ghostty/           # Ghostty terminal config
 ├── ideavim/           # JetBrains IdeaVim config
 ├── nix/               # NixOS configuration (legacy)
-├── nix-darwin/        # Nix-darwin configuration 
+├── nix-darwin/        # Nix-darwin configuration
 ├── nvim/              # Neovim config (git submodule)
 ├── private/           # Private configs (git submodule)
 ├── qmk/              # QMK keyboard firmware
@@ -519,7 +600,7 @@ dotfiles/
 ├── vscode/           # VS Code/Cursor settings
 ├── wallpapers/        # Custom wallpapers
 ├── wezterm/          # WezTerm terminal config
-├── zsh/              # Zsh configuration
+├── zsh/              # Zsh configuration (.zshrc, .zshrc.shared, .zshrc.macos)
 ├── ansible/          # Ansible playbooks (legacy setup)
 └── symlinks.sh       # Symlink creation script
 ```
