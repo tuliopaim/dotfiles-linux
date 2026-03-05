@@ -21,7 +21,7 @@ alias lz="lazydocker"
 alias tm="tmux-windownizer"
 alias fupdate="nix flake update --flake ~/dotfiles/nix-darwin/"
 alias fswitch="sudo darwin-rebuild switch --flake ~/dotfiles/nix-darwin/.#macos"
-alias gdrive="cd /Users/tuliopaim/Google Drive/My Drive/Documentos GD"
+alias gdrive="cd $HOME/Google\ Drive/My\ Drive/Documentos\ GD"
 
 # QMK
 export QMK_HOME='~/qmk_firmware'
@@ -33,7 +33,7 @@ export PATH="$HOME/.aspire/bin:$HOME/.docker/bin:$HOME/dotfiles/containers/scrip
 source $HOME/dotfiles/private/private.sh
 
 # bun completions
-[ -s "/Users/tuliopaim/.bun/_bun" ] && source "/Users/tuliopaim/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
