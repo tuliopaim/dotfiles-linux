@@ -123,10 +123,10 @@
       "orbstack"
       "claude-code"
       "codex"
+      "codex-app"
 
       # Database Tools
       "mongodb-compass"
-      "pgadmin4"
       "beekeeper-studio"
 
       # Productivity
@@ -143,7 +143,6 @@
       # Utilities
       "tailscale-app"
       "nikitabobko/tap/aerospace"
-      "balenaetcher"
       "drawio"
       "istat-menus"
       "karabiner-elements"
