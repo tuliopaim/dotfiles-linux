@@ -11,20 +11,18 @@ if [[ -n $GHOSTTY_RESOURCES_DIR ]]; then
 fi
 
 # Linux-specific aliases
-alias ssh1='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_1'
-alias ssh2='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_2'
-alias sshpersonal='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_personal_gh'
-alias lz="lazydocker"
 alias tm="tmux-windownizer"
 
 # Linux-specific exports
 export QMK_HOME='~/qmk_firmware'
+export DOTNET_ROOT="$HOME/.dotnet"
 
 # Linux-specific PATH
 export PATH="$HOME/.docker/bin:$PATH"
 export PATH="/usr/local/share/dotnet:$HOME/.dotnet/tools:$PATH"
 export PATH="$BUN_INSTALL/bin:$PATH"
 export PATH="$HOME/.opencode/bin:$PATH"
+export PATH="$DOTNET_ROOT:$DOTNET_ROOT/tools:$PATH"
 
 # Private
 source $HOME/dotfiles/private/private.sh
