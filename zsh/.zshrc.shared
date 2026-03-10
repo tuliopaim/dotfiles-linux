@@ -34,6 +34,11 @@ export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_CTRL_T_OPTS="--preview 'bat --color=always --theme=OneHalfDark --line-range :50 {}'"
 
 # Base Aliases
+alias ssh1='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/git_1'
+alias ssh2='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/git_2'
+alias sshpersonal='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/git_0'
+alias gwa='git worktree add'
+alias lz="lazydocker"
 alias ls="eza -la"
 alias ..="cd .."
 alias ....="cd ../.."
