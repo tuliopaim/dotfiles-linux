@@ -15,21 +15,6 @@
       include_tasks: install_oh_my_zsh.yml
       tags: ['zsh']
 
-    - name: Install firacode
-      block:
-      - name: Ensure the script is present and executable
-        become: yes
-        copy: 
-          src: ./install_firacode.sh
-          dest: ./install_firacode.sh
-          mode: '0755'
-        tags: ['firacode']
-          
-      - name: Run the script
-        become: yes
-        shell: ./install_firacode.sh
-        tags: ['firacode']
-
     - name: Setup tmux TPM
       block:
       - name: Check if tmux tpm is installed

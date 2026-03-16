@@ -1,14 +1,31 @@
-macos-titlebar-style = hidden
+# Dynamic theme colors
+config-file = ?"~/.config/omarchy/current/theme/ghostty.conf"
 
-theme = Catppuccin Mocha
+# Font
+font-family = "JetBrainsMono Nerd Font"
+font-style = Regular
+font-size = 9
 
+
+# Window
+window-padding-x = 14
+window-padding-y = 14
+confirm-close-surface=false
+resize-overlay = never
 background-opacity = 0.9
 background-blur-radius = 5
 
-font-size = 18
-font-family = "JetBrainsMono NFM Regular"
+# Cursor styling
+cursor-style = "block"
+cursor-style-blink = false
+shell-integration-features = no-cursor
 
-window-padding-balance = true
+font-size = 14.5
+
+# Keyboard bindings
+keybind = f11=toggle_fullscreen
+keybind = shift+insert=paste_from_clipboard
+keybind = control+insert=copy_to_clipboard
 
 mouse-hide-while-typing = true
 
