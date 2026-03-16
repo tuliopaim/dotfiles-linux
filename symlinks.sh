@@ -23,9 +23,25 @@ create_symlink ~/dotfiles/ghostty ~/.config/ghostty
 create_symlink ~/dotfiles/aerospace ~/.config/aerospace
 create_symlink ~/dotfiles/ideavim/.ideavimrc ~/.ideavimrc
 create_symlink ~/dotfiles/private/.config/git ~/.config/git
+create_symlink ~/dotfiles/opencode/opencode.json ~/.config/opencode/opencode.json
+create_symlink ~/dotfiles/opencode/tui.json ~/.config/opencode/tui.json
 create_symlink ~/dotfiles/vscode/Code/User/settings.json ~/Library/Application\ Support/Cursor/User/settings.json
 create_symlink ~/dotfiles/vscode/Code/User/keybindings.json ~/Library/Application\ Support/Cursor/User/keybindings.json
 create_symlink ~/dotfiles/vscode/Code/User/settings.json ~/Library/Application\ Support/Code/User/settings.json
 create_symlink ~/dotfiles/vscode/Code/User/keybindings.json ~/Library/Application\ Support/Code/User/keybindings.json
+
+# Hyprland configs (protect from Omarchy updates overwriting customizations)
+mkdir -p ~/.config/hypr
+create_symlink ~/dotfiles/omarchy/hypr/hyprland.conf ~/.config/hypr/hyprland.conf
+create_symlink ~/dotfiles/omarchy/hypr/bindings.conf ~/.config/hypr/bindings.conf
+create_symlink ~/dotfiles/omarchy/hypr/input.conf ~/.config/hypr/input.conf
+create_symlink ~/dotfiles/omarchy/hypr/looknfeel.conf ~/.config/hypr/looknfeel.conf
+create_symlink ~/dotfiles/omarchy/hypr/autostart.conf ~/.config/hypr/autostart.conf
+create_symlink ~/dotfiles/omarchy/hypr/envs.conf ~/.config/hypr/envs.conf
+# monitors.conf is already symlinked
+
+# Waybar configs (protect from Omarchy updates overwriting customizations)
+create_symlink ~/dotfiles/omarchy/waybar/config.jsonc ~/.config/waybar/config.jsonc
+create_symlink ~/dotfiles/omarchy/waybar/style.css ~/.config/waybar/style.css
 
 echo "Symlink creation completed!"

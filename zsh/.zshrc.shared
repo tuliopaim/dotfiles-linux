@@ -1,0 +1,87 @@
+# Initialize zoxide
+if command -v zoxide &> /dev/null; then
+    eval "$(zoxide init zsh)"
+fi
+
+# Oh My Zsh configuration
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME="amuse"
+
+plugins=(git fzf vi-mode zsh-autosuggestions)
+
+source $ZSH/oh-my-zsh.sh
+
+# Enable vi mode
+bindkey -v
+
+bindkey "^F" fzf-cd-widget
+bindkey "^R" fzf-history-widget
+
+# FZF configuration
+export FZF_DEFAULT_OPTS=" \
+  --ansi --extended \
+  --height 40% --layout=reverse --border \
+  --info=inline \
+  --bind=ctrl-u:half-page-up,ctrl-d:half-page-down \
+  --color=bg+:#002B36,fg:#839496,hl:#B48EAD,fg+:#FF5E7D,pointer:#FF5E7D,header:#B48EAD,border:#B48EAD"
+
+export FZF_DEFAULT_COMMAND='fd --type f --strip-cwd-prefix -H --no-ignore'
+
+export FZF_ALT_C_COMMAND="fd --type d . -H --strip-cwd-prefix"
+export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
+
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_CTRL_T_OPTS="--preview 'bat --color=always --theme=OneHalfDark --line-range :50 {}'"
+
+# Base Aliases
+alias ssh1='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/git_1'
+alias ssh2='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/git_2'
+alias sshpersonal='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/git_0'
+alias gwa='git worktree add'
+alias lz="lazydocker"
+alias ls="eza -la"
+alias ..="cd .."
+alias ....="cd ../.."
+alias ......="cd ../../.."
+alias lg="lazygit"
+alias cd="z"
+alias db="dotnet build"
+alias dt="dotnet test"
+alias gsu="git submodule update --init --recursive"
+
+# Open buffer line in editor
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey '^e' edit-command-line
+
+# History configuration
+HISTSIZE=100000
+HISTFILE="$HOME/.zsh_history"
+SAVEHIST=100000
+
+# Exports
+export EDITOR=nvim
+
+# Base PATH additions
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/dotfiles/scripts:$PATH"
+
+# Yazi function
+function yy() {
+    local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
+    yazi "$@" --cwd-file="$tmp"
+    if cwd="$(cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+        builtin cd -- "$cwd"
+    fi
+    rm -f -- "$tmp"
+}
+
+# Kill process function
+function killp(){
+    ps aux | fzf --height 40% --layout=reverse --prompt="Select a process to kill: " | awk '{print $2}' | xargs -r sudo kill
+}
+
+# Git cherry-pick merge commit
+function gcpm() {
+  git cherry-pick "$1" -m 1
+}
