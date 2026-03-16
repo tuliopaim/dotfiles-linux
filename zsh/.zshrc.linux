@@ -24,6 +24,11 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 export PATH="$HOME/.opencode/bin:$PATH"
 export PATH="$DOTNET_ROOT:$DOTNET_ROOT/tools:$PATH"
 
+# SSH agent
+if ! pgrep -x ssh-agent > /dev/null; then
+  eval "$(ssh-agent -s)" > /dev/null
+fi
+
 # Private
 source $HOME/dotfiles/private/private.sh
 
