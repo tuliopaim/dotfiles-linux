@@ -2,7 +2,10 @@
   description = "Unified Nix flake — Darwin, Ubuntu server, NixOS legacy";
 
   inputs = {
-    # Darwin + server (unstable)
+    # Darwin (25.05-darwin, must match nix-darwin branch)
+    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-25.05-darwin";
+
+    # Server + default (unstable)
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
     # NixOS legacy (stable)
@@ -11,13 +14,19 @@
     # nix-darwin
     nix-darwin = {
       url = "github:nix-darwin/nix-darwin/nix-darwin-25.05";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "nixpkgs-darwin";
     };
 
-    # Home Manager (unstable, for darwin + server)
+    # Home Manager (unstable, for server)
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Home Manager (25.05, for darwin)
+    home-manager-darwin = {
+      url = "github:nix-community/home-manager/release-25.05";
+      inputs.nixpkgs.follows = "nixpkgs-darwin";
     };
 
     # Home Manager (stable, for NixOS)
@@ -32,9 +41,11 @@
   outputs =
     { self
     , nixpkgs
+    , nixpkgs-darwin
     , nixpkgs-stable
     , nix-darwin
     , home-manager
+    , home-manager-darwin
     , home-manager-stable
     , ...
     } @ inputs:
@@ -45,13 +56,13 @@
       pkgs-unstable-linux = import nixpkgs { system = nixosSystem; config.allowUnfree = true; };
     in
     {
-      # ── Mac Mini (aarch64-darwin) ──────────────────────────────────
+      # ── MacOS (aarch64-darwin) ──────────────────────────────────
       darwinConfigurations."macos" = nix-darwin.lib.darwinSystem {
         system = "aarch64-darwin";
         specialArgs = { inherit inputs; };
         modules = [
           ./macos/configuration.nix
-          home-manager.darwinModules.home-manager
+          home-manager-darwin.darwinModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
