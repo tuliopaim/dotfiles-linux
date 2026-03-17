@@ -1,82 +1,177 @@
-{ pkgs, ... }:
+{ pkgs, inputs, ... }:
 {
-  nixpkgs.config.allowUnfree = true;
+  system = {
+    stateVersion = 6;
+    primaryUser = "tuliopaim";
 
-  # Nix settings
-  nix.settings.experimental-features = "nix-command flakes";
-  nix.settings.trusted-users = [ "root" "tuliopaim" ];
+    defaults = {
+      dock = {
+        autohide = true;
+        mru-spaces = false;
+        minimize-to-application = true;
+        show-recents = false;
+      };
 
-  # System defaults
-  system.defaults = {
-    dock = {
-      autohide = true;
-      mru-spaces = false;
-      minimize-to-application = true;
-      show-recents = false;
-    };
-    finder = {
-      AppleShowAllExtensions = true;
-      FHSEnabled = true;
-      ShowPathbar = true;
-    };
-    NSGlobalDomain = {
-      AppleShowAllExtensions = true;
-      AppleInterfaceStyle = "Dark";
-      "com.apple.swipescrolldirection" = false;
-    };
-    trackpad = {
-      Clicking = true;
-      TrackpadThreeFingerDrag = true;
+      finder = {
+        AppleShowAllExtensions = true;
+        FXPreferredViewStyle = "clmv";
+        ShowPathbar = true;
+      };
+
+      loginwindow = {
+        LoginwindowText = "tuliopaim";
+        GuestEnabled = false;
+      };
+
+      NSGlobalDomain = {
+        AppleInterfaceStyle = "Dark";
+        AppleShowAllExtensions = true;
+        "com.apple.swipescrolldirection" = false;
+      };
+
+      trackpad = {
+        Clicking = true;
+        TrackpadThreeFingerDrag = true;
+      };
     };
   };
 
-  # Fonts
-  fonts.packages = with pkgs; [
-    nerd-fonts.fira-code
-    nerd-fonts.droid-sans-mono
-  ];
-
-  # Homebrew
-  homebrew = {
+  nix = {
     enable = true;
-    onActivation = {
-      autoUpdate = true;
-      cleanup = "zap";
+    optimise.automatic = true;
+
+    settings = {
+      experimental-features = "nix-command flakes";
+      extra-platforms = [ "x86_64-darwin" "aarch64-darwin" ];
+      trusted-users = [ "root" "tuliopaim" ];
+      max-jobs = 8;
+      cores = 0;
     };
-    casks = [
-      "cursor"
-      "orbstack"
-      "google-drive"
-      "the-unarchiver"
-      "todoist"
-      "slack"
-      "microsoft-teams"
-      "notion"
-      "spotify"
-      "obsidian"
-      "alt-tab"
-      "raycast"
-      "zen"
-      "whatsapp"
-      "telegram"
-      "google-chrome"
-    ];
-    taps = [];
-    brews = [];
+
+    gc = {
+      automatic = true;
+      interval = { Weekday = 0; Hour = 2; Minute = 0; };
+      options = "--delete-older-than 30d";
+    };
   };
 
-  # Touch ID for sudo
+  nixpkgs = {
+    hostPlatform = "aarch64-darwin";
+    config.allowUnfree = true;
+  };
+
+  users.users.tuliopaim.home = "/Users/tuliopaim";
+  home-manager.backupFileExtension = "backup";
+
   security.pam.services.sudo_local.touchIdAuth = true;
 
-  # System packages
   environment.systemPackages = with pkgs; [
     vim
     neovim
+    ansible
   ];
 
-  # Enable zsh
+  fonts.packages = with pkgs; [
+    nerd-fonts.fira-code
+    nerd-fonts.droid-sans-mono
+    liberation_ttf
+  ];
+
   programs.zsh.enable = true;
 
-  # Used for backwards compatibility
-  system.stateVersion = 6;
+  homebrew = {
+    enable = true;
+
+    onActivation = {
+      autoUpdate = true;
+      upgrade = true;
+      cleanup = "zap";
+    };
+
+    taps = [
+      "mongodb/brew"
+      "nikitabobko/tap"
+      "anomalyco/tap"
+    ];
+
+    brews = [
+      # Shell
+      "mas"
+
+      # Development tools
+      "direnv"
+      "fnm"
+      "poetry"
+      "python@3.13"
+      "anomalyco/tap/opencode"
+
+      # Databases & Related
+      { name = "libpq"; link = true; }
+      "mongosh"
+      "redis"
+
+      # Cloud & DevOps
+      "awscli-local"
+
+      # Other
+      "mono-libgdiplus"
+      "cask"
+      "zlib"
+      "qmk/qmk/qmk"
+    ];
+
+    casks = [
+      # Browsers
+      "firefox"
+      "google-chrome"
+      "microsoft-edge"
+
+      # Development
+      "cursor"
+      "dbeaver-community"
+      "ghostty"
+      "postman"
+      "rider"
+      "visual-studio-code"
+      "orbstack"
+      "claude-code"
+      "codex"
+
+      # Database Tools
+      "mongodb-compass"
+      "beekeeper-studio"
+
+      # Productivity
+      "bitwarden"
+      "obsidian"
+      "pdf-expert"
+      "raycast"
+
+      # Communication
+      "discord"
+      "microsoft-teams"
+      "slack"
+
+      # Utilities
+      "tailscale-app"
+      "nikitabobko/tap/aerospace"
+      "drawio"
+      "istat-menus"
+      "karabiner-elements"
+      "localsend"
+      "microsoft-auto-update"
+      "obs"
+      "qmk-toolbox"
+      "scroll-reverser"
+      "shottr"
+      "via"
+      "google-drive"
+
+      # Browsers (cont.)
+      "zen"
+
+      # Entertainment
+      "spotify"
+    ];
+  };
 }
