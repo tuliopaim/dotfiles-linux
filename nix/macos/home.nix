@@ -1,4 +1,4 @@
-{ username, pkgs, config, ... }:
+{ config, pkgs, ... }:
 let
   dotfilesDir = "${config.home.homeDirectory}/dotfiles";
 in
@@ -7,12 +7,11 @@ in
     ../home
   ];
 
-  home.username = username;
-  home.homeDirectory = "/Users/" + username;
+  home.username = "tuliopaim";
+  home.homeDirectory = "/Users/tuliopaim";
   home.stateVersion = "25.05";
 
   home.packages = with pkgs; [
-    # darwin-only packages
     pngpaste
     clipboard-jh
     sesh
@@ -29,16 +28,6 @@ in
     awscli2
   ];
 
-  # darwin-only symlinks
-  xdg.configFile = {
-    "ghostty".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/ghostty";
-    "aerospace".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/aerospace";
-  };
-
-  home.file = {
-    "Library/Application Support/Cursor/User/settings.json".source =
-      config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/vscode/Code/User/settings.json";
-    "Library/Application Support/Cursor/User/keybindings.json".source =
-      config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/vscode/Code/User/keybindings.json";
-  };
+  xdg.configFile."ghostty".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/ghostty";
+  xdg.configFile."aerospace".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/aerospace";
 }

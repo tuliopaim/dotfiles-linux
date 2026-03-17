@@ -1,7 +1,6 @@
 { pkgs, ... }:
 {
   home.packages = with pkgs; [
-    # cli tools
     fd
     bat
     ripgrep
@@ -18,13 +17,12 @@
     age
     glow
     gnumake
+    yazi
     gdu
     p7zip
     stow
     fastfetch
     htop
-
-    # dev tools
     cargo
     go
     gopls
@@ -33,8 +31,5 @@
     gh
     jujutsu
     jjui
-
-    # file manager
-    yazi
   ];
 }

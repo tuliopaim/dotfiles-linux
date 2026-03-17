@@ -18,10 +18,10 @@
     sxiv
     teams-for-linux
     libreoffice
-    gnome.file-roller
-    gnome.gnome-disk-utility
-    gnome.gnome-calculator
-    cinnamon.nemo-with-extensions
+    file-roller
+    gnome-disk-utility
+    gnome-calculator
+    nemo-with-extensions
     mongodb-compass
     vesktop
     woeusb

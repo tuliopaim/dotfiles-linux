@@ -1,17 +1,19 @@
-{ username, pkgs, config, ... }:
+{ config, pkgs, ... }:
 {
   imports = [
     ../home
   ];
 
-  home.username = username;
-  home.homeDirectory = "/home/" + username;
+  home.username = "tuliopaim";
+  home.homeDirectory = "/home/tuliopaim";
   home.stateVersion = "25.05";
 
+  nixpkgs.config.allowUnfree = true;
+
   home.packages = with pkgs; [
-    # server-specific packages
     kubectl
     kubernetes-helm
     k9s
+    kubeseal
   ];
 }
