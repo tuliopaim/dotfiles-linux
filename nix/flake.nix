@@ -1,5 +1,5 @@
 {
-  description = "Unified Nix configuration — Darwin, Ubuntu server, NixOS";
+  description = "Unified Nix flake — Darwin, Ubuntu server, NixOS legacy";
 
   inputs = {
     # Darwin + server (unstable)
@@ -9,18 +9,23 @@
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05";
 
     # nix-darwin
-    nix-darwin.url = "github:nix-darwin/nix-darwin/nix-darwin-25.05";
-    nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
+    nix-darwin = {
+      url = "github:nix-darwin/nix-darwin/nix-darwin-25.05";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # Home Manager (unstable, for darwin + server)
-    home-manager.url = "github:nix-community/home-manager";
-    home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # Home Manager (stable, for NixOS)
-    home-manager-stable.url = "github:nix-community/home-manager/release-25.05";
-    home-manager-stable.inputs.nixpkgs.follows = "nixpkgs-stable";
+    home-manager-stable = {
+      url = "github:nix-community/home-manager/release-25.05";
+      inputs.nixpkgs.follows = "nixpkgs-stable";
+    };
 
-    # NixOS extras
     zen-browser.url = "github:tuliopaim/zen-browser-flake";
   };
 
@@ -34,150 +39,90 @@
     , ...
     } @ inputs:
     let
-      inherit (self) outputs;
+      # NixOS legacy
+      nixosSystem = "x86_64-linux";
+      pkgs-stable = import nixpkgs-stable { system = nixosSystem; config.allowUnfree = true; };
+      pkgs-unstable-linux = import nixpkgs { system = nixosSystem; config.allowUnfree = true; };
     in
     {
-      # ── Mac Mini (aarch64-darwin) ──────────────────────────────────────
-      darwinConfigurations."macos" =
-        let
-          system = "aarch64-darwin";
-          pkgs = import nixpkgs {
-            inherit system;
-            config = {
-              allowUnfree = true;
-              permittedInsecurePackages = [ "dotnet-sdk-6.0.428" ];
-            };
-          };
-        in
-        nix-darwin.lib.darwinSystem {
-          inherit pkgs system;
-          specialArgs = {
-            inherit outputs self;
-          };
-          modules = [
-            ./macos/configuration.nix
+      # ── Mac Mini (aarch64-darwin) ──────────────────────────────────
+      darwinConfigurations."macos" = nix-darwin.lib.darwinSystem {
+        system = "aarch64-darwin";
+        specialArgs = { inherit inputs; };
+        modules = [
+          ./macos/configuration.nix
+          home-manager.darwinModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.users.tuliopaim = import ./macos/home.nix;
+          }
+        ];
+      };
 
-            home-manager.darwinModules.home-manager
-            {
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-              home-manager.extraSpecialArgs = {
-                inherit pkgs inputs system;
-                username = "tuliopaim";
-              };
-              home-manager.users.tuliopaim = import ./macos/home.nix;
-            }
-          ];
+      # ── Ubuntu server (standalone Home Manager) ────────────────────
+      homeConfigurations."tuliopaim@server" = home-manager.lib.homeManagerConfiguration {
+        pkgs = import nixpkgs { system = "x86_64-linux"; config.allowUnfree = true; };
+        modules = [
+          ./linux/home.nix
+        ];
+      };
+
+      # ── NixOS legacy desktop ───────────────────────────────────────
+      nixosConfigurations."nixos" = nixpkgs-stable.lib.nixosSystem {
+        system = nixosSystem;
+        specialArgs = {
+          inherit inputs;
+          pkgs = pkgs-stable;
+          pkgs-unstable = pkgs-unstable-linux;
+          username = "tuliopaim";
+          hostname = "nixos";
+          outputs = self;
         };
+        modules = [
+          ./nixos/hosts/desktop/configuration.nix
+        ];
+      };
 
-      # ── Ubuntu server (standalone Home Manager) ────────────────────────
-      homeConfigurations."tuliopaim@server" =
-        let
-          system = "x86_64-linux";
-          pkgs = import nixpkgs {
-            inherit system;
-            config.allowUnfree = true;
-          };
-        in
-        home-manager.lib.homeManagerConfiguration {
-          inherit pkgs;
-          extraSpecialArgs = {
-            inherit inputs system;
-            username = "tuliopaim";
-          };
-          modules = [
-            ./linux/home.nix
-          ];
+      # ── NixOS legacy Home Manager (standalone) ─────────────────────
+      homeConfigurations."tuliopaim" = home-manager-stable.lib.homeManagerConfiguration {
+        pkgs = pkgs-stable;
+        extraSpecialArgs = {
+          inherit inputs;
+          system = nixosSystem;
+          pkgs-unstable = pkgs-unstable-linux;
+          username = "tuliopaim";
+          hyprlandProfile = "desktop";
         };
+        modules = [
+          ./nixos/hosts/desktop/home.nix
+        ];
+      };
 
-      # ── NixOS desktop (legacy) ─────────────────────────────────────────
-      nixosConfigurations."nixos" =
-        let
-          system = "x86_64-linux";
-          pkgs = import nixpkgs-stable {
-            inherit system;
-            config.allowUnfree = true;
-          };
-          pkgs-unstable = import nixpkgs {
-            inherit system;
-            config.allowUnfree = true;
-          };
-        in
-        nixpkgs-stable.lib.nixosSystem {
-          inherit system;
-          specialArgs = {
-            inherit pkgs inputs outputs;
-            username = "tuliopaim";
-            hostname = "nixos";
-          };
-          modules = [
-            ./nixos/hosts/desktop/configuration.nix
-          ];
+      # ── NixOS ISO builder ──────────────────────────────────────────
+      nixosConfigurations."iso" = nixpkgs-stable.lib.nixosSystem {
+        system = nixosSystem;
+        modules = [
+          "${nixpkgs-stable}/nixos/modules/installer/cd-dvd/installation-cd-graphical-gnome.nix"
+          "${nixpkgs-stable}/nixos/modules/installer/cd-dvd/channel.nix"
+          ./nixos/hosts/iso/configuration.nix
+        ];
+        specialArgs = {
+          inherit inputs;
         };
+      };
 
-      # ── NixOS ISO builder ──────────────────────────────────────────────
-      nixosConfigurations."iso" =
-        let
-          system = "x86_64-linux";
-        in
-        nixpkgs-stable.lib.nixosSystem {
-          inherit system;
-          modules = [
-            "${nixpkgs-stable}/nixos/modules/installer/cd-dvd/installation-cd-graphical-gnome.nix"
-            "${nixpkgs-stable}/nixos/modules/installer/cd-dvd/channel.nix"
-            ./nixos/hosts/iso/configuration.nix
-          ];
-          specialArgs = {
-            inherit inputs;
-          };
-        };
-
-      # ── NixOS home-manager (standalone) ────────────────────────────────
-      homeConfigurations."tuliopaim" =
-        let
-          system = "x86_64-linux";
-          pkgs = import nixpkgs-stable {
-            inherit system;
-            config.allowUnfree = true;
-          };
-          pkgs-unstable = import nixpkgs {
-            inherit system;
-            config.allowUnfree = true;
-          };
-        in
-        home-manager-stable.lib.homeManagerConfiguration {
-          inherit pkgs;
-          extraSpecialArgs = {
-            inherit inputs system pkgs-unstable;
-            username = "tuliopaim";
-            hyprlandProfile = "desktop";
-          };
-          modules = [
-            ./nixos/hosts/desktop/home.nix
-          ];
-        };
-
-      # ── Dev shells ─────────────────────────────────────────────────────
-      devShells.x86_64-linux.dotnet =
-        let
-          system = "x86_64-linux";
-          pkgs = import nixpkgs-stable {
-            inherit system;
-            config.allowUnfree = true;
-          };
-        in
-        (pkgs.buildFHSUserEnv {
-          name = "dotnet-env";
-          targetPkgs = pkgs: (with pkgs; [
-            icu
-            zlib
-            (with dotnetCorePackages; combinePackages [
-              sdk_6_0
-              sdk_7_0
-              sdk_8_0
-            ])
-          ]);
-          runScript = "zsh";
-        }).env;
+      # ── Dev shells ─────────────────────────────────────────────────
+      devShells.${nixosSystem}.dotnet = (pkgs-stable.buildFHSUserEnv {
+        name = "dotnet-env";
+        targetPkgs = pkgs: (with pkgs; [
+          icu
+          zlib
+          (with dotnetCorePackages; combinePackages [
+            sdk_8_0
+          ])
+        ]);
+        runScript = "zsh";
+      }).env;
     };
 }

@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 let
   dotfilesDir = "${config.home.homeDirectory}/dotfiles";
 in
@@ -6,8 +6,6 @@ in
   programs.tmux = {
     enable = true;
     mouse = true;
-    extraConfig = ''
-      source-file ${dotfilesDir}/tmux/.tmux.conf
-    '';
+    extraConfig = "source-file ${dotfilesDir}/tmux/.tmux.conf";
   };
 }
