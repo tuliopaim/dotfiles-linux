@@ -14,7 +14,7 @@ if [[ -n $GHOSTTY_RESOURCES_DIR ]]; then
 fi
 
 # Linux-specific aliases
-alias tm="tmux-windownizer"
+alias tm="tmux-worktree"
 alias k="kubectl"
 
 # Linux-specific exports
