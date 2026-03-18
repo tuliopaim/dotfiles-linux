@@ -18,9 +18,9 @@ alias ssh1='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/git_1'
 alias ssh2='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/git_2'
 alias sshpersonal='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/git_0'
 alias lz="lazydocker"
-alias tm="tmux-windownizer"
-alias fupdate="nix flake update --flake ~/dotfiles/nix/"
-alias fswitch="sudo darwin-rebuild switch --flake ~/dotfiles/nix#macos"
+alias tm="tmux-worktree"
+alias fupdate="nix flake update --flake ~/dotfiles/nix-darwin/"
+alias fswitch="sudo darwin-rebuild switch --flake ~/dotfiles/nix-darwin/.#macos"
 alias gdrive="cd $HOME/Google\ Drive/My\ Drive/Documentos\ GD"
 
 # QMK

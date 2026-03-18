@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+
+# --- Flag parsing ---
+SESSION_MODE=false
+if [[ "$1" == "--session" ]]; then
+    SESSION_MODE=true
+    shift
+fi
+
+# --- Configuration ---
+BASE_DIR="${HOME}/dev"
+
+DEBUG="true"
+
+# --- Helper function for logging debug messages ---
+_log_debug() {
+    [[ "$DEBUG" == "true" ]] && echo "DEBUG: $@" >&2
+}
+
+# --- 1. Select the worktree/directory ---
+if [[ $# -eq 1 ]]; then
+    selected_path=$(echo "$1" | tr -s '/')
+else
+    selected_path=$(find \
+        "${BASE_DIR}" \
+        -mindepth 1 -maxdepth 3 \
+        -type d \
+        -not -path "*/.bare*" \
+        -print | fzf)
+fi
+
+if [[ -z "$selected_path" ]]; then
+    exit 0
+fi
+
+_log_debug "Selected path: $selected_path"
+
+# --- 2. Parse selected path ---
+escaped_base_dir=$(printf %s "$BASE_DIR" | sed 's/\//\\\//g')
+regex_pattern="^${escaped_base_dir}/([^/]+)(/([^/]+))?(/([^/]+))?$"
+
+_log_debug "Regex pattern: $regex_pattern"
+
+if [[ "$selected_path" =~ $regex_pattern ]]; then
+    category="${BASH_REMATCH[1]}"
+    repo="${BASH_REMATCH[3]}"
+    branch="${BASH_REMATCH[5]}"
+
+    _log_debug "Category: '$category', Repo: '$repo', Branch: '$branch'"
+
+    if [[ -z "$repo" ]]; then
+        repo="$category"
+        branch=""
+    elif [[ -z "$branch" ]]; then
+        branch=""
+    fi
+
+    # Sanitize: tmux doesn't allow periods, colons, hashes
+    repo=$(echo "$repo" | tr '.:#' '_')
+    branch=$(echo "$branch" | tr '.:#' '_')
+else
+    # Fallback for paths outside BASE_DIR
+    repo=$(basename "$selected_path" | tr '.:#' '_')
+    branch=""
+fi
+
+# --- 3. Determine session/window names based on mode ---
+if [[ "$SESSION_MODE" == "true" ]]; then
+    # Session mode: one session per worktree (repo-branch)
+    if [[ -n "$branch" ]]; then
+        session_name="${repo}-${branch}"
+    else
+        session_name="$repo"
+    fi
+
+    _log_debug "Session mode - Session: '$session_name'"
+
+    # Start tmux if not running
+    if [[ -z "$TMUX" ]] && ! pgrep -x tmux >/dev/null; then
+        tmux new-session -s "$session_name" -c "$selected_path"
+        exit 0
+    fi
+
+    if ! tmux has-session -t "$session_name" 2>/dev/null; then
+        tmux new-session -ds "$session_name" -c "$selected_path"
+    fi
+
+    if [[ -z "$TMUX" ]]; then
+        tmux attach-session -t "$session_name"
+    else
+        tmux switch-client -t "$session_name"
+    fi
+else
+    # Window mode (default): one session per project, one window per branch
+    session_name="$repo"
+    window_name=$(basename "$selected_path")
+
+    _log_debug "Window mode - Session: '$session_name', Window: '$window_name'"
+
+    session_target="$session_name"
+    window_target="$session_name:$window_name"
+
+    # Start tmux if not running
+    if [[ -z "$TMUX" ]] && ! pgrep -x tmux >/dev/null; then
+        tmux new-session -s "$session_target" -n "$window_name" -c "$selected_path"
+        exit 0
+    fi
+
+    if ! tmux has-session -t "$session_target" 2>/dev/null; then
+        tmux new-session -ds "$session_target" -n "$window_name" -c "$selected_path"
+    else
+        if ! tmux list-windows -t "$session_target" -F "#{window_name}" | grep -q "^${window_name}$"; then
+            tmux new-window -t "$session_target" -n "$window_name" -c "$selected_path"
+        fi
+    fi
+
+    if [[ -z "$TMUX" ]]; then
+        tmux attach-session -t "$session_target"
+    else
+        tmux switch-client -t "$window_target"
+    fi
+fi
