@@ -1,39 +1,79 @@
 #!/usr/bin/env bash
 
+# --- Configuration ---
+BASE_DIR="${HOME}/dev"
+
+DEBUG="true"
+
+# --- Helper function for logging debug messages ---
+_log_debug() {
+    [[ "$DEBUG" == "true" ]] && echo "DEBUG: $@" >&2
+}
+
+# --- 1. Select the worktree/directory ---
 if [[ $# -eq 1 ]]; then
-    selected=$1
+    selected_path=$(echo "$1" | tr -s '/')
 else
-    selected=$(find \
-        ~/dotfiles/ \
-        ~/dev/tb/ \
-        ~/dev/personal/ \
-        -mindepth 0 -maxdepth 2 -type d | fzf)
+    selected_path=$(find \
+        "${BASE_DIR}" \
+        -mindepth 1 -maxdepth 3 \
+        -type d \
+        -not -path "*/.bare*" \
+        -print | fzf)
 fi
 
-if [[ -z $selected ]]; then
+if [[ -z "$selected_path" ]]; then
     exit 0
 fi
 
-# /repo/branch
-if [[ $selected == *"/dev/"* ]]; then
-    IFS="/" read -ra path_levels <<< "$selected"
-    selected_name="${path_levels[-2]}-${path_levels[-1]}"
+_log_debug "Selected path: $selected_path"
+
+# --- 2. Parse selected path to determine session name ---
+escaped_base_dir=$(printf %s "$BASE_DIR" | sed 's/\//\\\//g')
+regex_pattern="^${escaped_base_dir}/([^/]+)(/([^/]+))?(/([^/]+))?$"
+
+_log_debug "Regex pattern: $regex_pattern"
+
+if [[ "$selected_path" =~ $regex_pattern ]]; then
+    category="${BASH_REMATCH[1]}"
+    repo="${BASH_REMATCH[3]}"
+    branch="${BASH_REMATCH[5]}"
+
+    _log_debug "Category: '$category', Repo: '$repo', Branch: '$branch'"
+
+    if [[ -z "$repo" ]]; then
+        # Path is BASE_DIR/[category]
+        session_name="$category"
+    elif [[ -z "$branch" ]]; then
+        # Path is BASE_DIR/[category]/[repo]
+        session_name="$repo"
+    else
+        # Path is BASE_DIR/[category]/[repo]/[branch]
+        session_name="${repo}-${branch}"
+    fi
+
+    # Sanitize session_name: replace periods, colons, and hashes with underscores
+    session_name=$(echo "$session_name" | tr '.:#' '_')
 else
-    # Extract the last level of the path
-    selected_name=$(basename "$selected")
+    # Fallback for paths outside BASE_DIR (e.g. ~/dotfiles)
+    session_name=$(basename "$selected_path")
+    session_name=$(echo "$session_name" | tr '.:#' '_')
 fi
 
-selected_name="$selected" | tr . _
+_log_debug "Determined Session: '$session_name'"
 
-tmux_running=$(pgrep tmux)
-
-if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
-    tmux new-session -s $selected_name -c $selected
+# --- 3. Handle tmux session creation and switching ---
+if [[ -z "$TMUX" ]] && ! pgrep -x tmux >/dev/null; then
+    tmux new-session -s "$session_name" -c "$selected_path"
     exit 0
 fi
 
-if ! tmux has-session -t=$selected_name 2> /dev/null; then
-    tmux new-session -ds $selected_name -c $selected
+if ! tmux has-session -t "$session_name" 2>/dev/null; then
+    tmux new-session -ds "$session_name" -c "$selected_path"
 fi
 
-tmux switch-client -t $selected_name
+if [[ -z "$TMUX" ]]; then
+    tmux attach-session -t "$session_name"
+else
+    tmux switch-client -t "$session_name"
+fi
