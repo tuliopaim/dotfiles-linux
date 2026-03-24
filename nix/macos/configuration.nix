@@ -1,19 +1,21 @@
-{ pkgs, outputs, ... }:
+{ pkgs, inputs, ... }:
 {
   system = {
-    stateVersion = 5;
-    configurationRevision = outputs.rev or outputs.dirtyRev or null;
+    stateVersion = 6;
     primaryUser = "tuliopaim";
 
     defaults = {
       dock = {
         autohide = true;
         mru-spaces = false;
+        minimize-to-application = true;
+        show-recents = false;
       };
 
       finder = {
         AppleShowAllExtensions = true;
         FXPreferredViewStyle = "clmv";
+        ShowPathbar = true;
       };
 
       loginwindow = {
@@ -23,6 +25,13 @@
 
       NSGlobalDomain = {
         AppleInterfaceStyle = "Dark";
+        AppleShowAllExtensions = true;
+        "com.apple.swipescrolldirection" = false;
+      };
+
+      trackpad = {
+        Clicking = true;
+        TrackpadThreeFingerDrag = true;
       };
     };
   };
@@ -34,6 +43,7 @@
     settings = {
       experimental-features = "nix-command flakes";
       extra-platforms = [ "x86_64-darwin" "aarch64-darwin" ];
+      trusted-users = [ "root" "tuliopaim" ];
       max-jobs = 8;
       cores = 0;
     };
@@ -45,17 +55,20 @@
     };
   };
 
-  nixpkgs.hostPlatform = "aarch64-darwin";
+  nixpkgs = {
+    hostPlatform = "aarch64-darwin";
+    config.allowUnfree = true;
+  };
 
   users.users.tuliopaim.home = "/Users/tuliopaim";
   home-manager.backupFileExtension = "backup";
 
   security.pam.services.sudo_local.touchIdAuth = true;
 
-  environment.systemPackages = [
-    pkgs.vim
-    pkgs.neovim
-    pkgs.ansible
+  environment.systemPackages = with pkgs; [
+    vim
+    neovim
+    ansible
   ];
 
   fonts.packages = with pkgs; [
@@ -72,7 +85,7 @@
     onActivation = {
       autoUpdate = true;
       upgrade = true;
-      cleanup = "zap"; # Uninstalls all formulae and casks not listed here
+      cleanup = "zap";
     };
 
     taps = [
@@ -123,7 +136,6 @@
       "orbstack"
       "claude-code"
       "codex"
-      "codex-app"
 
       # Database Tools
       "mongodb-compass"
@@ -154,6 +166,9 @@
       "shottr"
       "via"
       "google-drive"
+
+      # Browsers (cont.)
+      "zen"
 
       # Entertainment
       "spotify"

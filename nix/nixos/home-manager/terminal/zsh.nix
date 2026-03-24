@@ -9,7 +9,7 @@
 
     shellAliases = {
       ls = "eza -la";
-      update = "darwin-rebuild switch --flake ~/dotfiles/nix-darwin/.#macos";
+      update = "sudo nixos-rebuild switch --flake ~/dotfiles/nix#nixos";
       ".." = "cd ..";
       "...." = "cd ../..";
       "......" = "cd ../../..";
@@ -61,8 +61,6 @@
             }
 
             eval "$(zoxide init zsh)"
-            eval "$(/opt/homebrew/bin/brew shellenv)"
-            eval "$(fnm env --use-on-cd --shell zsh)"
     '';
   };
 }

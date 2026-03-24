@@ -33,7 +33,7 @@
     stow
     killall
     inotify-info
-    neofetch
+    fastfetch
     gcalcli
     playerctl
     mono

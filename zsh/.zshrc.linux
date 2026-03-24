@@ -1,5 +1,8 @@
-# Initialize fnm
-eval "$(fnm env --use-on-cd --shell zsh)"
+FNM_PATH="/home/tuliopaim/.local/share/fnm"
+if [ -d "$FNM_PATH" ]; then
+  export PATH="$FNM_PATH:$PATH"
+  eval "$(fnm env --shell zsh)"
+fi
 
 # Ghostty specific
 if [[ "$TERM_PROGRAM" == "ghostty" ]]; then
@@ -12,17 +15,17 @@ fi
 
 # Linux-specific aliases
 alias tm="tmux-windownizer"
+alias k="kubectl"
 
 # Linux-specific exports
 export QMK_HOME='~/qmk_firmware'
-export DOTNET_ROOT="$HOME/.dotnet"
+export KUBECONFIG=~/.kube/config
 
 # Linux-specific PATH
+export PATH="/opt/nvim-linux-x86_64/bin:$PATH"
 export PATH="$HOME/.docker/bin:$PATH"
-export PATH="/usr/local/share/dotnet:$HOME/.dotnet/tools:$PATH"
 export PATH="$BUN_INSTALL/bin:$PATH"
 export PATH="$HOME/.opencode/bin:$PATH"
-export PATH="$DOTNET_ROOT:$DOTNET_ROOT/tools:$PATH"
 
 # SSH agent
 if ! pgrep -x ssh-agent > /dev/null; then
