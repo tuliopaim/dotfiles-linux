@@ -66,6 +66,11 @@ export EDITOR=nvim
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/dotfiles/scripts:$PATH"
 
+# DOTNET
+export DOTNET_ROOT="$HOME/.dotnet"
+export PATH="$DOTNET_ROOT:$DOTNET_ROOT/tools:$PATH"
+export PATH="/usr/local/share/dotnet:$HOME/.dotnet/tools:$PATH"
+
 # Kill process function
 function killp(){
     ps aux | fzf --height 40% --layout=reverse --prompt="Select a process to kill: " | awk '{print $2}' | xargs -r sudo kill
