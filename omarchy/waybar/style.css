@@ -64,8 +64,13 @@ tooltip {
   font-size: 10px;
 }
 
+#custom-separator {
+  opacity: 0.4;
+  margin: 0 4px;
+}
+
 #clock {
-  margin-left: 5px;
+  margin-left: 0;
 }
 
 .hidden {
