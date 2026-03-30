@@ -25,6 +25,7 @@ create_symlink ~/dotfiles/ideavim/.ideavimrc ~/.ideavimrc
 create_symlink ~/dotfiles/private/.config/git ~/.config/git
 create_symlink ~/dotfiles/opencode/opencode.json ~/.config/opencode/opencode.json
 create_symlink ~/dotfiles/opencode/tui.json ~/.config/opencode/tui.json
+create_symlink ~/dotfiles/opencode/skills ~/.config/opencode/skills
 create_symlink ~/dotfiles/vscode/Code/User/settings.json ~/Library/Application\ Support/Cursor/User/settings.json
 create_symlink ~/dotfiles/vscode/Code/User/keybindings.json ~/Library/Application\ Support/Cursor/User/keybindings.json
 create_symlink ~/dotfiles/vscode/Code/User/settings.json ~/Library/Application\ Support/Code/User/settings.json
