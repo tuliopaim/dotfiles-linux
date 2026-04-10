@@ -69,7 +69,6 @@ export PATH="$HOME/dotfiles/scripts:$PATH"
 # DOTNET
 export DOTNET_ROOT="$HOME/.dotnet"
 export PATH="$DOTNET_ROOT:$DOTNET_ROOT/tools:$PATH"
-export PATH="/usr/local/share/dotnet:$HOME/.dotnet/tools:$PATH"
 
 # Kill process function
 function killp(){

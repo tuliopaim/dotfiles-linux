@@ -10,7 +10,13 @@ in
 
   home.sessionVariables = {
     EDITOR = "nvim";
+    DOTNET_ROOT = "$HOME/.dotnet";
   };
+
+  home.sessionPath = [
+    "$HOME/.dotnet"
+    "$HOME/.dotnet/tools"
+  ];
 
   programs.home-manager.enable = true;
   programs.direnv.enable = true;

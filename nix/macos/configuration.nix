@@ -63,7 +63,10 @@
   users.users.tuliopaim.home = "/Users/tuliopaim";
   home-manager.backupFileExtension = "backup";
 
-  security.pam.services.sudo_local.touchIdAuth = true;
+  security.pam.services.sudo_local = {
+    touchIdAuth = true;
+    reattach = true;
+  };
 
   environment.systemPackages = with pkgs; [
     vim
@@ -136,6 +139,7 @@
       "orbstack"
       "claude-code"
       "codex"
+      "t3-code"
 
       # Database Tools
       "mongodb-compass"
