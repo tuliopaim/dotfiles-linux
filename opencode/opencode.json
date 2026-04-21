@@ -4,6 +4,7 @@
         "opencode-anthropic-auth"
     ],
     "autoupdate": true,
+    "lsp": false,
     "permission": {
         "bash": {
             "git *": "allow",
