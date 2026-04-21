@@ -1,4 +1,4 @@
-{ pkgs, inputs, ... }:
+{ pkgs, pkgs-unstable, inputs, ... }:
 {
   system = {
     stateVersion = 6;
@@ -68,10 +68,10 @@
     reattach = true;
   };
 
-  environment.systemPackages = with pkgs; [
-    vim
-    neovim
-    ansible
+  environment.systemPackages = [
+    pkgs.vim
+    pkgs.ansible
+    pkgs-unstable.neovim
   ];
 
   fonts.packages = with pkgs; [

@@ -54,18 +54,25 @@
       nixosSystem = "x86_64-linux";
       pkgs-stable = import nixpkgs-stable { system = nixosSystem; config.allowUnfree = true; };
       pkgs-unstable-linux = import nixpkgs { system = nixosSystem; config.allowUnfree = true; };
+      pkgs-unstable-darwin = import nixpkgs { system = "aarch64-darwin"; config.allowUnfree = true; };
     in
     {
       # ── MacOS (aarch64-darwin) ──────────────────────────────────
       darwinConfigurations."macos" = nix-darwin.lib.darwinSystem {
         system = "aarch64-darwin";
-        specialArgs = { inherit inputs; };
+        specialArgs = {
+          inherit inputs;
+          pkgs-unstable = pkgs-unstable-darwin;
+        };
         modules = [
           ./macos/configuration.nix
           home-manager-darwin.darwinModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
+            home-manager.extraSpecialArgs = {
+              pkgs-unstable = pkgs-unstable-darwin;
+            };
             home-manager.users.tuliopaim = import ./macos/home.nix;
           }
         ];
@@ -74,6 +81,10 @@
       # ── Ubuntu server (standalone Home Manager) ────────────────────
       homeConfigurations."tuliopaim@server" = home-manager.lib.homeManagerConfiguration {
         pkgs = import nixpkgs { system = "x86_64-linux"; config.allowUnfree = true; };
+        extraSpecialArgs = {
+          inherit inputs;
+          pkgs-unstable = pkgs-unstable-linux;
+        };
         modules = [
           ./linux/home.nix
         ];
