@@ -26,6 +26,7 @@
     cargo
     go
     gopls
+    tree-sitter
     nixd
     git
     gh
