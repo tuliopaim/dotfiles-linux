@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, pkgs-unstable, ... }:
 {
   home.packages = with pkgs; [
     fd
@@ -31,5 +31,7 @@
     gh
     jujutsu
     jjui
+
+    pkgs-unstable.pi-coding-agent
   ];
 }
