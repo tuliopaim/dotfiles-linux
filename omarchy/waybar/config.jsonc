@@ -9,6 +9,7 @@
   "modules-right": [
     "tray",
     "bluetooth",
+    "custom/camera",
     "network",
     "pulseaudio",
     "cpu",
@@ -177,5 +178,10 @@
   "tray": {
     "icon-size": 12,
     "spacing": 17
+  },
+  "custom/camera": {
+    "format": "",
+    "on-click": "mpv /dev/video0 --vf=hflip",
+    "tooltip-format": "Open Camera"
   }
 }
