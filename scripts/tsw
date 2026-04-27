@@ -5,3 +5,4 @@ SESSION=$(tmux display-message -p '#{session_name}')
 tmux rename-window -t "$SESSION" ai
 tmux new-window -t "$SESSION" -n nvim
 tmux new-window -t "$SESSION" -n terminal
+tmux select-window -t "$SESSION:1"
