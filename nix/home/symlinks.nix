@@ -6,6 +6,7 @@ in
   xdg.configFile."nvim".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/nvim";
   xdg.configFile."opencode".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode";
 
+  home.file.".pi/agent/extensions".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/pi/agent/extensions";
   home.file.".ideavimrc".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/ideavim/.ideavimrc";
 
   home.sessionVariables = {
