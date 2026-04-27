@@ -14,6 +14,7 @@ create_symlink() {
 
 # Create config directory if it doesn't exist
 mkdir -p ~/.config
+mkdir -p ~/.pi/agent
 
 # Create symlinks
 create_symlink ~/dotfiles/zsh/.zshrc ~/.zshrc
@@ -26,6 +27,7 @@ create_symlink ~/dotfiles/private/.config/git ~/.config/git
 create_symlink ~/dotfiles/opencode/opencode.json ~/.config/opencode/opencode.json
 create_symlink ~/dotfiles/opencode/tui.json ~/.config/opencode/tui.json
 create_symlink ~/dotfiles/opencode/skills ~/.config/opencode/skills
+create_symlink ~/dotfiles/pi/agent/extensions ~/.pi/agent/extensions
 create_symlink ~/dotfiles/vscode/Code/User/settings.json ~/Library/Application\ Support/Cursor/User/settings.json
 create_symlink ~/dotfiles/vscode/Code/User/keybindings.json ~/Library/Application\ Support/Cursor/User/keybindings.json
 create_symlink ~/dotfiles/vscode/Code/User/settings.json ~/Library/Application\ Support/Code/User/settings.json
