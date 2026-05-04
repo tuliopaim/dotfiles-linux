@@ -7,8 +7,6 @@
     eza
     fzf
     zoxide
-    lazygit
-    lazydocker
     jq
     wget
     tree
@@ -33,6 +31,8 @@
     jujutsu
     jjui
 
+    pkgs-unstable.lazygit
+    pkgs-unstable.lazydocker
     pkgs-unstable.pi-coding-agent
   ];
 }
