@@ -30,6 +30,7 @@
     gh
     jujutsu
     jjui
+    ffmpeg
 
     pkgs-unstable.lazygit
     pkgs-unstable.lazydocker
