@@ -68,6 +68,21 @@
     reattach = true;
   };
 
+  launchd.daemons.kanata = {
+    serviceConfig = {
+      ProgramArguments = [
+        "/opt/homebrew/bin/kanata"
+        "--cfg"
+        "/Users/tuliopaim/.config/kanata/kanata.kbd"
+      ];
+      RunAtLoad = true;
+      KeepAlive = true;
+      StandardOutPath = "/var/log/kanata.log";
+      StandardErrorPath = "/var/log/kanata.err.log";
+      ProcessType = "Interactive";
+    };
+  };
+
   environment.systemPackages = [
     pkgs.vim
     pkgs.ansible
@@ -121,6 +136,7 @@
       "cask"
       "zlib"
       "qmk/qmk/qmk"
+      "kanata"
     ];
 
     casks = [
