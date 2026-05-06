@@ -1,0 +1,98 @@
+;; Mirrors corne ZMK keymap HRM:
+;;   Left:  A=Shift  S=Ctrl  D=Alt  F=Cmd
+;;   Right: J=Cmd    K=Alt   L=Ctrl ;=Shift
+;;
+;; Tap/hold timing matches ZMK (tapping-term-ms=220, quick-tap-ms=150).
+;; tap-hold-release-keys: if any key in the listed set is pressed AND
+;; released before the held key, resolve as tap (rolling-friendly).
+
+(defcfg
+  process-unmapped-keys yes
+  concurrent-tap-hold yes
+  danger-enable-cmd no
+  ;; Only act on the laptop's built-in keyboard. The Corne already has its
+  ;; own HRM via ZMK — letting Kanata grab it too would double-process.
+  macos-dev-names-exclude ("Corne")
+)
+
+(defvar
+  tap-time 200
+  hold-time 220
+  ;; Keys that, when chorded with an HRM key, force the tap action on release.
+  ;; Covers home row + common neighbours so fast rolls don't trigger mods.
+  hrm-roll-keys (
+    q w e r t y u i o p
+    a s d f g h j k l ;
+    z x c v b n m , . /
+    spc
+  )
+)
+
+(defalias
+  ;; Left hand
+  a (tap-hold-release-keys $tap-time $hold-time a lsft $hrm-roll-keys)
+  s (tap-hold-release-keys $tap-time $hold-time s lctl $hrm-roll-keys)
+  d (tap-hold-release-keys $tap-time $hold-time d lalt $hrm-roll-keys)
+  f (tap-hold-release-keys $tap-time $hold-time f lmet $hrm-roll-keys)
+
+  ;; Right hand
+  j (tap-hold-release-keys $tap-time $hold-time j rmet $hrm-roll-keys)
+  k (tap-hold-release-keys $tap-time $hold-time k lalt $hrm-roll-keys)
+  l (tap-hold-release-keys $tap-time $hold-time l rctl $hrm-roll-keys)
+  ; (tap-hold-release-keys $tap-time $hold-time ; rsft $hrm-roll-keys)
+
+  ;; Space: tap = space, hold = nav layer (h/j/k/l arrows).
+  ;; tap-hold-release waits for the next key to release before deciding,
+  ;; so fast space→letter rolls resolve as taps. Trade-off: the very first
+  ;; arrow press needs a release to register; once the layer is engaged,
+  ;; holding h to repeat works normally.
+  spc (tap-hold-release 200 200 spc (layer-while-held nav))
+
+  ;; Caps Lock: tap = Escape, hold = Control. Replaces the old karabiner rule.
+  caps (tap-hold-press 200 200 esc lctl)
+
+  ;; Old-ctrl position (second-from-corner): hold to activate the media layer.
+  ;; macOS ignores synthetic fn from virtual keyboards, so instead of pretending
+  ;; this key is fn we make it gate brightness/volume/media on the F-row directly.
+  med (layer-while-held media)
+)
+
+(defsrc
+  f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12
+  caps
+  q w e r t y u i o p
+  a s d f g h j k l ;
+  z x c v b n m , . /
+  fn   lctl   spc
+)
+
+(deflayer base
+  f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12
+  @caps
+  q   w   e   r   t   y   u   i   o   p
+  @a  @s  @d  @f  g   h   @j  @k  @l  @;
+  z   x   c   v   b   n   m   ,   .   /
+  lctl @med @spc
+)
+
+(deflayer nav
+  _  _  _  _  _  _  _  _  _  _   _   _
+  _
+  _   _   _   _   _   _    _    _   _     _
+  _   _   _   _   _   left down up  right _
+  _   _   _   _   _   _    _    _   _     _
+  _   _   _
+)
+
+;; Media layer (held while old-ctrl key is down):
+;;   F1=brightness-down  F2=brightness-up
+;;   F7=prev  F8=play/pause  F9=next
+;;   F10=mute  F11=volume-down  F12=volume-up
+(deflayer media
+  brdn brup _ _ _ _ prev pp next mute vold volu
+  _
+  _   _   _   _   _   _    _    _   _     _
+  _   _   _   _   _   _    _    _   _     _
+  _   _   _   _   _   _    _    _   _     _
+  _   _   _
+)
