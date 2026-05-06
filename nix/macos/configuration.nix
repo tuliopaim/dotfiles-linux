@@ -87,6 +87,7 @@
     pkgs.vim
     pkgs.ansible
     pkgs-unstable.neovim
+    pkgs.iina
   ];
 
   fonts.packages = with pkgs; [
@@ -186,6 +187,8 @@
       "shottr"
       "via"
       "google-drive"
+      "steipete/tap/codexbar"
+
 
       # Browsers (cont.)
       "zen"
