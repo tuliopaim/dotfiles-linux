@@ -13,10 +13,6 @@ if [[ -n $GHOSTTY_RESOURCES_DIR ]]; then
   source "$GHOSTTY_RESOURCES_DIR"/shell-integration/zsh/ghostty-integration
 fi
 
-# pi aliases
-alias pic='pi --model openai-codex/gpt-5.5:low'
-alias pio='pi --model opencode-go/kimi-k2.6:high'
-
 # macOS-only aliases
 alias ssh1='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/git_1'
 alias ssh2='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/git_2'

@@ -49,6 +49,10 @@ alias db="dotnet build"
 alias dt="dotnet test"
 alias gsu="git submodule update --init --recursive"
 
+# pi aliases
+alias pic='pi --model openai-codex/gpt-5.5:low'
+alias pio='pi --model opencode-go/deepseek-v4-flash:high'
+
 # Open buffer line in editor
 autoload -Uz edit-command-line
 zle -N edit-command-line
