@@ -4,9 +4,10 @@ let
 in
 {
   xdg.configFile."nvim".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/nvim";
-  xdg.configFile."opencode/opencode.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/opencode.json";
-  xdg.configFile."opencode/tui.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/tui.json";
-  xdg.configFile."opencode/skills".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/skills";
+  # opencode: individual file symlinks, not xdg.configFile (which reifies the whole dir)
+  home.file.".config/opencode/opencode.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/opencode.json";
+  home.file.".config/opencode/tui.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/tui.json";
+  home.file.".config/opencode/skills".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/skills";
   xdg.configFile."karabiner/karabiner.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/karabiner/karabiner.json";
   xdg.configFile."kanata/kanata.kbd".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/kanata/kanata.kbd";
 
