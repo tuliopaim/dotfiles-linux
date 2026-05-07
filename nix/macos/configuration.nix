@@ -109,7 +109,7 @@
 
     taps = [
       "mongodb/brew"
-      "nikitabobko/tap"
+      "koekeishiya/formulae"
       "anomalyco/tap"
     ];
 
@@ -131,6 +131,10 @@
 
       # Cloud & DevOps
       "awscli-local"
+
+      # Tiling window manager
+      "koekeishiya/formulae/yabai"
+      "koekeishiya/formulae/skhd"
 
       # Other
       "mono-libgdiplus"
@@ -175,7 +179,6 @@
 
       # Utilities
       "tailscale-app"
-      "nikitabobko/tap/aerospace"
       "drawio"
       "istat-menus"
       "karabiner-elements"
