@@ -21,7 +21,9 @@ create_symlink ~/dotfiles/zsh/.zshrc ~/.zshrc
 create_symlink ~/dotfiles/tmux/.tmux.conf ~/.tmux.conf
 create_symlink ~/dotfiles/nvim ~/.config/nvim
 create_symlink ~/dotfiles/ghostty ~/.config/ghostty
-create_symlink ~/dotfiles/aerospace ~/.config/aerospace
+mkdir -p ~/.config/yabai ~/.config/skhd
+create_symlink ~/dotfiles/yabai/.yabairc ~/.config/yabai/yabairc
+create_symlink ~/dotfiles/skhd/.skhdrc ~/.config/skhd/skhdrc
 create_symlink ~/dotfiles/ideavim/.ideavimrc ~/.ideavimrc
 create_symlink ~/dotfiles/private/.config/git ~/.config/git
 create_symlink ~/dotfiles/opencode/opencode.json ~/.config/opencode/opencode.json

@@ -1,0 +1,136 @@
+# ============================================================
+# skhd — Hotkey Daemon Configuration
+# AeroSpace-equivalent keybindings for yabai
+# ============================================================
+#
+# Modifier syntax:
+#   alt     = left option key
+#   shift   = left shift
+#   ctrl    = left control
+#   cmd     = left command
+#   +       = combined modifiers (alt + shift - h)
+#   -       = separator between modifiers and key
+#
+# Key syntax:
+#   letter  = that key (e.g. h, j, k, l)
+#   named   = return, tab, space, escape, backspace, delete, etc.
+#   0xNN    = macOS keycode for keys without a named literal
+#             (0x1B=minus, 0x18=equal, 0x2C=slash, 0x2F=period)
+#
+# ============================================================
+# FOCUS NAVIGATION (AeroSpace: alt-h/j/k/l)
+# ============================================================
+alt - h : /opt/homebrew/bin/yabai -m window --focus west; /opt/homebrew/bin/yabai -m window --focus stack.prev
+alt - j : /opt/homebrew/bin/yabai -m window --focus south
+alt - k : /opt/homebrew/bin/yabai -m window --focus north
+alt - l : /opt/homebrew/bin/yabai -m window --focus east; /opt/homebrew/bin/yabai -m window --focus stack.next
+
+# ============================================================
+# MOVE WINDOWS (AeroSpace: alt-shift-h/j/k/l)
+# ============================================================
+# Using --warp (tree manipulation) — try --move if warp feels wrong
+alt + shift - h : /opt/homebrew/bin/yabai -m window --warp west
+alt + shift - j : /opt/homebrew/bin/yabai -m window --warp south
+alt + shift - k : /opt/homebrew/bin/yabai -m window --warp north
+alt + shift - l : /opt/homebrew/bin/yabai -m window --warp east
+
+# ============================================================
+# RESIZE (AeroSpace: alt-shift-minus/equal)
+# 0x1B = minus (-)   | 0x18 = equal (=)
+# ============================================================
+alt + shift - 0x1B : /opt/homebrew/bin/yabai -m window --resize left:-50:0  # 0x1B = minus (-)
+alt + shift - 0x18 : /opt/homebrew/bin/yabai -m window --resize right:50:0  # 0x18 = equal (=)
+
+# ============================================================
+# WORKSPACE SWITCHING (AeroSpace: alt-1..9, alt-n/s/t)
+# Label-based: numbers route to the labels set in yabairc,
+# so alt-1 focuses the space labeled "1" regardless of which
+# display it lives on. yabai resolves a SEL by trying labels
+# first, then falling back to the mission-control index.
+# ============================================================
+alt - 1 : /opt/homebrew/bin/yabai -m space --focus ws1
+alt - 2 : /opt/homebrew/bin/yabai -m space --focus ws2
+alt - 3 : /opt/homebrew/bin/yabai -m space --focus ws3
+alt - 4 : /opt/homebrew/bin/yabai -m space --focus ws4
+alt - 5 : /opt/homebrew/bin/yabai -m space --focus ws5
+alt - 6 : /opt/homebrew/bin/yabai -m space --focus ws6
+alt - 7 : /opt/homebrew/bin/yabai -m space --focus ws7
+alt - 8 : /opt/homebrew/bin/yabai -m space --focus ws8
+alt - 9 : /opt/homebrew/bin/yabai -m space --focus slack
+alt - 0 : /opt/homebrew/bin/yabai -m space --focus ws10
+
+# Named workspace: slack on space 9
+alt - s : /opt/homebrew/bin/yabai -m space --focus slack
+
+# ============================================================
+# MOVE WINDOW TO WORKSPACE + FOLLOW (AeroSpace: alt-shift-1..9)
+# ============================================================
+alt + shift - 1 : /opt/homebrew/bin/yabai -m window --space ws1;   /opt/homebrew/bin/yabai -m space --focus ws1
+alt + shift - 2 : /opt/homebrew/bin/yabai -m window --space ws2;   /opt/homebrew/bin/yabai -m space --focus ws2
+alt + shift - 3 : /opt/homebrew/bin/yabai -m window --space ws3;   /opt/homebrew/bin/yabai -m space --focus ws3
+alt + shift - 4 : /opt/homebrew/bin/yabai -m window --space ws4;   /opt/homebrew/bin/yabai -m space --focus ws4
+alt + shift - 5 : /opt/homebrew/bin/yabai -m window --space ws5;   /opt/homebrew/bin/yabai -m space --focus ws5
+alt + shift - 6 : /opt/homebrew/bin/yabai -m window --space ws6;   /opt/homebrew/bin/yabai -m space --focus ws6
+alt + shift - 7 : /opt/homebrew/bin/yabai -m window --space ws7;   /opt/homebrew/bin/yabai -m space --focus ws7
+alt + shift - 8 : /opt/homebrew/bin/yabai -m window --space ws8;   /opt/homebrew/bin/yabai -m space --focus ws8
+alt + shift - 9 : /opt/homebrew/bin/yabai -m window --space slack; /opt/homebrew/bin/yabai -m space --focus slack
+alt + shift - 0 : /opt/homebrew/bin/yabai -m window --space ws10;  /opt/homebrew/bin/yabai -m space --focus ws10
+
+alt + shift - s : /opt/homebrew/bin/yabai -m window --space slack; /opt/homebrew/bin/yabai -m space --focus slack
+
+# ============================================================
+# FULLSCREEN / MINIMIZE (AeroSpace: alt-f, alt-shift-f, alt-m)
+# ============================================================
+alt - f : /opt/homebrew/bin/yabai -m window --toggle zoom-fullscreen
+alt + shift - f : /opt/homebrew/bin/yabai -m window --toggle native-fullscreen
+alt - m : /opt/homebrew/bin/yabai -m window --minimize
+
+# ============================================================
+# LAYOUT TOGGLES (AeroSpace: alt-slash, alt-period)
+# 0x2C = / (slash)  |  0x2F = . (period)  ← verified via keycode dump
+# ============================================================
+alt - 0x2C : /opt/homebrew/bin/yabai -m space --layout bsp    # 0x2C = /
+alt - 0x2F : /opt/homebrew/bin/yabai -m space --layout stack  # 0x2F = .
+alt + shift - 0x2F : /opt/homebrew/bin/yabai -m space --layout float  # 0x2F + shift = >
+
+# ============================================================
+# WORKSPACE NAVIGATION (AeroSpace: alt-tab, alt-shift-tab)
+# alt+shift+tab moves the CURRENT workspace to the next monitor.
+# yabai's `--display next` does NOT wrap, so on the last display
+# it would silently fail; fall back to `first` so the shortcut
+# round-trips between monitors. Labels stick to the space, so
+# alt-N still focuses it on whichever display it ends up on.
+# ============================================================
+alt - tab : /opt/homebrew/bin/yabai -m space --focus recent
+alt + shift - tab : /opt/homebrew/bin/yabai -m space --display next || /opt/homebrew/bin/yabai -m space --display first
+
+# ============================================================
+# LAUNCH TERMINAL (AeroSpace: alt-enter)
+# ============================================================
+alt - return : open -a /Applications/Ghostty.app
+
+# ============================================================
+# SERVICE MODE TASKS (replaced AeroSpace mode.service with ctrl+alt prefix)
+# ============================================================
+# Reset layout (flatten-workspace-tree + balance)
+ctrl + alt - r : /opt/homebrew/bin/yabai -m space --layout bsp; /opt/homebrew/bin/yabai -m space --balance
+# Toggle space between float and bsp
+ctrl + alt - f : /opt/homebrew/bin/yabai -m space --layout float
+# Return to BSP
+ctrl + alt - b : /opt/homebrew/bin/yabai -m space --layout bsp
+# Close window
+ctrl + alt - backspace : /opt/homebrew/bin/yabai -m window --close
+
+# ============================================================
+# JOIN WITH / INSERT (AeroSpace service mode: alt-shift-h/j/k/l)
+# ============================================================
+ctrl + alt + shift - h : /opt/homebrew/bin/yabai -m window --insert west
+ctrl + alt + shift - j : /opt/homebrew/bin/yabai -m window --insert south
+ctrl + alt + shift - k : /opt/homebrew/bin/yabai -m window --insert north
+ctrl + alt + shift - l : /opt/homebrew/bin/yabai -m window --insert east
+
+# ============================================================
+# RELOAD CONFIGS
+# 0x2F = period (.)
+# ============================================================
+ctrl + alt - 0x2F : /opt/homebrew/bin/skhd --reload; /opt/homebrew/bin/yabai --restart-service  # 0x2F = period (.)

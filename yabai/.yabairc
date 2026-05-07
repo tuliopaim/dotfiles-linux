@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+
+# ============================================================
+# yabai configuration — AeroSpace-equivalent setup
+# ============================================================
+#
+sudo yabai --load-sa
+
+# Opacity
+yabai -m config menubar_opacity 0.5
+
+# Layout: BSP (equivalent to AeroSpace 'tiles')
+yabai -m config layout bsp
+yabai -m config window_placement second_child
+
+# Gaps (matching AeroSpace: inner=10, outer=10)
+yabai -m config top_padding      10
+yabai -m config bottom_padding   10
+yabai -m config left_padding      10
+yabai -m config right_padding     10
+yabai -m config window_gap        10
+
+# Mouse behavior
+# AeroSpace: on-focused-monitor-changed move-mouse monitor-lazy-center
+yabai -m config mouse_follows_focus on
+# AeroSpace: on-focus-changed move-mouse window-lazy-center
+yabai -m config focus_follows_mouse autofocus
+yabai -m config mouse_modifier alt
+yabai -m config mouse_drop_action swap
+
+# External bar offset — uncomment if using SketchyBar
+# yabai -m config external_bar all:30:0
+
+# ============================================================
+# Ensure 10 macOS Spaces exist (create only what's missing).
+# The previous version created 10 every reload, which is why
+# accumulated spaces piled up over time.
+# ============================================================
+current=$(yabai -m query --spaces | grep -c '"index"')
+while [ "$current" -lt 10 ]; do
+  yabai -m space --create 2>/dev/null || break
+  current=$((current + 1))
+done
+
+# ============================================================
+# Label spaces for stable focus across monitor moves.
+# Labels stick to the space, so `yabai -m space --focus 1`
+# focuses the labeled space regardless of which display it
+# currently lives on — this is what enables AeroSpace-style
+# "move workspace to other monitor and back".
+#
+# NOTE: labels are applied by current INDEX, so reload yabai
+# when spaces are in their default arrangement (all on display 1)
+# to avoid mis-labeling a space that has been moved.
+# ============================================================
+# yabai v7 rejects purely-numeric labels (would collide with indexes),
+# so spaces use a `ws<N>` prefix. The skhdrc bindings target these labels.
+yabai -m space 1  --label "ws1"   2>/dev/null
+yabai -m space 2  --label "ws2"   2>/dev/null
+yabai -m space 3  --label "ws3"   2>/dev/null
+yabai -m space 4  --label "ws4"   2>/dev/null
+yabai -m space 5  --label "ws5"   2>/dev/null
+yabai -m space 6  --label "ws6"   2>/dev/null
+yabai -m space 7  --label "ws7"   2>/dev/null
+yabai -m space 8  --label "ws8"   2>/dev/null
+yabai -m space 9  --label "slack" 2>/dev/null
+yabai -m space 10 --label "ws10"  2>/dev/null
+
+# ============================================================
+# Window rules — auto-float only (no app-to-space assignments)
+# ============================================================
+# Shottr — screenshot tool, keep it floating outside the tile
+yabai -m rule --add app="^cc\\.ffitch\\.shottr$" manage=off
+
+# Common system dialogs that should float
+yabai -m rule --add app="^System Settings$" manage=off
+yabai -m rule --add app="^Calculator$" manage=off
+yabai -m rule --add app="^Dictionary$" manage=off
+yabai -m rule --add app="^QuickTime Player$" manage=off
+yabai -m rule --add title="Preferences" manage=off
+yabai -m rule --add title="Settings" manage=off
+
+# ============================================================
+# Signals — event-driven behavior
+# ============================================================
+# Auto-balance window sizes when switching spaces
+yabai -m signal --add event=space_changed action="yabai -m space --balance"
+
+echo "yabai config loaded: $(date)"

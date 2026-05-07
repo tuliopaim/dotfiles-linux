@@ -36,10 +36,11 @@ in
   # Mac-only symlinks
   xdg.configFile = {
     "ghostty".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/ghostty";
-    "aerospace".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/aerospace";
   };
 
   home.file = {
+    ".config/yabai/yabairc".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/yabai/.yabairc";
+    ".config/skhd/skhdrc".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/skhd/.skhdrc";
     "Library/Application Support/Cursor/User/settings.json".source =
       config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/vscode/Code/User/settings.json";
     "Library/Application Support/Cursor/User/keybindings.json".source =
