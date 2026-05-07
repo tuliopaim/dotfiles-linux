@@ -61,9 +61,23 @@ export default function (pi: ExtensionAPI) {
     handler: async (args, ctx) => {
       await ctx.waitForIdle();
 
-      const rawPlanPath = cleanArgPath(args);
+      let rawPlanPath = cleanArgPath(args);
+
       if (!rawPlanPath) {
-        ctx.ui.notify("Usage: /implement-plan <path-to-plan-file>", "error");
+        for (const defaultPath of ["plans/PLAN.md", "PLAN.md"]) {
+          const absolutePath = path.resolve(ctx.cwd, defaultPath);
+          if (await exists(absolutePath)) {
+            rawPlanPath = defaultPath;
+            break;
+          }
+        }
+      }
+
+      if (!rawPlanPath) {
+        ctx.ui.notify(
+          "Usage: /implement-plan <path-to-plan-file> (or ensure plans/PLAN.md or ./PLAN.md exists)",
+          "error",
+        );
         return;
       }
 
