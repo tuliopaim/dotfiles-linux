@@ -3,9 +3,7 @@
     "plugin": [],
     "autoupdate": true,
     "lsp": false,
-    "permission": {
-        "permission": "allow"
-    },
+    "permission": "allow",
     "mcp": {
         "chrome-devtools": {
             "type": "local",
