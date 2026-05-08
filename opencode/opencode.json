@@ -1,28 +1,10 @@
 {
     "$schema": "https://opencode.ai/config.json",
-    "plugin": [
-        "opencode-anthropic-auth"
-    ],
+    "plugin": [],
     "autoupdate": true,
     "lsp": false,
     "permission": {
-        "bash": {
-            "git *": "allow",
-            "git commit *": "ask",
-            "git push *": "ask",
-            "git merge *": "ask",
-            "git rebase *": "ask",
-            "git reset *": "ask",
-            "git checkout *": "ask",
-            "git switch *": "ask",
-            "git clean *": "ask",
-            "git stash push*": "ask",
-            "git stash drop*": "ask"
-        },
-        "external_directory": {
-            "$HOME/dev": "allow",
-            "$HOME/dev/**": "allow"
-        }
+        "permission": "allow"
     },
     "mcp": {
         "chrome-devtools": {
