@@ -4,7 +4,7 @@
 # yabai configuration — AeroSpace-equivalent setup
 # ============================================================
 #
-sudo yabai --load-sa
+sudo /opt/homebrew/bin/yabai --load-sa
 
 # Opacity
 yabai -m config menubar_opacity 0.5
@@ -43,28 +43,47 @@ while [ "$current" -lt 10 ]; do
 done
 
 # ============================================================
-# Label spaces for stable focus across monitor moves.
-# Labels stick to the space, so `yabai -m space --focus 1`
-# focuses the labeled space regardless of which display it
-# currently lives on — this is what enables AeroSpace-style
-# "move workspace to other monitor and back".
+# Labels — persistent, keyed by macOS space UUID.
 #
-# NOTE: labels are applied by current INDEX, so reload yabai
-# when spaces are in their default arrangement (all on display 1)
-# to avoid mis-labeling a space that has been moved.
-# ============================================================
+# 1. Restore labels from disk first (uuid-based, survives restarts
+#    and most display events).
+# 2. Fall back to default ws<N>/slack assignments only for spaces
+#    that still have no label after restore (true first-run case).
+# 3. Save the resulting state for the next launch.
+#
 # yabai v7 rejects purely-numeric labels (would collide with indexes),
 # so spaces use a `ws<N>` prefix. The skhdrc bindings target these labels.
-yabai -m space 1  --label "ws1"   2>/dev/null
-yabai -m space 2  --label "ws2"   2>/dev/null
-yabai -m space 3  --label "ws3"   2>/dev/null
-yabai -m space 4  --label "ws4"   2>/dev/null
-yabai -m space 5  --label "ws5"   2>/dev/null
-yabai -m space 6  --label "ws6"   2>/dev/null
-yabai -m space 7  --label "ws7"   2>/dev/null
-yabai -m space 8  --label "ws8"   2>/dev/null
-yabai -m space 9  --label "slack" 2>/dev/null
-yabai -m space 10 --label "ws10"  2>/dev/null
+# ============================================================
+LABELS_SH="${HOME}/.config/yabai/labels.sh"
+
+# 1. Restore from disk
+[ -x "$LABELS_SH" ] && "$LABELS_SH" restore
+
+# 2. First-run defaults for any space still unlabeled
+default_label_for_index() {
+  case "$1" in
+    1)  echo "ws1" ;;
+    2)  echo "ws2" ;;
+    3)  echo "ws3" ;;
+    4)  echo "ws4" ;;
+    5)  echo "ws5" ;;
+    6)  echo "ws6" ;;
+    7)  echo "ws7" ;;
+    8)  echo "ws8" ;;
+    9)  echo "ws9" ;;
+    10) echo "slack" ;;
+  esac
+}
+
+yabai -m query --spaces \
+  | jq -r '.[] | select(.label == "") | .index' \
+  | while read -r idx; do
+      label=$(default_label_for_index "$idx")
+      [ -n "$label" ] && yabai -m space "$idx" --label "$label" 2>/dev/null
+    done
+
+# 3. Snapshot current state so it survives the next yabai restart
+[ -x "$LABELS_SH" ] && "$LABELS_SH" save
 
 # ============================================================
 # Window rules — auto-float only (no app-to-space assignments)
@@ -83,7 +102,22 @@ yabai -m rule --add title="Settings" manage=off
 # ============================================================
 # Signals — event-driven behavior
 # ============================================================
-# Auto-balance window sizes when switching spaces
-yabai -m signal --add event=space_changed action="yabai -m space --balance"
+# Re-apply persisted labels when a display is added/removed/changed
+# (macOS often reshuffles spaces across displays, dropping labels).
+# Remove-first so the block is idempotent if yabairc is re-sourced.
+for sig in \
+  labels_restore_display_added \
+  labels_restore_display_removed \
+  labels_restore_display_changed \
+  labels_save_space_created \
+  labels_save_space_destroyed; do
+  yabai -m signal --remove "$sig" 2>/dev/null || true
+done
+
+yabai -m signal --add label="labels_restore_display_added"   event=display_added   action="$HOME/.config/yabai/labels.sh restore"
+yabai -m signal --add label="labels_restore_display_removed" event=display_removed action="$HOME/.config/yabai/labels.sh restore"
+yabai -m signal --add label="labels_restore_display_changed" event=display_changed action="$HOME/.config/yabai/labels.sh restore"
+yabai -m signal --add label="labels_save_space_created"      event=space_created   action="$HOME/.config/yabai/labels.sh save"
+yabai -m signal --add label="labels_save_space_destroyed"    event=space_destroyed action="$HOME/.config/yabai/labels.sh save"
 
 echo "yabai config loaded: $(date)"

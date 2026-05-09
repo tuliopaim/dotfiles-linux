@@ -30,8 +30,8 @@
 | Keys | Workspace |
 |------|-----------|
 | `alt` + `1` … `9` | Switch to workspace **1–9** |
-| `alt` + `0` | Switch to workspace **10** |
-| `alt` + `s` | Switch to **Slack** (workspace 9) |
+| `alt` + `0` | Switch to **Slack** (workspace 10) |
+| `alt` + `s` | Switch to **Slack** (workspace 10) |
 | `alt` + `tab` | Toggle **previous workspace** |
 
 ## Move Window to Workspace + Follow
@@ -39,7 +39,7 @@
 | Keys | Action |
 |------|--------|
 | `alt` + `shift` + `1` … `9` | Move window to workspace **1–9** and follow |
-| `alt` + `shift` + `0` | Move window to workspace **10** and follow |
+| `alt` + `shift` + `0` | Move window to **Slack** and follow |
 | `alt` + `shift` + `s` | Move window to **Slack** and follow |
 
 ## Display / Monitor
@@ -86,7 +86,9 @@ Replaces AeroSpace's `mode.service` (no sub-mode switching needed).
 | `ctrl` + `alt` + `j` | **Insert** window below |
 | `ctrl` + `alt` + `k` | **Insert** window above |
 | `ctrl` + `alt` + `l` | **Insert** window to the right |
-| `ctrl` + `alt` + `.` | **Reload** both skhd + yabai configs |
+| `ctrl` + `alt` + `.` | **Reload skhd only** (preserves yabai labels) |
+| `ctrl` + `alt` + `shift` + `.` | **Full restart** — yabai + skhd (use when yabairc changed) |
+| `ctrl` + `alt` + `a` | **Reload scripting addition** (fix when space→display moves fail) |
 
 ---
 
