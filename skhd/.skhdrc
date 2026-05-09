@@ -56,10 +56,10 @@ alt - 5 : /opt/homebrew/bin/yabai -m space --focus ws5
 alt - 6 : /opt/homebrew/bin/yabai -m space --focus ws6
 alt - 7 : /opt/homebrew/bin/yabai -m space --focus ws7
 alt - 8 : /opt/homebrew/bin/yabai -m space --focus ws8
-alt - 9 : /opt/homebrew/bin/yabai -m space --focus slack
-alt - 0 : /opt/homebrew/bin/yabai -m space --focus ws10
+alt - 9 : /opt/homebrew/bin/yabai -m space --focus ws9
+alt - 0 : /opt/homebrew/bin/yabai -m space --focus slack
 
-# Named workspace: slack on space 9
+# Named workspace: slack on space 10
 alt - s : /opt/homebrew/bin/yabai -m space --focus slack
 
 # ============================================================
@@ -73,8 +73,8 @@ alt + shift - 5 : /opt/homebrew/bin/yabai -m window --space ws5;   /opt/homebrew
 alt + shift - 6 : /opt/homebrew/bin/yabai -m window --space ws6;   /opt/homebrew/bin/yabai -m space --focus ws6
 alt + shift - 7 : /opt/homebrew/bin/yabai -m window --space ws7;   /opt/homebrew/bin/yabai -m space --focus ws7
 alt + shift - 8 : /opt/homebrew/bin/yabai -m window --space ws8;   /opt/homebrew/bin/yabai -m space --focus ws8
-alt + shift - 9 : /opt/homebrew/bin/yabai -m window --space slack; /opt/homebrew/bin/yabai -m space --focus slack
-alt + shift - 0 : /opt/homebrew/bin/yabai -m window --space ws10;  /opt/homebrew/bin/yabai -m space --focus ws10
+alt + shift - 9 : /opt/homebrew/bin/yabai -m window --space ws9;   /opt/homebrew/bin/yabai -m space --focus ws9
+alt + shift - 0 : /opt/homebrew/bin/yabai -m window --space slack; /opt/homebrew/bin/yabai -m space --focus slack
 
 alt + shift - s : /opt/homebrew/bin/yabai -m window --space slack; /opt/homebrew/bin/yabai -m space --focus slack
 
@@ -132,5 +132,15 @@ ctrl + alt + shift - l : /opt/homebrew/bin/yabai -m window --insert east
 # ============================================================
 # RELOAD CONFIGS
 # 0x2F = period (.)
+# ctrl+alt+.       → skhd-only reload (preserves yabai labels)
+# ctrl+alt+shift+. → full restart (yabai + skhd) — use when yabairc changes
+# yabai labels live in runtime memory, so restarting wipes them and the
+# first-run guard then reassigns them by MC index, which scrambles things
+# after spaces have moved between displays. Default to skhd-only reload.
 # ============================================================
-ctrl + alt - 0x2F : /opt/homebrew/bin/skhd --reload; /opt/homebrew/bin/yabai --restart-service  # 0x2F = period (.)
+ctrl + alt - 0x2F : /opt/homebrew/bin/skhd --reload
+ctrl + alt + shift - 0x2F : /opt/homebrew/bin/skhd --reload; /opt/homebrew/bin/yabai --restart-service
+
+# Reload yabai scripting addition without restarting yabai (preserves labels).
+# Use when space-to-display moves start failing with SA errors.
+ctrl + alt - a : sudo /opt/homebrew/bin/yabai --load-sa
