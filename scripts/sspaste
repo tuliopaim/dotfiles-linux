@@ -1,0 +1,75 @@
+#!/usr/bin/env zsh
+#
+# sspaste — paste a Mac screenshot into pi running on a remote server
+#
+# Usage:
+#   sspaste user@server
+#
+# Prerequisites (Mac side):
+#   brew install pngpaste
+#
+# What it does:
+#   1. Reads clipboard image from the Mac
+#   2. scp's it to ~/pi-paste-<timestamp>.png on the remote
+#   3. Also puts base64 on the Mac clipboard as fallback
+#   4. Prints the `read` command to paste into pi
+#
+
+set -euo pipefail
+
+# ── Config ──────────────────────────────────────────────────────────
+readonly REMOTE="${1:?Usage: sspaste <user@host>}"
+readonly EXT="png"
+readonly TS=$(date +%s)
+readonly FILENAME="pi-paste-${TS}.${EXT}"
+readonly LOCAL_TMP="/tmp/${FILENAME}"
+readonly REMOTE_PATH="~/${FILENAME}"
+
+# ── Helpers ──────────────────────────────────────────────────────────
+cleanup() {
+  rm -f "$LOCAL_TMP"
+}
+trap cleanup EXIT
+
+die() {
+  echo "❌ $*" >&2
+  exit 1
+}
+
+# ── Read clipboard image ────────────────────────────────────────────
+if ! pngpaste "$LOCAL_TMP" 2>/dev/null; then
+  # fallback: try osascript (slower, works for some formats)
+  echo "⚠️  pngpaste failed, trying osascript fallback..." >&2
+  osascript -e '
+    set imgData to (the clipboard as «class PNGf»)
+    set outPath to "'"$LOCAL_TMP"'"
+    set outFile to open for access outPath with write permission
+    write imgData to outFile
+    close access outFile
+  ' 2>/dev/null || die "No image found on clipboard. Take a screenshot first (Cmd+Shift+4)."
+fi
+
+if [[ ! -s "$LOCAL_TMP" ]]; then
+  die "Clipboard image is empty. Take a screenshot first (Cmd+Shift+4)."
+fi
+
+echo "📸 Read clipboard image (${FILENAME})"
+
+# ── Ship to remote ───────────────────────────────────────────────────
+echo "📡 Copying to ${REMOTE}:${REMOTE_PATH} ..."
+scp -q -B "$LOCAL_TMP" "${REMOTE}:${REMOTE_PATH}" || die "scp failed. Is ${REMOTE} reachable?"
+echo "✅ Image sent."
+
+# ── Also put base64 on Mac clipboard (belt-and-suspenders) ───────────
+base64 < "$LOCAL_TMP" | pbcopy
+echo "📋 Base64 also copied to your Mac clipboard (paste into pi editor if needed)."
+
+# ── Print instructions ──────────────────────────────────────────────
+echo ""
+echo "────────────────────────────────────────────────────"
+echo "  In pi (remote tmux), type:"
+echo ""
+echo "    read ${REMOTE_PATH}"
+echo ""
+echo "  Pi will load the image and you can discuss it."
+echo "────────────────────────────────────────────────────"

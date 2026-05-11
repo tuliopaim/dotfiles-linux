@@ -110,6 +110,11 @@ alt + shift - tab : /opt/homebrew/bin/yabai -m space --display next || /opt/home
 alt - return : open -a /Applications/Ghostty.app
 
 # ============================================================
+# SPEECH TO TEXT
+# ============================================================
+cmd + shift + alt - v : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts
+
+# ============================================================
 # SERVICE MODE TASKS (replaced AeroSpace mode.service with ctrl+alt prefix)
 # ============================================================
 # Reset layout (flatten-workspace-tree + balance)
