@@ -21,6 +21,10 @@ in
     postgresql_jdbc
     bun
 
+    # speech-to-text
+    ffmpeg
+    whisper-cpp
+
     # cli tools
     pngpaste
     clipboard-jh
