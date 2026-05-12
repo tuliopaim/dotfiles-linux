@@ -59,20 +59,15 @@ final class StatusController: NSObject {
   private func set(title: String, tooltip: String, color: NSColor? = nil) {
     guard let button = item.button else { return }
     button.toolTip = tooltip
-    if let color {
-      button.attributedTitle = NSAttributedString(
-        string: title,
-        attributes: [
-          .foregroundColor: color,
-          .font: NSFont.monospacedSystemFont(ofSize: 16, weight: .bold),
-        ]
-      )
-    } else {
-      button.attributedTitle = NSAttributedString(
-        string: title,
-        attributes: [.font: NSFont.monospacedSystemFont(ofSize: 16, weight: .semibold)]
-      )
-    }
+
+    // Menu bar text glyphs sit a little high compared to template icons.
+    // Lower the baseline so the status dot/check/hourglass is optically centered.
+    let attributes: [NSAttributedString.Key: Any] = [
+      .font: NSFont.monospacedSystemFont(ofSize: 13, weight: color == nil ? .semibold : .bold),
+      .baselineOffset: -1,
+      .foregroundColor: color ?? NSColor.labelColor,
+    ]
+    button.attributedTitle = NSAttributedString(string: title, attributes: attributes)
   }
 }
 

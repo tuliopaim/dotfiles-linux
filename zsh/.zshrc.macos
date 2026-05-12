@@ -20,7 +20,15 @@ alias sshpersonal='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/git_0'
 alias lz="lazydocker"
 alias tm="tmux-worktree"
 alias fupdate="nix flake update --flake ~/dotfiles/nix/"
-alias fswitch="sudo darwin-rebuild switch --flake ~/dotfiles/nix/.#macos"
+fswitch() {
+  local host target
+  host=$(scutil --get LocalHostName 2>/dev/null)
+  case "$host" in
+    *[Mm]ini*) target="macmini" ;;
+    *)         target="macbook" ;;
+  esac
+  sudo darwin-rebuild switch --flake ~/dotfiles/nix/.#"$target"
+}
 alias gdrive="cd $HOME/Google\ Drive/My\ Drive/Documentos\ GD"
 
 # QMK

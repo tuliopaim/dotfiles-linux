@@ -193,6 +193,23 @@ function resolveFfmpegBin(): string | undefined {
   ]);
 }
 
+function resolveFfmpegInput(ffmpeg: string): string {
+  if (process.env.MACOS_STT_FFMPEG_INPUT) return process.env.MACOS_STT_FFMPEG_INPUT;
+
+  // Avoid ffmpeg's avfoundation audio device 0 by default. It is often a
+  // virtual/silent device (for example "Microsoft Teams Audio"), which makes
+  // Whisper hallucinate short outputs like "You.". Pick a real microphone when
+  // possible.
+  const list = run(ffmpeg, ["-f", "avfoundation", "-list_devices", "true", "-i", ""], undefined, 10_000);
+  const devices = [...list.stderr.matchAll(/^.*\[(\d+)\]\s+(.+)$/gm)]
+    .map((match) => ({ index: match[1], name: match[2].trim() }))
+    .filter((device) => /microphone|mic/i.test(device.name));
+  const preferred = devices.find((device) => !/teams|zoom|blackhole|loopback|soundflower/i.test(device.name)) ?? devices[0];
+  const input = preferred ? `:${preferred.index}` : ":default";
+  console.error(`[recording] ffmpeg avfoundation input=${input}${preferred ? ` (${preferred.name})` : ""}`);
+  return input;
+}
+
 function isPidAlive(pid: number): boolean {
   try {
     process.kill(pid, 0);
@@ -311,7 +328,7 @@ function startRecording(): void {
     const ffmpeg = resolveFfmpegBin();
     command = ffmpeg || "/usr/bin/afrecord";
     args = ffmpeg
-      ? ["-hide_banner", "-loglevel", "error", "-f", "avfoundation", "-i", process.env.MACOS_STT_FFMPEG_INPUT || ":0", "-ac", "1", "-ar", "16000", "-y", audioPath]
+      ? ["-hide_banner", "-loglevel", "error", "-f", "avfoundation", "-i", resolveFfmpegInput(ffmpeg), "-ac", "1", "-ar", "16000", "-y", audioPath]
       : [...splitArgs(process.env.MACOS_STT_AFRECORD_ARGS || "-f WAVE -c 1 -r 16000"), audioPath];
   }
 
@@ -383,6 +400,12 @@ function transcribe(audioPath: string): string | undefined {
   const fileText = existsSync(outputTextPath) ? readFileSync(outputTextPath, "utf8") : "";
   const transcript = normalizeTranscript(fileText || result.stdout);
 
+  if (/^\[(BLANK_AUDIO|MUSIC|SILENCE)\]$/i.test(transcript)) {
+    notify(APP_TITLE, `No speech detected; audio left at ${audioPath}`);
+    console.error(`whisper returned ${transcript}; likely silent/wrong microphone input. Try MACOS_STT_FFMPEG_INPUT=:1 (or list devices with: ffmpeg -f avfoundation -list_devices true -i "")`);
+    return undefined;
+  }
+
   if (result.status !== 0 || !transcript) {
     notify(APP_TITLE, `Transcription failed; audio left at ${audioPath}`);
     console.error(`whisper failed with status ${result.status}`);
@@ -427,7 +450,7 @@ function cleanWithPi(raw: string): string {
   const thinking = process.env.MACOS_STT_PI_THINKING || "off";
   console.error(`[pi] before cleanup: model=${model} thinking=${thinking} chars=${raw.length}`);
   console.error(`[pi] raw transcript: ${previewText(raw)}`);
-  const result = run(pi, ["--model", model, "--thinking", thinking, "--no-tools", "--no-session", "--print"], correctionPrompt(raw), Number(process.env.MACOS_STT_PI_TIMEOUT_MS || 120_000));
+  const result = run(pi, ["--model", model, "--thinking", thinking, "-nt", "--no-session", "--no-extensions", "--no-skills", "--no-prompt-templates", "--no-themes", "-nc", "--print"], correctionPrompt(raw), Number(process.env.MACOS_STT_PI_TIMEOUT_MS || 120_000));
   logTiming("pi cleanup", startedAtMs);
   const cleaned = result.stdout.trim();
   console.error(`[pi] after cleanup: status=${result.status} chars=${cleaned.length}`);
