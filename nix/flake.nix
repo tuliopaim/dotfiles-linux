@@ -58,25 +58,33 @@
     in
     {
       # ── MacOS (aarch64-darwin) ──────────────────────────────────
-      darwinConfigurations."macos" = nix-darwin.lib.darwinSystem {
-        system = "aarch64-darwin";
-        specialArgs = {
-          inherit inputs;
-          pkgs-unstable = pkgs-unstable-darwin;
-        };
-        modules = [
-          ./macos/configuration.nix
-          home-manager-darwin.darwinModules.home-manager
-          {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.extraSpecialArgs = {
+      darwinConfigurations =
+        let
+          mkDarwin = hostModule: nix-darwin.lib.darwinSystem {
+            system = "aarch64-darwin";
+            specialArgs = {
+              inherit inputs;
               pkgs-unstable = pkgs-unstable-darwin;
             };
-            home-manager.users.tuliopaim = import ./macos/home.nix;
-          }
-        ];
-      };
+            modules = [
+              ./macos/configuration.nix
+              hostModule
+              home-manager-darwin.darwinModules.home-manager
+              {
+                home-manager.useGlobalPkgs = true;
+                home-manager.useUserPackages = true;
+                home-manager.extraSpecialArgs = {
+                  pkgs-unstable = pkgs-unstable-darwin;
+                };
+                home-manager.users.tuliopaim = import ./macos/home.nix;
+              }
+            ];
+          };
+        in
+        {
+          macbook = mkDarwin ./macos/hosts/macbook.nix;
+          macmini = mkDarwin ./macos/hosts/macmini.nix;
+        };
 
       # ── Ubuntu server (standalone Home Manager) ────────────────────
       homeConfigurations."tuliopaim@server" = home-manager.lib.homeManagerConfiguration {
