@@ -33,6 +33,8 @@
         Clicking = true;
         TrackpadThreeFingerDrag = true;
       };
+
+      WindowManager.EnableStandardClickToShowDesktop = false;
     };
   };
 
