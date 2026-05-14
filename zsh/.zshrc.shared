@@ -52,7 +52,7 @@ alias gsu="git submodule update --init --recursive"
 # pi aliases
 alias pic='pi --model openai-codex/gpt-5.5:low'
 alias pio='pi --model opencode-go/deepseek-v4-flash:high'
-alias cc='opencode --dangerously-skip-permissions'
+alias cc='claude --dangerously-skip-permissions'
 
 # Open buffer line in editor
 autoload -Uz edit-command-line
