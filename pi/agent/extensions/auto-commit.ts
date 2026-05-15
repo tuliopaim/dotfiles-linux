@@ -2,12 +2,12 @@
  * /auto-commit command — pi slash command
  *
  * Converts the auto-commit skill into an interactive slash command.
- * Checks uncommitted files, groups changes logically, detects ticket
- * numbers from branch names, and commits with user-provided messages.
+ * Checks uncommitted files, detects ticket numbers from branch names,
+ * and asks the agent to generate commit message(s) from the actual diff.
  *
  * Usage: /auto-commit [message]
  *   With a message: commit all changes with that message
- *   Without a message: interactive mode with status preview
+ *   Without a message: let the agent inspect the diff, generate message(s), and commit
  */
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
@@ -23,36 +23,6 @@ function makeGit(pi: ExtensionAPI) {
 function extractTicket(branch: string): string | null {
 	const m = branch.match(/\b[A-Z]+-\d+\b/);
 	return m ? m[0] : null;
-}
-
-/** Guess a short summary from a list of changed file paths. */
-function summarizePaths(paths: string[]): string {
-	// Extract directories for a sense of what was touched
-	const dirs = new Set<string>();
-	for (const p of paths) {
-		const parts = p.split("/");
-		if (parts.length > 1) dirs.add(parts[0]);
-	}
-	const dirList = [...dirs].join(", ");
-	const count = paths.length;
-	if (count === 1) {
-		const file = paths[0]!;
-		return `update ${file}`;
-	}
-	if (dirList) {
-		return `update ${count} files in ${dirList}`;
-	}
-	return `update ${count} files`;
-}
-
-/** Build a suggested commit message from diffs and branch ticket. */
-function suggestMessage(
-	filePaths: string[],
-	branch: string,
-): string {
-	const ticket = extractTicket(branch);
-	const summary = summarizePaths(filePaths);
-	return ticket ? `${ticket}: ${summary}` : summary;
 }
 
 /** Format git status for display. */
@@ -158,8 +128,8 @@ export default function autoCommitExtension(pi: ExtensionAPI) {
 
 	pi.registerCommand("auto-commit", {
 		description:
-			"Stage and commit changes. Detects ticket numbers from branch, groups files logically. " +
-			"Usage: /auto-commit [message] — with a message does a single commit; without, interactive.",
+			"Stage and commit changes. Detects ticket numbers from branch. " +
+			"Usage: /auto-commit [message] — with a message does a single commit; without, AI generates commit message(s) from the diff.",
 		handler: async (args: string, ctx) => {
 			const cwd = ctx.cwd;
 
@@ -211,105 +181,33 @@ export default function autoCommitExtension(pi: ExtensionAPI) {
 				return;
 			}
 
-			// ── 4. Interactive: show status first ───────────────────
+			// ── 4. Let the agent inspect diffs and commit ───────────
 			const formatted = formatStatus(statusOut);
-			const proceed = await ctx.ui.confirm(
-				`Changes on ${branch}`,
-				formatted + "\n\nProceed with commit?",
+			const ticket = extractTicket(branch);
+			const groups = orderedGroups(groupByConcern(entries));
+			const groupPreview = groups
+				.map(
+					(g) =>
+						`  ${g.category}: ${g.entries.map((e) => e.path).join(", ")}`,
+				)
+				.join("\n");
+
+			ctx.ui.notify("Handing off to agent to generate commit message(s)", "info");
+			pi.sendUserMessage(
+				`Auto-commit the current git changes in ${cwd}.
+
+Branch: ${branch}${ticket ? `\nTicket prefix to use if appropriate: ${ticket}` : ""}
+
+Changed files:\n${formatted}
+
+Logical grouping suggestion:\n${groupPreview}
+
+Instructions:
+- Inspect the actual diff before committing (use git diff and git diff --cached as needed).
+- Generate concise, conventional commit message(s) from the diff. Do not ask me for the message.
+- Prefer a single commit unless the diff clearly contains unrelated concerns; if splitting, stage and commit each group separately.
+${ticket ? `- Include the ticket prefix (${ticket}) at the start of each subject if it fits the repository's style.\n` : ""}- Run git status afterward and report the commit hash(es).`,
 			);
-			if (!proceed) {
-				ctx.ui.notify("Cancelled", "info");
-				return;
-			}
-
-			// ── 5. Decide single vs split ───────────────────────────
-			const groups = groupByConcern(entries);
-			const sorted = orderedGroups(groups);
-
-			// Only split into multiple commits if we have 2+ distinct categories
-			// AND the user wants to split
-			let doSplit = false;
-			if (sorted.length > 1) {
-				const groupPreview = sorted
-					.map(
-						(g) =>
-							`  ${g.category}: ${g.entries.map((e) => e.path).join(", ")}`,
-					)
-					.join("\n");
-				const splitChoice = await ctx.ui.confirm(
-					"Multiple concern areas detected",
-					`I can commit in ${sorted.length} logical groups:\n\n${groupPreview}\n\nSplit into separate commits?`,
-				);
-				doSplit = splitChoice;
-			}
-
-			if (!doSplit) {
-				// ── Single commit ───────────────────────────────────
-				const allPaths = entries.map((e) => e.path);
-				const suggested = suggestMessage(allPaths, branch);
-				const msg = await ctx.ui.input(
-					"Commit message",
-					suggested,
-				);
-				if (!msg) {
-					ctx.ui.notify("Cancelled", "info");
-					return;
-				}
-				const ticket = extractTicket(branch);
-				const fullMessage = ticket
-					? `${ticket}: ${msg.trim()}`
-					: msg.trim();
-				await git(["add", "-A"], { cwd });
-				const { code: commitCode } = await git(
-					["commit", "-m", fullMessage],
-					{ cwd },
-				);
-				if (commitCode === 0) {
-					ctx.ui.notify(`Committed: ${fullMessage}`, "success");
-				} else {
-					ctx.ui.notify("Commit failed", "error");
-				}
-				return;
-			}
-
-			// ── 6. Multiple commits (split) ────────────────────────
-			for (const group of sorted) {
-				const paths = group.entries.map((e) => e.path);
-				const suggested = suggestMessage(paths, branch);
-				const msg = await ctx.ui.input(
-					`Commit message for ${group.category} (${paths.length} files)`,
-					suggested,
-				);
-				if (!msg) {
-					ctx.ui.notify(
-						`Skipped ${group.category} — commit cancelled`,
-						"warning",
-					);
-					continue;
-				}
-				const ticket = extractTicket(branch);
-				const fullMessage = ticket
-					? `${ticket}: ${msg.trim()}`
-					: msg.trim();
-				for (const p of paths) {
-					await git(["add", p], { cwd });
-				}
-				const { code: commitCode } = await git(
-					["commit", "-m", fullMessage],
-					{ cwd },
-				);
-				if (commitCode === 0) {
-					ctx.ui.notify(
-						`${group.category}: committed "${fullMessage}"`,
-						"success",
-					);
-				} else {
-					ctx.ui.notify(
-						`${group.category}: commit failed`,
-						"error",
-					);
-				}
-			}
 		},
 	});
 }
