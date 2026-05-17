@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, pkgs-unstable, ... }:
 {
   imports = [
     ../home
@@ -11,6 +11,8 @@
   nixpkgs.config.allowUnfree = true;
 
   home.packages = with pkgs; [
+    pkgs-unstable.neovim
+
     kubectl
     kubernetes-helm
     k9s
