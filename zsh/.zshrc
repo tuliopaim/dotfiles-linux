@@ -1,9 +1,11 @@
 # Source shared configuration
-source $HOME/dotfiles/zsh/.zshrc.shared
+if [[ -r "$HOME/dotfiles/zsh/.zshrc.shared" ]]; then
+    source "$HOME/dotfiles/zsh/.zshrc.shared"
+fi
 
 # Platform-specific config
 if [[ "$(uname)" == "Darwin" ]]; then
-    source $HOME/dotfiles/zsh/.zshrc.macos
+    [[ -r "$HOME/dotfiles/zsh/.zshrc.macos" ]] && source "$HOME/dotfiles/zsh/.zshrc.macos"
 else
-    source $HOME/dotfiles/zsh/.zshrc.linux
+    [[ -r "$HOME/dotfiles/zsh/.zshrc.linux" ]] && source "$HOME/dotfiles/zsh/.zshrc.linux"
 fi

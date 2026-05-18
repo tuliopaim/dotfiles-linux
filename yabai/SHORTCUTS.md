@@ -74,8 +74,6 @@
 
 ## Service Mode (`ctrl` + `alt` prefix)
 
-Replaces AeroSpace's `mode.service` (no sub-mode switching needed).
-
 | Keys | Action |
 |------|--------|
 | `ctrl` + `alt` + `r` | **Reset layout** — flatten workspace tree + balance |
