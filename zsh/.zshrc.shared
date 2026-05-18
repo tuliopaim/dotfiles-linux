@@ -1,6 +1,7 @@
 # Initialize zoxide
 if command -v zoxide &> /dev/null; then
     eval "$(zoxide init zsh)"
+    alias cd="z"
 fi
 
 # Oh My Zsh configuration
@@ -9,13 +10,20 @@ ZSH_THEME="amuse"
 
 plugins=(git fzf vi-mode)
 
-source $ZSH/oh-my-zsh.sh
+if [[ -r "$ZSH/oh-my-zsh.sh" ]]; then
+    source "$ZSH/oh-my-zsh.sh"
+fi
 
 # Enable vi mode
 bindkey -v
 
-bindkey "^F" fzf-cd-widget
-bindkey "^R" fzf-history-widget
+if (( $+widgets[fzf-cd-widget] )); then
+    bindkey "^F" fzf-cd-widget
+fi
+
+if (( $+widgets[fzf-history-widget] )); then
+    bindkey "^R" fzf-history-widget
+fi
 
 # FZF configuration
 export FZF_DEFAULT_OPTS=" \
@@ -44,7 +52,6 @@ alias ..="cd .."
 alias ....="cd ../.."
 alias ......="cd ../../.."
 alias lg="lazygit"
-alias cd="z"
 alias db="dotnet build"
 alias dt="dotnet test"
 alias gsu="git submodule update --init --recursive"

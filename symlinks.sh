@@ -3,17 +3,36 @@
 create_symlink() {
     local source="$1"
     local target="$2"
-    
-    if [ -e "$target" ] || [ -L "$target" ]; then
-        echo "Warning: $target already exists, skipping..."
-    else
-        echo "Creating symlink: $target -> $source"
-        ln -s "$source" "$target"
+    local backup
+
+    mkdir -p "$(dirname "$target")"
+
+    if [ ! -e "$source" ]; then
+        echo "Warning: source $source does not exist, skipping $target"
+        return 0
     fi
+
+    if [ -L "$target" ]; then
+        if [ "$(readlink "$target")" = "$source" ]; then
+            echo "Symlink already correct: $target -> $source"
+            return 0
+        fi
+
+        echo "Replacing stale symlink: $target -> $(readlink "$target")"
+        rm "$target"
+    elif [ -e "$target" ]; then
+        backup="$target.backup.$(date +%Y%m%d%H%M%S)"
+        echo "Backing up existing file/directory: $target -> $backup"
+        mv "$target" "$backup"
+    fi
+
+    echo "Creating symlink: $target -> $source"
+    ln -s "$source" "$target"
 }
 
 # Create config directory if it doesn't exist
 mkdir -p ~/.config
+mkdir -p ~/.config/opencode
 mkdir -p ~/.pi/agent
 
 # Create symlinks
