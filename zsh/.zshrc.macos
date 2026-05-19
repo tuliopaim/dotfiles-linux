@@ -24,6 +24,7 @@ alias sshpersonal='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/git_0'
 alias lz="lazydocker"
 alias tm="tmux-worktree"
 alias fupdate="nix flake update --flake ~/dotfiles/nix/"
+alias loadsa="sudo -n /opt/homebrew/bin/yabai --load-sa"
 fswitch() {
   local host target
   host=$(scutil --get LocalHostName 2>/dev/null)
