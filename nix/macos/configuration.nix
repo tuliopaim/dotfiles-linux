@@ -98,6 +98,7 @@
       "mongodb/brew"
       "koekeishiya/formulae"
       "anomalyco/tap"
+      "modem-dev/tap"
     ];
 
     brews = [
@@ -110,6 +111,7 @@
       "poetry"
       "python@3.13"
       "anomalyco/tap/opencode"
+      "modem-dev/tap/hunk"
 
       # Databases & Related
       { name = "libpq"; link = true; }

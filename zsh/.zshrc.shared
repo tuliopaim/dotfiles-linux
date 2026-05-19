@@ -55,6 +55,7 @@ alias lg="lazygit"
 alias db="dotnet build"
 alias dt="dotnet test"
 alias gsu="git submodule update --init --recursive"
+alias hd="hunk diff"
 
 # pi aliases
 alias pic='pi --model openai-codex/gpt-5.5:low'
