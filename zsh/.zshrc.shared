@@ -62,6 +62,7 @@ alias hw="session-worktree --herdr"
 # pi aliases
 alias pic='pi --model openai-codex/gpt-5.5:low'
 alias pio='pi --model opencode-go/deepseek-v4-flash:high'
+alias pico='pi --model github-copilot/gpt-5.5:low'
 
 # opencode presets
 export OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true

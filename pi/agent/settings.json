@@ -1,9 +1,10 @@
 {
   "lastChangelogVersion": "0.80.2",
   "defaultProvider": "opencode-go",
-  "defaultModel": "openai-codex/gpt-5.5:low",
-  "defaultThinkingLevel": "low",
+  "defaultModel": "kimi-k2.7-code",
+  "defaultThinkingLevel": "high",
   "enabledModels": [
+    "github-copilot/gpt-5.5:low",
     "openai-codex/gpt-5.5:low",
     "opencode-go/deepseek-v4-flash:high",
     "opencode-go/kimi-k2.7-code:high",
@@ -23,28 +24,32 @@
   "subagents": {
     "agentOverrides": {
       "scout": {
-        "model": "opencode-go/deepseek-v4-flash",
+        "model": "github-copilot/gpt-5.4-mini",
         "thinking": "low"
       },
       "researcher": {
-        "model": "opencode-go/deepseek-v4-flash",
+        "model": "github-copilot/gpt-5.4-mini",
         "thinking": "medium"
       },
       "context-builder": {
-        "model": "opencode-go/kimi-k2.7-code",
-        "thinking": "medium"
+        "model": "github-copilot/gpt-5.5",
+        "thinking": "low"
       },
       "planner": {
-        "model": "openai-codex/gpt-5.5",
-        "thinking": "medium"
+        "model": "github-copilot/gpt-5.5",
+        "thinking": "low"
+      },
+      "worker": {
+        "model": "github-copilot/gpt-5.5",
+        "thinking": "low"
       },
       "reviewer": {
-        "model": "openai-codex/gpt-5.5",
-        "thinking": "high"
+        "model": "github-copilot/gpt-5.5",
+        "thinking": "medium"
       },
       "oracle": {
-        "model": "openai-codex/gpt-5.5",
-        "thinking": "xhigh"
+        "model": "github-copilot/gpt-5.5",
+        "thinking": "high"
       }
     }
   },
