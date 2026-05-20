@@ -10,6 +10,7 @@ in
   home.file.".config/opencode/skills".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/skills";
   xdg.configFile."kanata/kanata.kbd".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/kanata/kanata.kbd";
 
+  home.file.".pi/agent/settings.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/pi/agent/settings.json";
   home.file.".pi/agent/extensions".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/pi/agent/extensions";
   home.file.".pi/agent/skills".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/skills";
   home.file.".ideavimrc".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/ideavim/.ideavimrc";
