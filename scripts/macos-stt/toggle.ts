@@ -51,7 +51,7 @@ const statusPidFile = join(stateDir, "status.pid");
 const audioDir = process.env.MACOS_STT_AUDIO_DIR || stateDir;
 
 function usage(): string {
-  return `Usage: macos-stt/toggle.ts [--help] [--correct-stdin]
+  return `Usage: macos-stt/toggle.ts [--help] [--raw] [--correct-stdin]
 
 Toggle macOS speech-to-text recording. First invocation starts recording with
 afrecord or ffmpeg/avfoundation; the next invocation stops recording, transcribes with
@@ -59,6 +59,7 @@ whisper-cpp, cleans/translates with pi in non-interactive print mode, copies the
 
 Options:
   --help             Show this help.
+  --raw              Skip AI cleanup; paste the raw whisper transcript.
   --correct-stdin    Read transcript text from stdin, clean it with pi if
                      available, copy it, and paste it. Does not record audio.
 
@@ -68,6 +69,7 @@ Environment:
   MACOS_STT_WHISPER_MODEL   ggml model path. Required unless a known local model
                             exists, e.g. ~/.local/share/whisper-cpp/ggml-small.bin.
   MACOS_STT_PI_BIN          pi binary path. Defaults search Nix/Homebrew paths.
+  MACOS_STT_RAW             Set to 1/true/yes to default to raw mode.
   MACOS_STT_PI_MODEL        pi model (default: opencode-go/deepseek-v4-flash).
   MACOS_STT_PI_THINKING     pi thinking level (default: off).
   MACOS_STT_STATE_DIR       Parent for state files (default: TMPDIR or /tmp).
@@ -350,7 +352,7 @@ function startRecording(): void {
   console.error(`Recording started: pid=${child.pid} audio=${audioPath}`);
 }
 
-async function stopRecording(state: State): Promise<void> {
+async function stopRecording(state: State, raw = false): Promise<void> {
   const stopStartedAtMs = Date.now();
   const recordingStartedAtMs = Date.parse(state.startedAt);
   removeState();
@@ -371,9 +373,9 @@ async function stopRecording(state: State): Promise<void> {
     console.error(`[timing] recorded audio: ${formatDuration(Date.now() - recordingStartedAtMs)}`);
   }
   ensureStatusIndicator();
-  notify(APP_TITLE, "Processing recording…");
-  console.error(`Processing audio: ${state.audioPath}`);
-  await processAudio(state.audioPath);
+  notify(APP_TITLE, raw ? "Processing recording (raw)…" : "Processing recording…");
+  console.error(`Processing audio: ${state.audioPath}${raw ? " (raw, no AI cleanup)" : ""}`);
+  await processAudio(state.audioPath, raw);
 }
 
 function sleep(ms: number): Promise<void> {
@@ -490,7 +492,7 @@ function copyAndPaste(text: string): void {
   }, Number.isFinite(delay) ? delay : 150);
 }
 
-async function processAudio(audioPath: string): Promise<void> {
+async function processAudio(audioPath: string, raw = false): Promise<void> {
   const totalStartedAtMs = Date.now();
   if (!existsSync(audioPath)) {
     notify(APP_TITLE, `Audio file not found: ${audioPath}`);
@@ -504,7 +506,7 @@ async function processAudio(audioPath: string): Promise<void> {
     return;
   }
 
-  const finalText = cleanWithPi(transcript);
+  const finalText = raw ? transcript : cleanWithPi(transcript);
   copyAndPaste(finalText);
 
   if (!/^(1|true|yes)$/i.test(process.env.MACOS_STT_KEEP_AUDIO || "")) {
@@ -514,14 +516,14 @@ async function processAudio(audioPath: string): Promise<void> {
   logTiming("total processing", totalStartedAtMs);
 }
 
-async function correctStdin(): Promise<void> {
+async function correctStdin(raw = false): Promise<void> {
   const input = readFileSync(0, "utf8").trim();
   if (!input) {
     console.error("No stdin transcript provided.");
     process.exitCode = 1;
     return;
   }
-  const finalText = cleanWithPi(input);
+  const finalText = raw ? input : cleanWithPi(input);
   copyAndPaste(finalText);
 }
 
@@ -531,8 +533,9 @@ async function main(): Promise<void> {
     process.stdout.write(usage());
     return;
   }
+  const raw = args.includes("--raw") || /^(1|true|yes)$/i.test(process.env.MACOS_STT_RAW || "");
   if (args.includes("--correct-stdin")) {
-    await correctStdin();
+    await correctStdin(raw);
     return;
   }
 
@@ -553,7 +556,7 @@ async function main(): Promise<void> {
     startRecording();
     return;
   }
-  await withLock(() => stopRecording(state));
+  await withLock(() => stopRecording(state, raw));
 }
 
 main().catch((error) => {
