@@ -105,6 +105,9 @@
       # Shell
       "mas"
 
+      # Multiplexer
+      "herdr"
+
       # Development tools
       "direnv"
       "fnm"
