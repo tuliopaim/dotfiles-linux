@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Focus the "dotfiles" herdr workspace, creating it at ~/dotfiles if missing.
+
+set -euo pipefail
+
+WS_DIR="${HOME}/dotfiles"
+WS_LABEL="dotfiles"
+
+existing=$(herdr workspace list 2>/dev/null \
+    | jq -r --arg label "$WS_LABEL" \
+        '.result.workspaces[]? | select(.label==$label) | .workspace_id' \
+    | head -n1)
+
+if [[ -n "$existing" ]]; then
+    herdr workspace focus "$existing" >/dev/null
+else
+    herdr workspace create --cwd "$WS_DIR" --label "$WS_LABEL" --focus >/dev/null
+fi

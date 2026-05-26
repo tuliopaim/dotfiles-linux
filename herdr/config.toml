@@ -1,0 +1,42 @@
+onboarding = false
+
+[theme]
+name = "catppuccin"
+
+# Subtle gray accent: keeps pane borders quiet without killing contrast for
+# inactive tab labels and other UI that also uses this token. Matching the
+# panel bg (#1e1e2e) hides the border entirely but makes inactive tab names
+# unreadable.
+[theme.custom]
+accent = "#45475a"
+
+[ui]
+agent_panel_scope = "all"
+
+[keys]
+# Match tmux prefix (ctrl+s).
+prefix = "ctrl+s"
+
+# Direct (no prefix) vim-style pane navigation, parity with the tmux setup.
+# NOTE: herdr has no vim-aware passthrough, so these WILL shadow ctrl+h/j/k/l
+# inside vim/nvim panes. Use <C-w>h/j/k/l in vim to move windows there.
+focus_pane_left = "ctrl+h"
+focus_pane_down = "ctrl+j"
+focus_pane_up = "ctrl+k"
+focus_pane_right = "ctrl+l"
+
+# tmux-like copy/scrollback mode: prefix+[ opens scrollback in $EDITOR
+# (use vim motions/search/visual selection, then editor/terminal clipboard commands).
+edit_scrollback = "prefix+["
+
+# prefix+H: focus or create the dotfiles workspace at ~/dotfiles.
+[[keys.command]]
+key = "prefix+shift+h"
+type = "shell"
+command = "$HOME/dotfiles/scripts/herdr-dotfiles"
+
+# prefix+F: fzf-pick a worktree under ~/dev and open it as a workspace.
+[[keys.command]]
+key = "prefix+shift+f"
+type = "pane"
+command = "$HOME/dotfiles/scripts/herdr-worktree"
