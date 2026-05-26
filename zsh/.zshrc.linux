@@ -17,7 +17,6 @@ if [[ -r "$GHOSTTY_RESOURCES_DIR/shell-integration/zsh/ghostty-integration" ]]; 
 fi
 
 # Linux-specific aliases
-alias tm="tmux-worktree"
 alias k="kubectl"
 
 # Linux-specific exports

@@ -66,8 +66,8 @@
         bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle
         bind-key -T copy-mode-vi y send-keys -X copy-selection-and-cancel
         
-        bind-key -r F run-shell "tmux neww -t 99 $HOME/dotfiles/scripts/tmux-worktree --session"
-        bind-key -r f run-shell "tmux neww -t 99 $HOME/dotfiles/scripts/tmux-worktree"
+        bind-key -r F run-shell "tmux neww -t 99 $HOME/dotfiles/scripts/session-worktree --tmux-session"
+        bind-key -r f run-shell "tmux neww -t 99 $HOME/dotfiles/scripts/session-worktree --tmux"
         bind-key -r H run-shell "$HOME/dotfiles/scripts/tmux-dotfiles"
         bind-key -r J run-shell "$HOME/dotfiles/scripts/tmux-vault vaults"
         

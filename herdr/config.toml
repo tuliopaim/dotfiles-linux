@@ -39,4 +39,4 @@ command = "$HOME/dotfiles/scripts/herdr-dotfiles"
 [[keys.command]]
 key = "prefix+shift+f"
 type = "pane"
-command = "$HOME/dotfiles/scripts/herdr-worktree"
+command = "$HOME/dotfiles/scripts/session-worktree --herdr"
