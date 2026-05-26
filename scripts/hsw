@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# herdr equivalent of tsw: turn the current workspace into ai/nvim/terminal tabs.
+
+set -euo pipefail
+
+if [[ -z "${HERDR_PANE_ID:-}" ]]; then
+    echo "hsw: must be run from inside a herdr pane" >&2
+    exit 1
+fi
+
+pane_info=$(herdr pane get "$HERDR_PANE_ID")
+ws=$(echo "$pane_info" | jq -r '.result.pane.workspace_id')
+current_tab=$(echo "$pane_info" | jq -r '.result.pane.tab_id')
+
+if [[ -z "$ws" || "$ws" == "null" || -z "$current_tab" || "$current_tab" == "null" ]]; then
+    echo "hsw: could not resolve workspace/tab from pane $HERDR_PANE_ID" >&2
+    exit 1
+fi
+
+herdr tab rename "$current_tab" ai >/dev/null
+herdr tab create --workspace "$ws" --label nvim --no-focus >/dev/null
+herdr tab create --workspace "$ws" --label terminal --no-focus >/dev/null
+herdr tab focus "$current_tab" >/dev/null
