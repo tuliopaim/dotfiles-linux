@@ -20,9 +20,9 @@ in
     postgresql
     postgresql_jdbc
     bun
+    devenv
 
     # speech-to-text
-    ffmpeg
     whisper-cpp
 
     # cli tools
@@ -35,6 +35,7 @@ in
     typescript
     nodePackages."@angular/cli"
     awscli2
+    bitwarden-cli
   ];
 
   # Mac-only symlinks
