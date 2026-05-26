@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+# fzf-pick a folder under one of BASE_DIRS and open it as a session/workspace.
+# Modes: --tmux (window per branch, default), --tmux-session, --herdr.
+
+set -euo pipefail
+
+MODE="tmux-session"
+case "${1:-}" in
+    --herdr) MODE="herdr"; shift ;;
+    --tmux) MODE="tmux"; shift ;;
+    --tmux-session) MODE="tmux-session"; shift ;;
+esac
+
+BASE_DIRS=("${HOME}/dev" "${HOME}/sandboxes")
+
+# --- 1. Select the worktree/directory ---
+if [[ $# -ge 1 ]]; then
+    selected=$(echo "$1" | tr -s '/')
+else
+    selected=$(find -L "${BASE_DIRS[@]}" -mindepth 1 -maxdepth 3 -type d \
+        -not -path '*/.bare*' -print 2>/dev/null \
+        | fzf --reverse --prompt 'worktree > ' \
+              --border --border-label ' worktrees ' \
+              --preview 'ls -la {}' --preview-window 'right:55%')
+fi
+
+[[ -z "$selected" ]] && exit 0
+
+# --- 2. Derive repo/branch by stripping whichever base prefixes the path ---
+rel="$selected"
+for dir in "${BASE_DIRS[@]}"; do
+    rel="${rel#$dir/}"
+done
+
+if [[ "$rel" != "$selected" ]]; then
+    IFS='/' read -r category repo branch <<< "$rel"
+    [[ -z "$repo" ]] && { repo="$category"; branch=""; }
+    repo=$(echo "$repo" | tr '.:#' '_')
+    branch=$(echo "$branch" | tr '.:#' '_')
+else
+    repo=$(basename "$selected" | tr '.:#' '_')
+    branch=""
+fi
+
+if [[ -n "$branch" ]]; then
+    label="${repo}-${branch}"
+else
+    label="$repo"
+fi
+
+# --- 3. Dispatch ---
+case "$MODE" in
+    herdr)
+        existing=$(herdr workspace list 2>/dev/null \
+            | jq -r --arg label "$label" \
+                '.result.workspaces[]? | select(.label==$label) | .workspace_id' \
+            | head -n1)
+
+        if [[ -n "$existing" ]]; then
+            herdr workspace focus "$existing" >/dev/null
+        else
+            herdr workspace create --cwd "$selected" --label "$label" --focus >/dev/null
+        fi
+        ;;
+
+    tmux-session)
+        session_name="$label"
+
+        if [[ -z "${TMUX:-}" ]] && ! pgrep -x tmux >/dev/null; then
+            tmux new-session -s "$session_name" -c "$selected"
+            exit 0
+        fi
+
+        if ! tmux has-session -t "$session_name" 2>/dev/null; then
+            tmux new-session -ds "$session_name" -c "$selected"
+        fi
+
+        if [[ -z "${TMUX:-}" ]]; then
+            tmux attach-session -t "$session_name"
+        else
+            tmux switch-client -t "$session_name"
+        fi
+        ;;
+
+    tmux)
+        session_name="$repo"
+        window_name=$(basename "$selected")
+        window_target="$session_name:$window_name"
+
+        if [[ -z "${TMUX:-}" ]] && ! pgrep -x tmux >/dev/null; then
+            tmux new-session -s "$session_name" -n "$window_name" -c "$selected"
+            exit 0
+        fi
+
+        if ! tmux has-session -t "$session_name" 2>/dev/null; then
+            tmux new-session -ds "$session_name" -n "$window_name" -c "$selected"
+        else
+            if ! tmux list-windows -t "$session_name" -F "#{window_name}" | grep -q "^${window_name}$"; then
+                tmux new-window -t "$session_name" -n "$window_name" -c "$selected"
+            fi
+        fi
+
+        if [[ -z "${TMUX:-}" ]]; then
+            tmux attach-session -t "$session_name"
+        else
+            tmux switch-client -t "$window_target"
+        fi
+        ;;
+esac
