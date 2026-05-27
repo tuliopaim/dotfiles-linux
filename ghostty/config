@@ -1,6 +1,17 @@
 # Dynamic theme colors
 theme = Catppuccin Mocha
 
+# Hide the titlebar but keep native window borders and rounded corners
+macos-titlebar-style = hidden
+
+# Background transparency and blur
+background-opacity = 0.9
+background-blur = true
+
+# Window padding
+window-padding-x = 4,0
+window-padding-y = 10,0
+
 # Font
 font-family = "JetBrainsMono Nerd Font"
 font-style = Regular
