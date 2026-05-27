@@ -6,9 +6,6 @@
 #
 sudo /opt/homebrew/bin/yabai --load-sa
 
-# Opacity
-yabai -m config menubar_opacity 0.5
-
 # Layout: BSP (equivalent to AeroSpace 'tiles')
 yabai -m config layout bsp
 yabai -m config window_placement second_child
@@ -23,8 +20,11 @@ yabai -m config window_gap        10
 # Mouse behavior
 # AeroSpace: on-focused-monitor-changed move-mouse monitor-lazy-center
 yabai -m config mouse_follows_focus on
-# AeroSpace: on-focus-changed move-mouse window-lazy-center
-yabai -m config focus_follows_mouse autofocus
+# focus_follows_mouse disabled: `autofocus` fired extra focus events while
+# spaces were mid-transition, leaving the menubar painted with the old
+# frontmost app's menu on top of the new one (the "ghost menubar" bug).
+# Use alt-h/j/k/l or click to change focus.
+yabai -m config focus_follows_mouse off
 yabai -m config mouse_modifier alt
 yabai -m config mouse_drop_action swap
 
@@ -43,47 +43,29 @@ while [ "$current" -lt 10 ]; do
 done
 
 # ============================================================
-# Labels — persistent, keyed by macOS space UUID.
+# Labels & display distribution
 #
-# 1. Restore labels from disk first (uuid-based, survives restarts
-#    and most display events).
-# 2. Fall back to default ws<N>/slack assignments only for spaces
-#    that still have no label after restore (true first-run case).
-# 3. Save the resulting state for the next launch.
+# 1. labels.sh restore  → UUID-based restore, then fills in any
+#    missing canonical labels (ws1..ws9, slack) onto unlabeled
+#    spaces. Replaces the old by-index fallback that assigned the
+#    wrong labels after spaces reshuffled between displays.
+# 2. labels.sh cleanup  → destroys leftover unlabeled orphan spaces.
+# 3. distribute.sh      → moves spaces to their intended displays:
+#       primary  (built-in): slack, ws6, ws7, ws9
+#       external monitor   : ws1, ws2, ws3, ws4, ws5, ws8
+#    No-op on single-display hosts.
+# 4. labels.sh save     → snapshot for next launch.
 #
 # yabai v7 rejects purely-numeric labels (would collide with indexes),
-# so spaces use a `ws<N>` prefix. The skhdrc bindings target these labels.
+# so spaces use a `ws<N>` prefix. skhdrc bindings target these labels.
 # ============================================================
 LABELS_SH="${HOME}/.config/yabai/labels.sh"
+DISTRIBUTE_SH="${HOME}/.config/yabai/distribute.sh"
 
-# 1. Restore from disk
-[ -x "$LABELS_SH" ] && "$LABELS_SH" restore
-
-# 2. First-run defaults for any space still unlabeled
-default_label_for_index() {
-  case "$1" in
-    1)  echo "ws1" ;;
-    2)  echo "ws2" ;;
-    3)  echo "ws3" ;;
-    4)  echo "ws4" ;;
-    5)  echo "ws5" ;;
-    6)  echo "ws6" ;;
-    7)  echo "ws7" ;;
-    8)  echo "ws8" ;;
-    9)  echo "ws9" ;;
-    10) echo "slack" ;;
-  esac
-}
-
-yabai -m query --spaces \
-  | jq -r '.[] | select(.label == "") | .index' \
-  | while read -r idx; do
-      label=$(default_label_for_index "$idx")
-      [ -n "$label" ] && yabai -m space "$idx" --label "$label" 2>/dev/null
-    done
-
-# 3. Snapshot current state so it survives the next yabai restart
-[ -x "$LABELS_SH" ] && "$LABELS_SH" save
+[ -x "$LABELS_SH" ]     && "$LABELS_SH" restore
+[ -x "$LABELS_SH" ]     && "$LABELS_SH" cleanup
+[ -x "$DISTRIBUTE_SH" ] && "$DISTRIBUTE_SH"
+[ -x "$LABELS_SH" ]     && "$LABELS_SH" save
 
 # ============================================================
 # Window rules — auto-float only (no app-to-space assignments)
@@ -102,22 +84,32 @@ yabai -m rule --add title="Settings" manage=off
 # ============================================================
 # Signals — event-driven behavior
 # ============================================================
-# Re-apply persisted labels when a display is added/removed/changed
-# (macOS often reshuffles spaces across displays, dropping labels).
-# Remove-first so the block is idempotent if yabairc is re-sourced.
+# Re-apply persisted labels only when a display is physically added or
+# removed. `display_changed` fires on every focus change between monitors,
+# which would clobber manual space moves (e.g. dragging slack to the big
+# monitor for a focus session) and trigger menubar redraw glitches.
+#
+# Distribute runs only on display_added — the intent is "snap to home
+# layout when a new monitor joins", not "fight the user's manual moves".
+# `ctrl+alt-d` is the manual escape hatch.
+#
+# `space_created` is fired by `--label`, which the ensure step calls,
+# so we save on space_destroyed only — saving on creation would race with
+# the labelling pass and snapshot empty labels.
 for sig in \
   labels_restore_display_added \
   labels_restore_display_removed \
   labels_restore_display_changed \
+  labels_distribute_display_added \
+  labels_distribute_display_changed \
   labels_save_space_created \
   labels_save_space_destroyed; do
   yabai -m signal --remove "$sig" 2>/dev/null || true
 done
 
-yabai -m signal --add label="labels_restore_display_added"   event=display_added   action="$HOME/.config/yabai/labels.sh restore"
-yabai -m signal --add label="labels_restore_display_removed" event=display_removed action="$HOME/.config/yabai/labels.sh restore"
-yabai -m signal --add label="labels_restore_display_changed" event=display_changed action="$HOME/.config/yabai/labels.sh restore"
-yabai -m signal --add label="labels_save_space_created"      event=space_created   action="$HOME/.config/yabai/labels.sh save"
-yabai -m signal --add label="labels_save_space_destroyed"    event=space_destroyed action="$HOME/.config/yabai/labels.sh save"
+yabai -m signal --add label="labels_restore_display_added"      event=display_added   action="$HOME/.config/yabai/labels.sh restore"
+yabai -m signal --add label="labels_restore_display_removed"    event=display_removed action="$HOME/.config/yabai/labels.sh restore"
+yabai -m signal --add label="labels_distribute_display_added"   event=display_added   action="$HOME/.config/yabai/distribute.sh"
+yabai -m signal --add label="labels_save_space_destroyed"       event=space_destroyed action="$HOME/.config/yabai/labels.sh save"
 
 echo "yabai config loaded: $(date)"
