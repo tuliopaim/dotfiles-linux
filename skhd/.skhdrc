@@ -123,7 +123,8 @@ ctrl + alt - r : /opt/homebrew/bin/yabai -m space --layout bsp; /opt/homebrew/bi
 ctrl + alt - f : /opt/homebrew/bin/yabai -m space --layout float
 # Return to BSP
 ctrl + alt - b : /opt/homebrew/bin/yabai -m space --layout bsp
-# Close window
+# Close window (single window, like red X button)
+alt - q : /opt/homebrew/bin/yabai -m window --close
 ctrl + alt - backspace : /opt/homebrew/bin/yabai -m window --close
 
 # ============================================================
