@@ -149,3 +149,7 @@ ctrl + alt + shift - 0x2F : /opt/homebrew/bin/skhd --reload; /opt/homebrew/bin/y
 # Reload yabai scripting addition without restarting yabai (preserves labels).
 # Use when space-to-display moves start failing with SA errors.
 ctrl + alt - a : sudo /opt/homebrew/bin/yabai --load-sa
+
+# Manual re-distribute: snap spaces back to their home displays.
+# Escape hatch if macOS reshuffles things without firing display_changed.
+ctrl + alt - d : $HOME/.config/yabai/labels.sh ensure; $HOME/.config/yabai/distribute.sh

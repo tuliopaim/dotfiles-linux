@@ -46,6 +46,7 @@ in
   home.file = {
     ".config/yabai/yabairc".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/yabai/.yabairc";
     ".config/yabai/labels.sh".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/yabai/labels.sh";
+    ".config/yabai/distribute.sh".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/yabai/distribute.sh";
     ".config/skhd/skhdrc".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/skhd/.skhdrc";
     "Library/Application Support/Cursor/User/settings.json".source =
       config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/vscode/Code/User/settings.json";
