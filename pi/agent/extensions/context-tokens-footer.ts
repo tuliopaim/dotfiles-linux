@@ -127,6 +127,10 @@ export default function (pi: ExtensionAPI) {
 
 					// --- Right side: model ---
 					let modelRaw = ctx.model?.id || "no-model";
+					if (ctx.model?.reasoning) {
+						const level = pi.getThinkingLevel();
+						modelRaw = level === "off" ? `${modelRaw} • thinking off` : `${modelRaw} • ${level}`;
+					}
 					if (footerData.getAvailableProviderCount() > 1 && ctx.model) {
 						modelRaw = `(${ctx.model.provider}) ${modelRaw}`;
 					}
