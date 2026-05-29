@@ -33,7 +33,6 @@ in
     mercurial
     nmap
     typescript
-    nodePackages."@angular/cli"
     awscli2
     bitwarden-cli
   ];

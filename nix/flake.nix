@@ -2,18 +2,18 @@
   description = "Unified Nix flake — Darwin, Ubuntu server, NixOS legacy";
 
   inputs = {
-    # Darwin (25.05-darwin, must match nix-darwin branch)
-    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-25.05-darwin";
+    # Darwin (26.05-darwin, must match nix-darwin branch)
+    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-26.05-darwin";
 
     # Server + default (unstable)
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
     # NixOS legacy (stable)
-    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05";
+    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-26.05";
 
     # nix-darwin
     nix-darwin = {
-      url = "github:nix-darwin/nix-darwin/nix-darwin-25.05";
+      url = "github:nix-darwin/nix-darwin/nix-darwin-26.05";
       inputs.nixpkgs.follows = "nixpkgs-darwin";
     };
 
@@ -23,15 +23,15 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Home Manager (25.05, for darwin)
+    # Home Manager (26.05, for darwin)
     home-manager-darwin = {
-      url = "github:nix-community/home-manager/release-25.05";
+      url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs-darwin";
     };
 
     # Home Manager (stable, for NixOS)
     home-manager-stable = {
-      url = "github:nix-community/home-manager/release-25.05";
+      url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs-stable";
     };
 
