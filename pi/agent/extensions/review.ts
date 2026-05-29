@@ -25,6 +25,8 @@ async function git(args: string[], cwd: string): Promise<string> {
 	return stdout;
 }
 
+// Minimal shell-like splitter: supports single/double quotes and backslash escape of
+// one character. Does NOT expand $VAR or interpret \n / \t as control chars.
 function shellSplit(input: string): string[] {
 	const out: string[] = [];
 	let current = "";
@@ -53,7 +55,7 @@ function shellSplit(input: string): string[] {
 }
 
 function parseReviewOptions(rawArgs: string): ReviewOptions {
-	const opts: ReviewOptions = { backend: "diffview", staged: false, unstaged: false, untracked: false, unified: 80, reset: false, paths: [] };
+	const opts: ReviewOptions = { backend: "diffview", staged: false, unstaged: false, untracked: true, unified: 5, reset: false, paths: [] };
 	const args = shellSplit(rawArgs || "");
 	let pathMode = false;
 	for (let i = 0; i < args.length; i++) {
@@ -103,7 +105,7 @@ function buildDiffArgs(opts: ReviewOptions): string[] {
 	} else {
 		range = [opts.base || "HEAD"];
 	}
-	return ["diff", ...range, "--no-ext-diff", `--unified=${opts.unified}`, "--", ...paths];
+	return ["diff", ...range, "--no-ext-diff", "--submodule=diff", `--unified=${opts.unified}`, "--", ...paths];
 }
 
 async function untrackedDiff(repoRoot: string, paths: string[], unified: number): Promise<string> {
@@ -117,7 +119,6 @@ async function untrackedDiff(repoRoot: string, paths: string[], unified: number)
 		chunks.push([
 			`diff --git a/${file} b/${file}`,
 			"new file mode 100644",
-			"index 0000000..0000000",
 			"--- /dev/null",
 			`+++ b/${file}`,
 			`@@ -0,0 +1,${lines.length} @@`,
@@ -136,6 +137,7 @@ function buildDiffviewArgs(opts: ReviewOptions): string[] {
 	} else if (!opts.unstaged || opts.staged) {
 		args.push(opts.base || "HEAD");
 	}
+	args.push("--submodule=diff");
 	if (opts.untracked) args.push("--untracked-files=true");
 	if (opts.paths.length) args.push("--", ...opts.paths);
 	return args;
@@ -149,7 +151,7 @@ function scopeLabel(opts: ReviewOptions): string {
 	return parts.join(", ");
 }
 
-async function addToGitInfoExclude(repoRoot: string) {
+async function addToGitInfoExclude(repoRoot: string): Promise<boolean> {
 	const excludePath = path.join(repoRoot, ".git", "info", "exclude");
 	try {
 		let content = "";
@@ -158,12 +160,13 @@ async function addToGitInfoExclude(repoRoot: string) {
 		} catch {
 			// Ignore; writeFile below will create it if possible.
 		}
-		if (!content.split(/\r?\n/).includes(".pi/reviews/")) {
-			const prefix = content.length > 0 && !content.endsWith("\n") ? "\n" : "";
-			await fs.appendFile(excludePath, `${prefix}.pi/reviews/\n`, "utf8");
-		}
+		if (content.split(/\r?\n/).includes(".pi/reviews/")) return false;
+		const prefix = content.length > 0 && !content.endsWith("\n") ? "\n" : "";
+		await fs.appendFile(excludePath, `${prefix}.pi/reviews/\n`, "utf8");
+		return true;
 	} catch {
 		// Best effort only. Review files are still useful even if exclude cannot be updated.
+		return false;
 	}
 }
 
@@ -238,7 +241,10 @@ export default function (pi: ExtensionAPI) {
 			} catch {
 				await fs.writeFile(jsonPath, JSON.stringify({ version: 2, repo: repoRoot, diff: diffPath, scope: scopeLabel(opts), comments: [] }, null, 2), "utf8");
 			}
-			await addToGitInfoExclude(repoRoot);
+			const addedExclude = await addToGitInfoExclude(repoRoot);
+			if (addedExclude) {
+				ctx.ui.notify("/review: added .pi/reviews/ to .git/info/exclude", "info");
+			}
 
 			ctx.ui.notify(`/review: opening Neovim (${scopeLabel(opts)}). Use <leader>rc to comment and <leader>rq to save/quit.`, "info");
 
