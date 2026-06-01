@@ -10,7 +10,7 @@
     "opencode-go/kimi-k2.6:high"
   ],
   "editorPaddingX": 2,
-  "hideThinkingBlock": false,
+  "hideThinkingBlock": true,
   "packages": [
     "npm:pi-subagents"
   ],
