@@ -7,7 +7,7 @@ The `pi/agent/extensions/review.ts` extension adds a `/review` slash command for
 What it does:
 
 - detects the current git repo
-- generates a git diff for the selected scope (default: `git diff HEAD --no-ext-diff --unified=80 -- .`)
+- generates a git diff for the selected scope (default: `git diff HEAD --no-ext-diff --submodule=diff --unified=5 -- .`, plus untracked files)
 - writes the diff to `.pi/reviews/latest.diff`
 - opens `nvim -R` with a local Lua review module
 - saves comments to:
@@ -46,7 +46,7 @@ Comments can be attached to added, removed, and context diff lines. Diff headers
 
 `/review` accepts common git-diff options:
 
-- `/review` — tracked staged + unstaged changes relative to `HEAD` in Diffview mode
+- `/review` — tracked staged + unstaged changes relative to `HEAD` in Diffview mode, plus untracked files by default
 - `/review --staged` — staged changes only
 - `/review --unstaged` — unstaged changes relative to the index
 - `/review --base <rev>` — diff against a base revision instead of `HEAD`
