@@ -29,7 +29,8 @@ focus_pane_right = ["ctrl+alt+l", "alt+l", "prefix+l"]
 
 # tmux-like copy/scrollback mode: prefix+[ opens scrollback in $EDITOR
 # (use vim motions/search/visual selection, then editor/terminal clipboard commands).
-edit_scrollback = "prefix+["
+edit_scrollback = "prefix+]"
+copy_mode = "prefix+["
 
 # prefix+H: focus or create the dotfiles workspace at ~/dotfiles.
 [[keys.command]]
