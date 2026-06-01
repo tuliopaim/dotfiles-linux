@@ -22,6 +22,7 @@ alias ssh1='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/git_1'
 alias ssh2='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/git_2'
 alias sshpersonal='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/git_0'
 alias lz="lazydocker"
+alias sshaway='caffeinate -i -t 14400'
 alias fupdate="nix flake update --flake ~/dotfiles/nix/"
 alias loadsa="sudo -n /opt/homebrew/bin/yabai --load-sa"
 fswitch() {
