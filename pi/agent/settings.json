@@ -1,11 +1,11 @@
 {
-  "lastChangelogVersion": "0.75.4",
+  "lastChangelogVersion": "0.78.0",
   "defaultProvider": "opencode-go",
-  "defaultModel": "kimi-k2.6",
-  "defaultThinkingLevel": "high",
+  "defaultModel": "qwen3.7-max",
+  "defaultThinkingLevel": "medium",
   "enabledModels": [
     "openai-codex/gpt-5.5:low",
-    "opencode-go/qwen3.6-plus:medium",
+    "opencode-go/qwen3.7-max:medium",
     "opencode-go/deepseek-v4-flash:low",
     "opencode-go/kimi-k2.6:high"
   ],
@@ -25,7 +25,7 @@
         "thinking": "high"
       },
       "context-builder": {
-        "model": "opencode-go/qwen3.6-plus",
+        "model": "opencode-go/qwen3.7-max",
         "thinking": "medium"
       },
       "planner": {
@@ -42,7 +42,7 @@
       },
       "oracle": {
         "model": "openai-codex/gpt-5.5",
-        "thinking": "low"
+        "thinking": "medium"
       }
     }
   }
