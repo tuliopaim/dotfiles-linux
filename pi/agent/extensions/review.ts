@@ -128,7 +128,16 @@ function buildDiffviewArgs(opts: ReviewOptions): string[] {
 	const args: string[] = [];
 	if (opts.staged && !opts.unstaged) args.push("--staged");
 	else if (opts.mergeBase) args.push(`${opts.mergeBase}...HEAD`);
-	else if (!opts.unstaged || opts.staged) args.push(opts.base || "HEAD");
+	else if (!opts.unstaged || opts.staged) {
+		// Diffview.nvim only shows untracked files when comparing against the
+		// index (STAGE vs LOCAL). When comparing against a commit like HEAD,
+		// it silently ignores --untracked-files. Omit the revision when
+		// untracked files are requested so Diffview uses index comparison.
+		if (!opts.untracked || opts.base) {
+			args.push(opts.base || "HEAD");
+		}
+		// else: DiffviewOpen (no revision) → index-based, supports untracked
+	}
 	args.push("--submodule=diff");
 	if (opts.untracked) args.push("--untracked-files=true");
 	if (opts.paths.length) args.push("--", ...opts.paths);
@@ -136,7 +145,11 @@ function buildDiffviewArgs(opts: ReviewOptions): string[] {
 }
 
 function scopeLabel(opts: ReviewOptions): string {
-	const parts = [opts.staged && !opts.unstaged ? "staged" : opts.unstaged && !opts.staged ? "unstaged" : opts.mergeBase ? `${opts.mergeBase}...HEAD` : opts.base || "HEAD"];
+	const scope = opts.staged && !opts.unstaged ? "staged"
+		: opts.unstaged && !opts.staged ? "unstaged"
+		: opts.mergeBase ? `${opts.mergeBase}...HEAD`
+		: opts.base || (opts.untracked ? "index" : "HEAD");
+	const parts = [scope];
 	if (opts.untracked) parts.push("untracked");
 	if (opts.paths.length) parts.push(`paths: ${opts.paths.join(" ")}`);
 	parts.push(`unified=${opts.unified}`);
