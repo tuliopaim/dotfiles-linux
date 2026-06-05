@@ -1,69 +1,31 @@
 # Pi local workflows
 
-## `/review` Neovim diff review
+## Code review
 
-The `pi/agent/extensions/review.ts` extension adds a `/review` slash command for reviewing the current git diff in Neovim.
+Code review of agent-produced changes lives outside Pi now. See:
 
-What it does:
+- Neovim plugin: `nvim/lua/tuliopaim/review.lua` (+ spec at `nvim/lua/plugins/review.lua`)
+- Agent skill: `skills/review/SKILL.md`
 
-- detects the current git repo
-- generates a git diff for the selected scope (default: `git diff HEAD --no-ext-diff --submodule=diff --unified=5 -- .`, plus untracked files)
-- writes the diff to `.pi/reviews/latest.diff`
-- opens `nvim -R` with a local Lua review module
-- saves comments to:
-  - `.pi/reviews/latest.md`
-  - `.pi/reviews/latest.json`
-- does **not** submit anything to the agent automatically
+Workflow:
 
-After Neovim exits, Pi asks whether to prefill the editor with:
-
-```text
-Please address my review comments.
-
-@.pi/reviews/latest.md
-```
-
-You can edit or discard that prompt before sending it.
+1. In any git repo, open Neovim. Two entry points:
+   - `:ReviewStart` (or `<leader>rR`) — opens Diffview for the working tree. Accepts Diffview args, e.g. `:ReviewStart origin/main...HEAD`.
+   - `<leader>rc` in any normal buffer under the repo — bootstraps a review session and opens the comment dialog on the current line, no Diffview needed.
+2. Leave inline comments with `<leader>rc`. Save/quit with `<leader>rq`. Comments are written to `<repo>/.review/comments.json` (auto-added to `.git/info/exclude`).
+3. Back in any agent (Pi, Claude Code, Codex), say "process my review comments" — the `review` skill walks through each unresolved entry.
 
 ### Neovim keymaps
 
-Inside review mode:
+`<leader>rc` works globally in any buffer whose file lives under the repo root, and inside Diffview review buffers. The rest become available once a buffer is attached (Diffview opens, or `<leader>rc` is pressed in a regular buffer):
 
-- `<leader>rc` — add/edit a multiline comment on the current diff body line. In your setup `<leader>` is usually `\\`, so try `\\rc` if unsure. Save the comment editor with `<C-s>` or cancel with `q` in normal mode. Saving a comment immediately updates Markdown/JSON.
-- `<leader>rd` — delete the comment on the current line and immediately update Markdown/JSON.
-- `<leader>rx` — toggle the comment resolved/unresolved and immediately update Markdown/JSON
-- `<leader>rR` — restart the review by clearing all saved comments after confirmation
-- `<leader>rs` — save Markdown and JSON review files
-- `<leader>rq` — save and quit
-- `<leader>rn` — next comment
-- `<leader>rp` — previous comment
-- `]f` — next changed file
-- `[f` — previous changed file
+- `<leader>rc` — add/edit a multiline comment on the current line. `<C-s>` saves, `q` cancels.
+- `<leader>rd` — delete the comment on the current line.
+- `<leader>rx` — toggle resolved/unresolved.
+- `<leader>rs` — save now.
+- `<leader>rq` — save and quit.
+- `<leader>rn` / `<leader>rp` — next / previous comment in this buffer.
+- `<leader>rr` — refresh (close + reopen Diffview, reload comments from disk).
+- `<leader>rR` — start (or restart) the Diffview review. Prompts before clearing if a session is active.
 
-Comments can be attached to added, removed, and context diff lines. Diff headers and metadata lines are not commentable.
-
-### Diff scopes
-
-`/review` accepts common git-diff options:
-
-- `/review` — tracked staged + unstaged changes relative to `HEAD` in Diffview mode, plus untracked files by default
-- `/review --staged` — staged changes only
-- `/review --unstaged` — unstaged changes relative to the index
-- `/review --base <rev>` — diff against a base revision instead of `HEAD`
-- `/review --merge-base <rev>` — triple-dot range, e.g. `origin/main...HEAD`
-- `/review --untracked` — append untracked files as new-file diffs
-- `/review --unified <n>` — set context lines
-- `/review --reset` — restart the review by deleting saved comments before opening
-- `/review -- path/to/file ...` — restrict to paths
-- `/review --raw` — use the old unified-diff buffer mode
-- `/review --diffview` — explicitly use Diffview side-by-side mode, now the default
-
-### Notes
-
-- Existing unresolved comments are preserved and remapped when possible using semantic anchors (`file`, `side`, `line`) instead of only raw diff line numbers.
-- Comments include `resolved: false` in JSON and `[ ]` checkboxes in Markdown; resolved comments are hidden from future review sessions.
-- Markdown checkboxes are synced back into JSON on review load/save, so changing `### [ ] Line N` to `### [x] Line N` marks that comment resolved without manually editing JSON.
-- Saved Markdown includes scope, grouped files, side/line metadata, quoted code, and nearby context.
-- Diffview mode uses real file buffers/windows and preserves the same comment/save keymaps where possible.
-- Review files are repo-local under `.pi/reviews/` so they can be referenced from Pi prompts with `@.pi/reviews/latest.md`.
-- `/review` best-effort appends `.pi/reviews/` to `.git/info/exclude` to avoid untracked review artifacts.
+Caveats for commenting from a plain buffer (not Diffview): comments always anchor to `side: "new"`, so you can't comment on a deleted line that way; and the line number you pick reflects the buffer's current state, so if you have unsaved edits, the agent may see a slightly different line by the time it reads `comments.json`. Use Diffview when either matters.
