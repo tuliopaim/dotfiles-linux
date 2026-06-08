@@ -48,6 +48,7 @@ create_symlink ~/dotfiles/private/.config/git ~/.config/git
 create_symlink ~/dotfiles/opencode/opencode.json ~/.config/opencode/opencode.json
 create_symlink ~/dotfiles/opencode/tui.json ~/.config/opencode/tui.json
 create_symlink ~/dotfiles/opencode/oh-my-opencode-slim.json ~/.config/opencode/oh-my-opencode-slim.json
+create_symlink ~/dotfiles/opencode/commands ~/.config/opencode/commands
 create_symlink ~/dotfiles/skills ~/.config/opencode/skills
 create_symlink ~/dotfiles/pi/agent/extensions ~/.pi/agent/extensions
 create_symlink ~/dotfiles/skills ~/.pi/agent/skills
