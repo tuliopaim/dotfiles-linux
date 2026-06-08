@@ -99,6 +99,8 @@
       "koekeishiya/formulae"
       "anomalyco/tap"
       "modem-dev/tap"
+      "qmk/qmk"
+      "steipete/tap"
     ];
 
     brews = [
@@ -165,7 +167,6 @@
       "raycast"
 
       # Communication
-      "discord"
       "microsoft-teams"
       "slack"
 
