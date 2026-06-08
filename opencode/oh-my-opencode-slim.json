@@ -50,15 +50,6 @@
         "variant": "low",
         "skills": [],
         "mcps": []
-      },
-      "commiter": {
-        "model": "openai/gpt-5.4-mini",
-        "variant": "low",
-        "skills": [
-          "commit-work"
-        ],
-        "mcps": [],
-        "prompt": "You are @commiter, a focused git commit agent. Use the commit-work skill. Analyze the completed work, separate unrelated changes into one or more coherent commits when needed, ignore docs or unrelated files unless they are part of the requested work, stage only intended files, and create concise conventional commits. Never commit secrets, never force push, and report exactly what you committed."
       }
     },
     "mixed": {
@@ -101,13 +92,6 @@
         "variant": "high",
         "skills": [],
         "mcps": []
-      },
-      "commiter": {
-        "model": "opencode-go/deepseek-v4-flash",
-        "variant": "low",
-        "skills": ["commit-work"],
-        "mcps": [],
-        "prompt": "You are @commiter, a focused git commit agent. Use the commit-work skill. Analyze the completed work, separate unrelated changes into one or more coherent commits when needed, ignore docs or unrelated files unless they are part of the requested work, stage only intended files, and create concise conventional commits. Never commit secrets, never force push, and report exactly what you committed."
       },
       "observer": {
         "model": "opencode-go/kimi-k2.6",
@@ -167,15 +151,6 @@
         "variant": "high",
         "skills": [],
         "mcps": []
-      },
-      "commiter": {
-        "model": "opencode-go/deepseek-v4-flash",
-        "variant": "low",
-        "skills": [
-          "commit-work"
-        ],
-        "mcps": [],
-        "prompt": "You are @commiter, a focused git commit agent. Use the commit-work skill. Analyze the completed work, separate unrelated changes into one or more coherent commits when needed, ignore docs or unrelated files unless they are part of the requested work, stage only intended files, and create concise conventional commits. Never commit secrets, never force push, and report exactly what you committed."
       },
       "observer": {
         "model": "opencode-go/kimi-k2.6",
