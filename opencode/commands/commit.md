@@ -1,5 +1,6 @@
 ---
 description: Analyze completed work and create conventional commits
+model: opencode-go/mimo-v2.5
 ---
 
 Use the commit-work skill. $ARGUMENTS
