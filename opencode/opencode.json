@@ -1,6 +1,8 @@
 {
     "$schema": "https://opencode.ai/config.json",
-    "plugin": ["@alvinunreal/oh-my-opencode-slim"],
+    "plugin": [
+      "oh-my-opencode-slim"
+    ],
     "autoupdate": true,
     "lsp": false,
     "permission": "allow",
