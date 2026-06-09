@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/oh-my-opencode-slim@^2/oh-my-opencode-slim.schema.json",
-  "preset": "openai",
+  "preset": "copilot",
   "scoringEngineVersion": "v2",
   "disabled_agents": [],
   "backgroundJobs": {
@@ -179,6 +179,69 @@
       },
       "observer": {
         "model": "opencode-go/kimi-k2.7-code",
+        "skills": [],
+        "mcps": []
+      }
+    },
+    "copilot": {
+      "orchestrator": {
+        "model": "github-copilot/gpt-5.5",
+        "variant": "low",
+        "skills": [
+          "*"
+        ],
+        "mcps": [
+          "*",
+          "!context7"
+        ]
+      },
+      "oracle": {
+        "model": "github-copilot/gpt-5.5",
+        "variant": "high",
+        "skills": [
+          "simplify"
+        ],
+        "mcps": []
+      },
+      "council": {
+        "model": "github-copilot/gpt-5.5",
+        "variant": "medium",
+        "skills": [],
+        "mcps": []
+      },
+      "designer": {
+        "model": "github-copilot/gpt-5.4-mini",
+        "variant": "medium",
+        "skills": [
+          "agent-browser"
+        ],
+        "mcps": []
+      },
+      "librarian": {
+        "model": "github-copilot/gpt-5.4-mini",
+        "variant": "medium",
+        "skills": [],
+        "mcps": [
+          "websearch",
+          "context7",
+          "grep_app"
+        ]
+      },
+      "explorer": {
+        "model": "github-copilot/gpt-5.4-mini",
+        "variant": "low",
+        "skills": [],
+        "mcps": []
+      },
+      "fixer": {
+        "model": "github-copilot/gpt-5.5",
+        "variant": "low",
+        "skills": [],
+        "mcps": []
+      },
+      "observer": {
+        "model": "github-copilot/gpt-5.4-mini",
+        "variant": "low",
         "skills": [],
         "mcps": []
       }
