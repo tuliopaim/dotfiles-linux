@@ -152,7 +152,6 @@
       "rider"
       "visual-studio-code"
       "orbstack"
-      "claude-code"
       "codex"
       "t3-code"
 
@@ -182,7 +181,7 @@
       "shottr"
       "via"
       "google-drive"
-      "steipete/tap/codexbar"
+      "codexbar"
 
       # Browsers (cont.)
       "zen"
