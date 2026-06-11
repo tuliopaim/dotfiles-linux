@@ -4,6 +4,11 @@
       "oh-my-opencode-slim"
     ],
     "autoupdate": true,
+    "skills": {
+        "paths": [
+            "~/dotfiles/skills"
+        ]
+    },
     "lsp": false,
     "permission": "allow",
     "mcp": {
