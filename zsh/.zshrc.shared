@@ -76,10 +76,13 @@ SAVEHIST=100000
 
 # Exports
 export EDITOR=nvim
+export DIRENV_WARN_TIMEOUT=0
+export AWS_SDK_LOAD_CONFIG=1
 
 # Base PATH additions
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/dotfiles/scripts:$PATH"
+[[ -d "$HOME/dotfiles/private/bin" ]] && export PATH="$HOME/dotfiles/private/bin:$PATH"
 
 # DOTNET
 export DOTNET_ROOT="$HOME/.dotnet"

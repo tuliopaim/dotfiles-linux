@@ -28,6 +28,7 @@
     nixd
     git
     gh
+    aws-vault
     jujutsu
     jjui
     ffmpeg
