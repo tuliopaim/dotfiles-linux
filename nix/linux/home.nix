@@ -17,5 +17,7 @@
     kubernetes-helm
     k9s
     kubeseal
+    pass
+    gnupg
   ];
 }
