@@ -32,9 +32,10 @@ focus_pane_right = ["ctrl+alt+l", "alt+l", "prefix+l"]
 edit_scrollback = "prefix+]"
 copy_mode = "prefix+["
 
-# prefix+H: focus or create the dotfiles workspace at ~/dotfiles.
+# prefix+shift+o: focus or create the dotfiles workspace at ~/dotfiles.
+# (prefix+shift+h now belongs to herdr's built-in swap_pane_left since 0.6.10.)
 [[keys.command]]
-key = "prefix+shift+h"
+key = "prefix+shift+o"
 type = "shell"
 command = "$HOME/dotfiles/scripts/herdr-dotfiles"
 
