@@ -1,9 +1,9 @@
 ---
-name: review
+name: review-comments
 description: >
   Process code review comments left in `.review/comments.json` by the
   Neovim review plugin. Triggered when the user says "process my
-  review comments", "address review comments", "/review", or any time
+  review comments", "address review comments", "/review-comments", or any time
   the repo contains a `.review/comments.json` with unresolved entries.
 ---
 
