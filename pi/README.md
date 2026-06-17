@@ -4,8 +4,8 @@
 
 Code review of agent-produced changes lives outside Pi now. See:
 
-- Neovim plugin: `nvim/lua/tuliopaim/review.lua` (+ spec at `nvim/lua/plugins/review.lua`)
-- Agent skill: `skills/review/SKILL.md`
+- Neovim plugin: `agent-review.nvim` (`~/dev/personal/agent-review.nvim`, wired in via `nvim/lua/plugins/agent-review.lua`)
+- Agent skill: `skills/review-comments/SKILL.md`
 
 Workflow:
 
@@ -13,7 +13,7 @@ Workflow:
    - `:ReviewStart` (or `<leader>rR`) — opens Diffview for the working tree. Accepts Diffview args, e.g. `:ReviewStart origin/main...HEAD`.
    - `<leader>rc` in any normal buffer under the repo — bootstraps a review session and opens the comment dialog on the current line, no Diffview needed.
 2. Leave inline comments with `<leader>rc`. Save/quit with `<leader>rq`. Comments are written to `<repo>/.review/comments.json` (auto-added to `.git/info/exclude`).
-3. Back in any agent (Pi, Claude Code, Codex), say "process my review comments" — the `review` skill walks through each unresolved entry.
+3. Back in any agent (Pi, Claude Code, Codex), say "process my review comments" — the `review-comments` skill walks through each unresolved entry.
 
 ### Neovim keymaps
 
