@@ -17,11 +17,16 @@ BASE_DIRS=("${HOME}/dev" "${HOME}/sandboxes")
 if [[ $# -ge 1 ]]; then
     selected=$(echo "$1" | tr -s '/')
 else
+    set +e
     selected=$(find -L "${BASE_DIRS[@]}" -mindepth 1 -maxdepth 3 -type d \
         -not -path '*/.bare*' -print 2>/dev/null \
         | fzf --reverse --prompt 'worktree > ' \
               --border --border-label ' worktrees ' \
               --preview 'ls -la {}' --preview-window 'right:55%')
+    fzf_status=$?
+    set -e
+
+    [[ $fzf_status -ne 0 && -z "$selected" ]] && exit "$fzf_status"
 fi
 
 [[ -z "$selected" ]] && exit 0
