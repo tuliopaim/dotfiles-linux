@@ -1,162 +1,175 @@
 {
-  "$schema": "https://unpkg.com/oh-my-opencode-slim@latest/oh-my-opencode-slim.schema.json",
-  "preset": "mixed",
-  "presets": {
-    "openai": {
-      "orchestrator": {
-        "model": "openai/gpt-5.5",
-        "skills": [
-          "*"
-        ],
-        "mcps": [
-          "*",
-          "!context7"
-        ]
-      },
-      "oracle": {
-        "model": "openai/gpt-5.5",
-        "variant": "high",
-        "skills": [
-          "simplify"
-        ],
-        "mcps": []
-      },
-      "librarian": {
-        "model": "openai/gpt-5.4-mini",
-        "variant": "low",
-        "skills": [],
-        "mcps": [
-          "websearch",
-          "context7",
-          "grep_app"
-        ]
-      },
-      "explorer": {
-        "model": "openai/gpt-5.4-mini",
-        "variant": "low",
-        "skills": [],
-        "mcps": []
-      },
-      "designer": {
-        "model": "openai/gpt-5.4-mini",
-        "variant": "medium",
-        "skills": [
-          "agent-browser"
-        ],
-        "mcps": []
-      },
-      "fixer": {
-        "model": "openai/gpt-5.4-mini",
-        "variant": "low",
-        "skills": [],
-        "mcps": []
-      }
-    },
-    "mixed": {
-      "orchestrator": {
-        "model": "openai/gpt-5.5",
-        "variant": "low",
-        "skills": ["*"],
-        "mcps": ["*", "!context7"]
-      },
-      "oracle": {
-        "model": "openai/gpt-5.5",
-        "variant": "high",
-        "skills": ["simplify"],
-        "mcps": []
-      },
-      "council": {
-        "model": "openai/gpt-5.5",
-        "variant": "high",
-        "skills": [],
-        "mcps": []
-      },
-      "designer": {
-        "model": "opencode-go/kimi-k2.7-code",
-        "variant": "medium",
-        "skills": ["agent-browser"],
-        "mcps": []
-      },
-      "librarian": {
-        "model": "opencode-go/mimo-v2.5",
-        "skills": [],
-        "mcps": ["websearch", "context7", "grep_app"]
-      },
-      "explorer": {
-        "model": "opencode-go/mimo-v2.5",
-        "skills": [],
-        "mcps": []
-      },
-      "fixer": {
-        "model": "opencode-go/mimo-v2.5-pro",
-        "variant": "high",
-        "skills": [],
-        "mcps": []
-      },
-      "observer": {
-        "model": "opencode-go/kimi-k2.6",
-        "skills": [],
-        "mcps": []
-      }
-    },
-    "opencode-go": {
-      "orchestrator": {
-        "model": "opencode-go/kimi-k2.7-code",
-        "skills": [
-          "*"
-        ],
-        "mcps": [
-          "*",
-          "!context7"
-        ]
-      },
-      "oracle": {
-        "model": "opencode-go/kimi-k2.7-code",
-        "variant": "max",
-        "skills": [
-          "simplify"
-        ],
-        "mcps": []
-      },
-      "council": {
-        "model": "opencode-go/kimi-k2.7-code",
-        "variant": "high",
-        "skills": [],
-        "mcps": []
-      },
-      "librarian": {
-        "model": "opencode-go/minimax-m2.7",
-        "skills": [],
-        "mcps": [
-          "websearch",
-          "context7",
-          "grep_app"
-        ]
-      },
-      "explorer": {
-        "model": "opencode-go/deepseek-v4-flash",
-        "skills": [],
-        "mcps": []
-      },
-      "designer": {
-        "model": "opencode-go/kimi-k2.7-code",
-        "variant": "medium",
-        "skills": [
-          "agent-browser"
-        ],
-        "mcps": []
-      },
-      "fixer": {
-        "model": "opencode-go/deepseek-v4-pro",
-        "variant": "high",
-        "skills": [],
-        "mcps": []
-      },
-      "observer": {
-        "model": "opencode-go/kimi-k2.7-code",
-        "skills": [],
-        "mcps": []
-      }
+    "$schema": "https://unpkg.com/oh-my-opencode-slim@latest/oh-my-opencode-slim.schema.json",
+    "preset": "mixed",
+    "presets": {
+        "openai": {
+            "orchestrator": {
+                "model": "openai/gpt-5.5",
+                "skills": [
+                    "*"
+                ],
+                "mcps": [
+                    "*",
+                    "!context7"
+                ]
+            },
+            "oracle": {
+                "model": "openai/gpt-5.5",
+                "variant": "high",
+                "skills": [
+                    "simplify"
+                ],
+                "mcps": []
+            },
+            "librarian": {
+                "model": "openai/gpt-5.4-mini",
+                "variant": "low",
+                "skills": [],
+                "mcps": [
+                    "websearch",
+                    "context7",
+                    "grep_app"
+                ]
+            },
+            "explorer": {
+                "model": "openai/gpt-5.4-mini",
+                "variant": "low",
+                "skills": [],
+                "mcps": []
+            },
+            "designer": {
+                "model": "openai/gpt-5.4-mini",
+                "variant": "medium",
+                "skills": [
+                    "agent-browser"
+                ],
+                "mcps": []
+            },
+            "fixer": {
+                "model": "openai/gpt-5.4-mini",
+                "variant": "low",
+                "skills": [],
+                "mcps": []
+            }
+        },
+        "mixed": {
+            "orchestrator": {
+                "model": "openai/gpt-5.5",
+                "variant": "low",
+                "skills": [
+                    "*"
+                ],
+                "mcps": [
+                    "*",
+                    "!context7"
+                ]
+            },
+            "oracle": {
+                "model": "openai/gpt-5.5",
+                "variant": "high",
+                "skills": [
+                    "simplify"
+                ],
+                "mcps": []
+            },
+            "council": {
+                "model": "openai/gpt-5.5",
+                "variant": "high",
+                "skills": [],
+                "mcps": []
+            },
+            "designer": {
+                "model": "opencode-go/kimi-k2.7-code",
+                "variant": "medium",
+                "skills": [
+                    "agent-browser"
+                ],
+                "mcps": []
+            },
+            "librarian": {
+                "model": "opencode-go/minimax-m3",
+                "skills": [],
+                "mcps": [
+                    "websearch",
+                    "context7",
+                    "grep_app"
+                ]
+            },
+            "explorer": {
+                "model": "opencode-go/deepseek-v4-flash",
+                "skills": [],
+                "mcps": []
+            },
+            "fixer": {
+                "model": "opencode-go/kimi-k2.7-code",
+                "variant": "high",
+                "skills": [],
+                "mcps": []
+            },
+            "observer": {
+                "model": "opencode-go/kimi-k2.7-code",
+                "skills": [],
+                "mcps": []
+            }
+        },
+        "opencode-go": {
+            "orchestrator": {
+                "model": "opencode-go/kimi-k2.7-code",
+                "skills": [
+                    "*"
+                ],
+                "mcps": [
+                    "*",
+                    "!context7"
+                ]
+            },
+            "oracle": {
+                "model": "opencode-go/kimi-k2.7-code",
+                "variant": "max",
+                "skills": [
+                    "simplify"
+                ],
+                "mcps": []
+            },
+            "council": {
+                "model": "opencode-go/kimi-k2.7-code",
+                "variant": "high",
+                "skills": [],
+                "mcps": []
+            },
+            "librarian": {
+                "model": "opencode-go/minimax-m3",
+                "skills": [],
+                "mcps": [
+                    "websearch",
+                    "context7",
+                    "grep_app"
+                ]
+            },
+            "explorer": {
+                "model": "opencode-go/deepseek-v4-flash",
+                "skills": [],
+                "mcps": []
+            },
+            "designer": {
+                "model": "opencode-go/kimi-k2.7-code",
+                "variant": "medium",
+                "skills": [
+                    "agent-browser"
+                ],
+                "mcps": []
+            },
+            "fixer": {
+                "model": "opencode-go/kimi-k2.7-code",
+                "variant": "high",
+                "skills": [],
+                "mcps": []
+            },
+            "observer": {
+                "model": "opencode-go/kimi-k2.7-code",
+                "skills": [],
+                "mcps": []
+            }
+        }
     }
-  }
 }
