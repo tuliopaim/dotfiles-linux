@@ -5,11 +5,10 @@
   "defaultThinkingLevel": "low",
   "enabledModels": [
     "openai-codex/gpt-5.5:low",
-    "opencode-go/qwen3.7-max:medium",
-    "opencode-go/deepseek-v4-flash:low",
-    "opencode-go/mimo-v2.5:high",
-    "opencode-go/mimo-v2.5-pro:medium",
-    "opencode-go/kimi-k2.6:high"
+    "opencode-go/minimax-m3:high",
+    "opencode-go/deepseek-v4-flash:high",
+    "opencode-go/kimi-k2.7-code:high",
+    "opencode-go/glm-5.2:high"
   ],
   "editorPaddingX": 2,
   "hideThinkingBlock": false,
