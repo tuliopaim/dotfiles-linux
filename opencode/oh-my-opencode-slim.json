@@ -124,15 +124,15 @@
                 ]
             },
             "oracle": {
-                "model": "opencode-go/kimi-k2.7-code",
-                "variant": "max",
+                "model": "opencode-go/glm-5.2",
+                "variant": "high",
                 "skills": [
                     "simplify"
                 ],
                 "mcps": []
             },
             "council": {
-                "model": "opencode-go/kimi-k2.7-code",
+                "model": "opencode-go/glm-5.2",
                 "variant": "high",
                 "skills": [],
                 "mcps": []
