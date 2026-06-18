@@ -9,7 +9,8 @@ optionally clean the transcript with pi, and auto-paste the result.
 1. **Press hotkey** → starts recording via `afrecord` or `ffmpeg` (16 kHz WAV).
 2. **Press hotkey again** → stops recording, runs `whisper-cli` to transcribe.
 3. **Cleanup** (optional) → pipes the raw transcript through `pi` for spelling
-   correction, punctuation, and Portuguese→English translation.
+   correction, punctuation, Portuguese→English translation, and light Markdown
+   formatting (bullet/numbered lists, paragraphs) inferred from the dictation.
 4. **Paste** → copies the final text to the clipboard and simulates ⌘V.
 
 A menu-bar indicator shows the current state: **●** recording, **⏳** processing,
