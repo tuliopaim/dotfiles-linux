@@ -172,7 +172,6 @@
       # Utilities
       "tailscale-app"
       "drawio"
-      "istat-menus"
       "localsend"
       "microsoft-auto-update"
       "obs"
@@ -188,6 +187,7 @@
 
       # Entertainment
       "spotify"
+      "calibre"
     ];
   };
 }
