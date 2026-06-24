@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.79.10",
+  "lastChangelogVersion": "0.80.1",
   "defaultProvider": "opencode-go",
   "defaultModel": "kimi-k2.7-code",
   "defaultThinkingLevel": "low",
@@ -14,7 +14,8 @@
   "hideThinkingBlock": false,
   "packages": [
     "npm:pi-subagents",
-    "npm:pi-web-access"
+    "npm:pi-web-access",
+    "git:github.com/DietrichGebert/ponytail"
   ],
   "skills": [
     "~/dotfiles/skills"
