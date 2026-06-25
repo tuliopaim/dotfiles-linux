@@ -144,7 +144,7 @@ export default function (pi: ExtensionAPI) {
       let rawPlanPath = cleanArgPath(args);
 
       if (!rawPlanPath) {
-        for (const defaultPath of ["plans/PLAN.md", "PLAN.md"]) {
+        for (const defaultPath of ["plans/PLAN.md", "plans/plan.md", "PLAN.md", "plan.md"]) {
           const absolutePath = path.resolve(ctx.cwd, defaultPath);
           if (await exists(absolutePath)) {
             rawPlanPath = defaultPath;
@@ -155,7 +155,7 @@ export default function (pi: ExtensionAPI) {
 
       if (!rawPlanPath) {
         ctx.ui.notify(
-          "Usage: /implement-plan <path-to-plan-file> (or ensure plans/PLAN.md or ./PLAN.md exists)",
+          "Usage: /implement-plan <path-to-plan-file> (or ensure plans/plan.md or ./plan.md exists, any case)",
           "error",
         );
         return;
