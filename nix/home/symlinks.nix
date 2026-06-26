@@ -20,6 +20,7 @@ in
   home.sessionVariables = {
     EDITOR = "nvim";
     DOTNET_ROOT = "$HOME/.dotnet";
+    OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS = "true";
   };
 
   home.sessionPath = [
