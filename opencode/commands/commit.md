@@ -1,6 +1,6 @@
 ---
 description: Analyze completed work and create conventional commits
-model: opencode-go/mimo-v2.5
+model: opencode-go/deepseek-v4-flash
 ---
 
 Use the commit-work skill. $ARGUMENTS
