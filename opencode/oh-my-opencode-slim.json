@@ -27,7 +27,7 @@
       },
       "oracle": {
         "model": "openai/gpt-5.5",
-        "variant": "high",
+        "variant": "xhigh",
         "skills": [
           "simplify"
         ],
@@ -92,7 +92,7 @@
       },
       "designer": {
         "model": "opencode-go/kimi-k2.7-code",
-        "variant": "medium",
+        "variant": "high",
         "skills": [
           "agent-browser"
         ],

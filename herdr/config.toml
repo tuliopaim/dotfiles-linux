@@ -27,6 +27,13 @@ focus_pane_down = ["ctrl+alt+j", "alt+j", "prefix+j"]
 focus_pane_up = ["ctrl+alt+k", "alt+k", "prefix+k"]
 focus_pane_right = ["ctrl+alt+l", "alt+l", "prefix+l"]
 
+# In prefix+w navigate mode, use j/k for workspace selection. Pane movement
+# stays on ctrl+alt+h/j/k/l (and alt+/prefix fallbacks) above.
+navigate_workspace_up = "k"
+navigate_workspace_down = "j"
+navigate_pane_down = ""
+navigate_pane_up = ""
+
 # tmux-like copy/scrollback mode: prefix+[ opens scrollback in $EDITOR
 # (use vim motions/search/visual selection, then editor/terminal clipboard commands).
 edit_scrollback = "prefix+]"
