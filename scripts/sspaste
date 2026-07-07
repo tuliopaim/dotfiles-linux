@@ -10,9 +10,9 @@
 #
 # What it does:
 #   1. Reads clipboard image from the Mac
-#   2. scp's it to ~/pi-paste-<timestamp>.png on the remote
-#   3. Also puts base64 on the Mac clipboard as fallback
-#   4. Prints the `read` command to paste into pi
+#   2. scp's it to a temp dir on the remote (e.g. /tmp/sspaste-XXXXXX)
+#   3. Copies the remote image path to the Mac clipboard
+#   4. Prints the `read` command to use on the remote
 #
 
 set -euo pipefail
@@ -21,9 +21,10 @@ set -euo pipefail
 readonly REMOTE="${1:?Usage: sspaste <user@host>}"
 readonly EXT="png"
 readonly TS=$(date +%s)
-readonly FILENAME="pi-paste-${TS}.${EXT}"
+readonly FILENAME="sspaste-${TS}.${EXT}"
 readonly LOCAL_TMP="/tmp/${FILENAME}"
-readonly REMOTE_PATH="~/${FILENAME}"
+readonly REMOTE_TMP=$(ssh -n -q "$REMOTE" 'mktemp -d -t sspaste-XXXXXX' || die "Failed to create temp dir on ${REMOTE}")
+readonly REMOTE_PATH="${REMOTE_TMP}/${FILENAME}"
 
 # ── Helpers ──────────────────────────────────────────────────────────
 cleanup() {
@@ -60,16 +61,16 @@ echo "📡 Copying to ${REMOTE}:${REMOTE_PATH} ..."
 scp -q -B "$LOCAL_TMP" "${REMOTE}:${REMOTE_PATH}" || die "scp failed. Is ${REMOTE} reachable?"
 echo "✅ Image sent."
 
-# ── Also put base64 on Mac clipboard (belt-and-suspenders) ───────────
-base64 < "$LOCAL_TMP" | pbcopy
-echo "📋 Base64 also copied to your Mac clipboard (paste into pi editor if needed)."
+# ── Copy remote path to Mac clipboard ────────────────────────────────
+printf '%s' "$REMOTE_PATH" | pbcopy
+echo "📋 ${REMOTE_PATH} copied to your Mac clipboard."
 
 # ── Print instructions ──────────────────────────────────────────────
 echo ""
 echo "────────────────────────────────────────────────────"
-echo "  In pi (remote tmux), type:"
+echo "  On the remote host (e.g. in tmux), type:"
 echo ""
 echo "    read ${REMOTE_PATH}"
 echo ""
-echo "  Pi will load the image and you can discuss it."
+echo "  It will load the image and you can discuss it."
 echo "────────────────────────────────────────────────────"
