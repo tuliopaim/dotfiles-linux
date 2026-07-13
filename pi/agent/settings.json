@@ -1,13 +1,13 @@
 {
-  "lastChangelogVersion": "0.80.2",
+  "lastChangelogVersion": "0.80.6",
   "defaultProvider": "opencode-go",
-  "defaultModel": "openai-codex/gpt-5.5:low",
-  "defaultThinkingLevel": "low",
+  "defaultModel": "kimi-k2.7-code",
+  "defaultThinkingLevel": "high",
   "enabledModels": [
-    "openai-codex/gpt-5.5:low",
+    "openai-codex/gpt-5.6-sol:low",
+    "openai-codex/gpt-5.6-terra:medium",
     "opencode-go/deepseek-v4-flash:high",
     "opencode-go/kimi-k2.7-code:high",
-    "opencode-go/glm-5.2:high",
     "opencode-go/minimax-m3:high"
   ],
   "editorPaddingX": 2,
@@ -35,16 +35,16 @@
         "thinking": "medium"
       },
       "planner": {
-        "model": "openai-codex/gpt-5.5",
+        "model": "openai-codex/gpt-5.6-sol",
         "thinking": "medium"
       },
       "reviewer": {
-        "model": "openai-codex/gpt-5.5",
+        "model": "openai-codex/gpt-5.6-terra",
         "thinking": "high"
       },
       "oracle": {
-        "model": "openai-codex/gpt-5.5",
-        "thinking": "xhigh"
+        "model": "openai-codex/gpt-5.6-sol",
+        "thinking": "high"
       }
     }
   },
