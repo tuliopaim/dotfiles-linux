@@ -17,9 +17,10 @@ Create clean, intentional commits from the current working tree.
    - `git log --oneline -10`
 2. Extract ticket prefix from current branch name, if present:
    - Run `git branch --show-current` to get the branch name
-   - Match against `[A-Z]+-\d+` (e.g., `PROJ-123`, `FEAT-42`)
-   - If matched, prefix all commit messages with `TICKET: description`
-   - If no match, fall back to conventional commits (step 8)
+   - Recognize both keyed tickets (e.g., `PROJ-123`, `FEAT-42`) and standalone numeric ticket IDs of any length (e.g., `1234567`)
+   - Infer numeric tickets from branch context such as `feature/1234567-description`; do not mistake dates, versions, or unrelated numbers for tickets
+   - If a ticket is identified, prefix all commit messages with `TICKET: description`; if ambiguous, ask before committing
+   - If no ticket is present, fall back to conventional commits (step 8)
 3. Identify the actual work done and group changes by intent.
 4. Exclude unrelated files by default, especially:
    - incidental docs or notes unless requested or directly tied to the code change
@@ -30,7 +31,7 @@ Create clean, intentional commits from the current working tree.
 6. Stage only files/hunks that belong to the current commit group.
 7. Create one commit per coherent intent when multiple unrelated intents exist.
 8. Commit message format:
-   - **With ticket prefix** (from step 2): `TICKET: description` (e.g., `PROJ-123: add user login endpoint`)
+   - **With ticket prefix** (from step 2): `TICKET: description` (e.g., `PROJ-123: add user login endpoint` or `1234567: add user login endpoint`)
    - **Without ticket prefix**: use conventional commits:
      - `feat(scope): summary`
      - `fix(scope): summary`
