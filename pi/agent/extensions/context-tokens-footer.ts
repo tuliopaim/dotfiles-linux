@@ -1,176 +1,131 @@
-/**
- * Context Tokens Footer Extension
- *
- * Replicates the default footer but shows the absolute context token count
- * instead of just the percentage. Adds a compact Unicode bar for visual
- * context-at-a-glance.
- *
- * Default:  26.9%/272k (auto)
- * Custom:   ████░░░░░░ 26.9% 73k/272k (auto)
- */
-
+import { homedir } from "node:os";
+import { relative } from "node:path";
 import type { AssistantMessage } from "@earendil-works/pi-ai";
-import type { ExtensionAPI, SessionEntry } from "@earendil-works/pi-coding-agent";
+import type { ExtensionAPI, ExtensionContext, ReadonlyFooterDataProvider } from "@earendil-works/pi-coding-agent";
 import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
 
-// ── Helpers ────────────────────────────────────────────────────────────────
-
-/** Compact number formatter: 999 -> "999", 1_234 -> "1.2k", etc. */
-const fmt = (n: number): string => {
-	if (n < 1000) return `${n}`;
-	if (n < 10_000) return `${(n / 1000).toFixed(1)}k`;
-	if (n < 1_000_000) return `${Math.round(n / 1000)}k`;
-	if (n < 10_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-	return `${Math.round(n / 1_000_000)}M`;
-};
-
-/** Sum token usage from assistant messages in a branch. */
-function summarizeUsage(branch: SessionEntry[]) {
-	let input = 0, output = 0, cacheRead = 0, cacheWrite = 0, cost = 0;
-	for (const e of branch) {
-		if (e.type === "message" && e.message.role === "assistant") {
-			const u = (e.message as AssistantMessage).usage;
-			if (!u) continue;
-			input += u.input;
-			output += u.output;
-			cacheRead += u.cacheRead;
-			cacheWrite += u.cacheWrite;
-			cost += u.cost.total;
-		}
-	}
-	return { input, output, cacheRead, cacheWrite, cost };
+function formatTokens(tokens: number) {
+  if (tokens < 1_000) return `${tokens}`;
+  if (tokens < 1_000_000) return `${Math.round(tokens / 1_000)}k`;
+  return `${(tokens / 1_000_000).toFixed(1)}m`;
 }
 
-/** Unicode block bar. width=10 default. */
-function contextBar(percent: number, width = 8): string {
-	const filled = Math.round((percent / 100) * width);
-	return "█".repeat(filled) + "░".repeat(Math.max(0, width - filled));
+function formatDirectory(cwd: string) {
+  const home = homedir();
+  if (cwd === home) return "~";
+  return cwd.startsWith(`${home}/`) ? `~/${relative(home, cwd)}` : cwd;
 }
 
-/** Left/right align with truncation fallback. */
-function alignLeftRight(
-	left: string,
-	right: string,
-	width: number,
-	minPad = 2,
-): string {
-	const lw = visibleWidth(left);
-	const rw = visibleWidth(right);
-	if (lw + minPad + rw <= width) {
-		return left + " ".repeat(width - lw - rw) + right;
-	}
-	if (width > lw + minPad) {
-		const truncated = truncateToWidth(right, width - lw - minPad, "");
-		return left + " ".repeat(Math.max(0, width - lw - visibleWidth(truncated))) + truncated;
-	}
-	return left;
+function columns(left: string, right: string, width: number) {
+  const gap = width - visibleWidth(left) - visibleWidth(right);
+  if (gap >= 1) return `${left}${" ".repeat(gap)}${right}`;
+
+  const leftWidth = Math.max(1, Math.floor(width * 0.45));
+  const fittedLeft = truncateToWidth(left, leftWidth);
+  const fittedRight = truncateToWidth(right, Math.max(1, width - leftWidth - 1));
+  return truncateToWidth(`${fittedLeft} ${fittedRight}`, width);
 }
 
-// ── Extension ──────────────────────────────────────────────────────────────
+function sessionCost(ctx: ExtensionContext) {
+  return ctx.sessionManager.getBranch().reduce((cost, entry) => {
+    if (entry.type !== "message" || entry.message.role !== "assistant") return cost;
+    return cost + ((entry.message as AssistantMessage).usage?.cost.total ?? 0);
+  }, 0);
+}
 
-export default function (pi: ExtensionAPI) {
-	pi.on("session_start", async (_event, ctx) => {
-		ctx.ui.setFooter((tui, theme, footerData) => {
-			const unsubBranch = footerData.onBranchChange(() => tui.requestRender());
+export default function dashboardFooter(pi: ExtensionAPI) {
+  let changedFiles: number | null = null;
+  let tokensPerSecond: number | null = null;
+  let streamStartedAt = 0;
+  let requestRender: (() => void) | undefined;
+  let lastRenderAt = 0;
+  let cwd = "";
 
-			return {
-				dispose: unsubBranch,
-				invalidate() {},
+  async function refreshGit() {
+    if (!cwd) return;
+    const targetCwd = cwd;
+    const result = await pi.exec("git", ["status", "--porcelain", "--untracked-files=all"], { cwd: targetCwd, timeout: 2_000 });
+    if (cwd !== targetCwd) return;
+    changedFiles = result.code === 0 && !result.killed
+      ? result.stdout.trim() ? result.stdout.trim().split("\n").length : 0
+      : null;
+    requestRender?.();
+  }
 
-				render(width: number): string[] {
-					const lines: string[] = [];
+  function install(ctx: ExtensionContext) {
+    if (ctx.mode !== "tui") return;
+    cwd = ctx.cwd;
+    changedFiles = null;
+    tokensPerSecond = null;
 
-					// --- Line 1: pwd + git branch + session name ---
-					let pwd = ctx.sessionManager.getCwd();
-					const home = process.env.HOME || process.env.USERPROFILE;
-					if (home && pwd.startsWith(home)) pwd = `~${pwd.slice(home.length)}`;
-					const branch = footerData.getGitBranch();
-					if (branch) pwd = `${pwd} (${branch})`;
-					const sessionName = ctx.sessionManager.getSessionName();
-					if (sessionName) pwd = `${pwd} • ${sessionName}`;
-					lines.push(truncateToWidth(theme.fg("dim", pwd), width, theme.fg("dim", "...")));
+    ctx.ui.setFooter((tui, theme, footerData: ReadonlyFooterDataProvider) => {
+      requestRender = () => tui.requestRender();
+      const unsubscribe = footerData.onBranchChange(() => {
+        void refreshGit();
+        tui.requestRender();
+      });
 
-					// --- Line 2: stats ---
-					const usage = summarizeUsage(ctx.sessionManager.getBranch());
-					const isSub = ctx.model ? ctx.modelRegistry.isUsingOAuth(ctx.model) : false;
+      return {
+        dispose: unsubscribe,
+        invalidate() {},
+        render(width: number) {
+          const usage = ctx.getContextUsage();
+          const contextTokens = usage?.tokens;
+          const contextWindow = usage?.contextWindow ?? ctx.model?.contextWindow ?? 0;
+          const contextPercent = usage?.percent;
+          const context = `${contextPercent === null || contextPercent === undefined ? "?" : Math.round(contextPercent)}% ${contextTokens === null || contextTokens === undefined ? "?" : formatTokens(contextTokens)}/${contextWindow ? formatTokens(contextWindow) : "?"}`;
+          const speed = tokensPerSecond === null ? "— tok/s" : `${Math.round(tokensPerSecond)} tok/s`;
+          const model = ctx.model
+            ? `${ctx.model.provider}/${ctx.model.id}${ctx.model.reasoning ? ` · ${pi.getThinkingLevel()}` : ""}`
+            : "no-model";
+          const branch = footerData.getGitBranch();
+          const git = branch
+            ? `${branch}${changedFiles === null ? "" : ` · ${changedFiles} ${changedFiles === 1 ? "file" : "files"} changed`}`
+            : "";
 
-					// --- Left stats (tokens, cost) ---
-					const leftParts: string[] = [];
-					if (usage.input) leftParts.push(`↑${fmt(usage.input)}`);
-					if (usage.output) leftParts.push(`↓${fmt(usage.output)}`);
-					if (usage.cacheRead) leftParts.push(`R${fmt(usage.cacheRead)}`);
-					if (usage.cacheWrite) leftParts.push(`W${fmt(usage.cacheWrite)}`);
-					if (usage.cost || isSub) leftParts.push(`$${usage.cost.toFixed(3)}${isSub ? " (sub)" : ""}`);
-					const leftRaw = leftParts.join(" ");
+          const lines = [
+            columns(theme.fg("text", formatDirectory(ctx.cwd)), theme.fg("muted", model), width),
+            columns(theme.fg("muted", `${context} · $${sessionCost(ctx).toFixed(2)} · ${speed}`), theme.fg("muted", git), width),
+          ];
 
-					// --- Context bar (middle, colored by severity) ---
-					const contextUsage = ctx.getContextUsage();
-					const contextWindow = contextUsage?.contextWindow ?? ctx.model?.contextWindow ?? 0;
-					const percent = contextUsage?.percent ?? null;
-					const tokens = contextUsage?.tokens ?? null;
+          for (const [, text] of Array.from(footerData.getExtensionStatuses()).sort(([a], [b]) => a.localeCompare(b))) {
+            for (const line of text.split("\n")) lines.push(truncateToWidth(line, width, theme.fg("dim", "...")));
+          }
+          return lines;
+        },
+      };
+    });
 
-					let contextRaw: string;
-					if (percent === null) {
-						contextRaw = contextWindow > 0 ? `?/${fmt(contextWindow)}` : "?";
-					} else if (tokens !== null) {
-						contextRaw = `${contextBar(percent)} ${percent.toFixed(0)}% ${fmt(tokens)}/${fmt(contextWindow)}`;
-					} else {
-						contextRaw = `${contextBar(percent)} ${percent.toFixed(0)}% /${fmt(contextWindow)}`;
-					}
+    void refreshGit();
+  }
 
-					let contextColored = theme.fg("dim", contextRaw);
-					if (percent !== null && percent > 90) {
-						contextColored = theme.fg("error", contextRaw);
-					} else if (percent !== null && percent > 70) {
-						contextColored = theme.fg("warning", contextRaw);
-					}
-
-					// --- Right side: model ---
-					let modelRaw = ctx.model?.id || "no-model";
-					if (ctx.model?.reasoning) {
-						const level = pi.getThinkingLevel();
-						modelRaw = level === "off" ? `${modelRaw} • thinking off` : `${modelRaw} • ${level}`;
-					}
-					if (footerData.getAvailableProviderCount() > 1 && ctx.model) {
-						modelRaw = `(${ctx.model.provider}) ${modelRaw}`;
-					}
-
-					// --- Assemble: left ... context ... model ---
-					const lw = visibleWidth(leftRaw);
-					const cw = visibleWidth(contextRaw);
-					const mw = visibleWidth(modelRaw);
-					const minPad = 2;
-
-					let statsLine: string;
-					if (lw + minPad + cw + 1 + mw <= width) {
-						// Everything fits
-						const pad = " ".repeat(width - lw - cw - 1 - mw);
-						statsLine = theme.fg("dim", leftRaw) + pad + contextColored + " " + theme.fg("dim", modelRaw);
-					} else if (width > lw + minPad + cw + 1) {
-						// Truncate model
-						const avail = width - lw - minPad - cw - 1;
-						const truncated = truncateToWidth(modelRaw, avail, "");
-						const pad = " ".repeat(Math.max(0, width - lw - visibleWidth(truncated) - cw - 1));
-						statsLine = theme.fg("dim", leftRaw) + pad + contextColored + " " + theme.fg("dim", truncated);
-					} else if (width > lw + minPad + cw) {
-						// Drop model, keep context
-						const pad = " ".repeat(Math.max(0, width - lw - cw));
-						statsLine = theme.fg("dim", leftRaw) + pad + contextColored;
-					} else {
-						// Only left stats fit
-						statsLine = theme.fg("dim", leftRaw);
-					}
-					lines.push(statsLine);
-
-					// --- Extension statuses (line 3+) ---
-					for (const [, text] of Array.from(footerData.getExtensionStatuses().entries()).sort(([a], [b]) => a.localeCompare(b))) {
-						const sanitized = text.replace(/[\r\n\t]/g, " ").replace(/ +/g, " ").trim();
-						lines.push(truncateToWidth(sanitized, width, theme.fg("dim", "...")));
-					}
-
-					return lines;
-				},
-			};
-		});
-	});
+  pi.on("session_start", (_event, ctx) => install(ctx));
+  pi.on("message_start", (event) => {
+    if (event.message.role !== "assistant") return;
+    streamStartedAt = Date.now();
+    tokensPerSecond = null;
+  });
+  pi.on("message_update", (event) => {
+    if (event.message.role !== "assistant") return;
+    const now = Date.now();
+    if (now - lastRenderAt >= 200) {
+      lastRenderAt = now;
+      requestRender?.();
+    }
+  });
+  pi.on("message_end", (event) => {
+    if (event.message.role !== "assistant" || !streamStartedAt) return;
+    const elapsedSeconds = (Date.now() - streamStartedAt) / 1_000;
+    tokensPerSecond = elapsedSeconds >= 0.05 ? event.message.usage.output / elapsedSeconds : null;
+    streamStartedAt = 0;
+    requestRender?.();
+  });
+  pi.on("agent_settled", () => void refreshGit());
+  pi.on("model_select", () => requestRender?.());
+  pi.on("thinking_level_select", () => requestRender?.());
+  pi.on("session_shutdown", (_event, ctx) => {
+    requestRender = undefined;
+    cwd = "";
+    if (ctx.mode === "tui") ctx.ui.setFooter(undefined);
+  });
 }

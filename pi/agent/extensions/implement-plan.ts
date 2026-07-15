@@ -1,43 +1,6 @@
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
-import { access, readFile, writeFile, unlink } from "node:fs/promises";
+import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import { access, readFile } from "node:fs/promises";
 import path from "node:path";
-import os from "node:os";
-
-// ── Token file: bridges old → new extension instance across session reload ──
-// When the extension reloads in the new session (after ctx.newSession()),
-// the session_start handler picks up the pending plan and executes it.
-const tokenPath = () => path.join(os.tmpdir(), `pi-implement-plan-${process.pid}.json`);
-
-interface PendingPlan {
-  planPath: string;
-  planContent: string;
-  modelProvider: string;
-  modelId: string;
-  parentSessionFile: string;
-}
-
-async function writeToken(plan: PendingPlan): Promise<void> {
-  await writeFile(tokenPath(), JSON.stringify(plan), "utf8");
-}
-
-async function readToken(): Promise<PendingPlan | null> {
-  try {
-    const raw = await readFile(tokenPath(), "utf8");
-    return JSON.parse(raw) as PendingPlan;
-  } catch {
-    return null;
-  }
-}
-
-async function clearToken(): Promise<void> {
-  try {
-    await unlink(tokenPath());
-  } catch {
-    // ignore
-  }
-}
-
-// ── Helpers ──
 
 function cleanArgPath(input: string): string {
   return input.trim().replace(/^['\"]|['\"]$/g, "");
@@ -98,55 +61,16 @@ ${plan.trim()}
 </plan>`;
 }
 
-// ── Extension ──
-
 export default function (pi: ExtensionAPI) {
-  // ── New-session auto-execution ──
-  // When the extension reloads after a ctx.newSession(), check for a pending plan.
-  pi.on("session_start", async (event, ctx) => {
-    if (event.reason !== "new") return;
-
-    const plan = await readToken();
-    if (!plan) return;
-
-    // Only execute if the token matches this specific parent session.
-    if (event.previousSessionFile !== plan.parentSessionFile) return;
-
-    // Consume the token immediately to prevent double-execution.
-    await clearToken();
-
-    // Restore the model from the parent session.
-    if (plan.modelProvider && plan.modelId) {
-      const model = ctx.modelRegistry.find(plan.modelProvider, plan.modelId);
-      if (model) {
-        try {
-          await pi.setModel(model);
-        } catch {
-          ctx.ui.notify(
-            `Could not switch to ${plan.modelProvider}/${plan.modelId}, using default model.`,
-            "warning",
-          );
-        }
-      }
-    }
-
-    // Fire the plan prompt.
-    const prompt = buildPrompt(plan.planPath, plan.planContent);
-    await pi.sendUserMessage(prompt);
-  });
-
-  // ── /implement-plan command ──
   pi.registerCommand("implement-plan", {
     description: "Start a fresh session and implement a plan file",
     handler: async (args, ctx) => {
       await ctx.waitForIdle();
 
       let rawPlanPath = cleanArgPath(args);
-
       if (!rawPlanPath) {
         for (const defaultPath of ["plans/PLAN.md", "plans/plan.md", "PLAN.md", "plan.md"]) {
-          const absolutePath = path.resolve(ctx.cwd, defaultPath);
-          if (await exists(absolutePath)) {
+          if (await exists(path.resolve(ctx.cwd, defaultPath))) {
             rawPlanPath = defaultPath;
             break;
           }
@@ -161,10 +85,7 @@ export default function (pi: ExtensionAPI) {
         return;
       }
 
-      const { displayPath, absolutePath } = await resolvePlanPath(
-        ctx.cwd,
-        rawPlanPath,
-      );
+      const { displayPath, absolutePath } = await resolvePlanPath(ctx.cwd, rawPlanPath);
 
       let plan: string;
       try {
@@ -186,22 +107,12 @@ export default function (pi: ExtensionAPI) {
       );
       if (!confirmed) return;
 
-      // Save plan + model info so the reloaded extension can pick it up.
-      const model = ctx.model;
-      const parentSessionFile =
-        ctx.sessionManager.getSessionFile() ?? "";
-
-      await writeToken({
-        planPath: displayPath,
-        planContent: plan,
-        modelProvider: model?.provider ?? "",
-        modelId: model?.id ?? "",
-        parentSessionFile,
+      const prompt = buildPrompt(displayPath, plan);
+      // ponytail: replacement contexts use the configured default model; restore the selected model when Pi exposes model switching here.
+      await ctx.newSession({
+        parentSession: ctx.sessionManager.getSessionFile(),
+        withSession: (ctx) => ctx.sendUserMessage(prompt),
       });
-
-      // Create a fresh session. The session_start handler above will
-      // restore the model and fire the plan prompt automatically.
-      await ctx.newSession({ parentSession: parentSessionFile });
     },
   });
 }
