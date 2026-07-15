@@ -1,6 +1,23 @@
 import { spawn, spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { homedir } from "node:os";
+import { join } from "node:path";
 
-export const SCOUT = {
+function configured<T extends DelegationConfig>(name: string, defaults: T): T {
+  try {
+    const agentDir = process.env.PI_CODING_AGENT_DIR ?? join(homedir(), ".pi", "agent");
+    const override = JSON.parse(readFileSync(join(agentDir, "settings.json"), "utf8"))?.subagents?.[name];
+    return {
+      ...defaults,
+      ...(typeof override?.model === "string" ? { model: override.model } : {}),
+      ...(typeof override?.thinking === "string" ? { thinking: override.thinking } : {}),
+    };
+  } catch {
+    return defaults;
+  }
+}
+
+export const SCOUT = configured("scout", {
   name: "Scout",
   model: "opencode-go/deepseek-v4-flash",
   thinking: "medium",
@@ -38,9 +55,9 @@ Rules:
 - Prefer exact symbols, paths, and line numbers over prose.
 - Trace definitions and callers when relevant.
 - Do not include large code excerpts or general architecture commentary unless requested.`,
-} as const;
+} as const);
 
-export const COMMIT = {
+export const COMMIT = configured("commit", {
   name: "Commit",
   model: "opencode-go/deepseek-v4-flash",
   thinking: "medium",
@@ -55,9 +72,9 @@ export const COMMIT = {
   ],
   parameter: "Optional commit scope, ticket context, or commit-splitting instructions",
   prompt: `You are an isolated git commit agent. Follow the injected commit-work workflow exactly. Inspect all changes before staging, keep unrelated work uncommitted, never expose secrets, never amend or force push, and report each created commit's SHA and message.`,
-} as const;
+} as const);
 
-export const REVIEW = {
+export const REVIEW = configured("review", {
   name: "Review",
   model: "openai-codex/gpt-5.6-sol",
   thinking: "high",
@@ -98,7 +115,7 @@ Rules:
 - Do not run builds or tests unless the delegated task explicitly asks.
 - Prefer exact file paths and line numbers over prose.
 - Stay under 1,200 words.`,
-} as const;
+} as const);
 
 export interface DelegationConfig {
   readonly name: string;
