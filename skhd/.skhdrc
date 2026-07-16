@@ -113,6 +113,7 @@ alt - return : open -a /Applications/Ghostty.app
 # ============================================================
 cmd + shift + alt - v : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts
 cmd + shift + alt - r : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts --raw
+cmd + shift + alt - space : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts --cancel
 
 # ============================================================
 # SERVICE MODE TASKS

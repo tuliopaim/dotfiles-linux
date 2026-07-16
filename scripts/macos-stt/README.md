@@ -75,10 +75,13 @@ Add to your `skhdrc`:
 
 ```conf
 # Toggle STT recording
-ctrl-cmd -escape : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts
+cmd + shift + alt - v : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts
 
 # Toggle STT recording (raw mode, no AI cleanup)
-ctrl-cmd -` : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts --raw
+cmd + shift + alt - r : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts --raw
+
+# Cancel an active recording without transcribing it
+cmd + shift + alt - space : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts --cancel
 ```
 
 ### Direct invocation
@@ -93,6 +96,7 @@ bun ~/dotfiles/scripts/macos-stt/toggle.ts
 |------|-------------|
 | `--help` | Show usage |
 | `--raw` | Skip AI cleanup, paste raw whisper transcript |
+| `--cancel` | Cancel an active recording, delete its partial audio, and do not transcribe or paste |
 | `--correct-stdin` | Read text from stdin, clean with pi, copy & paste |
 
 ## Environment variables
