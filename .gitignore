@@ -9,3 +9,5 @@ opencode/bun.lock
 opencode/node_modules/
 opencode/package.json
 opencode/package-lock.json
+
+pi/agent/node_modules/

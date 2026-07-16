@@ -2,7 +2,7 @@
   "lastChangelogVersion": "0.80.7",
   "defaultProvider": "opencode-go",
   "defaultModel": "kimi-k2.7-code",
-  "defaultThinkingLevel": "medium",
+  "defaultThinkingLevel": "high",
   "enabledModels": [
     "openai-codex/gpt-5.6-sol:medium",
     "openai-codex/gpt-5.6-terra:high",
@@ -19,18 +19,68 @@
   "skills": [
     "~/dotfiles/skills"
   ],
+  "prompts": [
+    "~/dotfiles/pi/agent/prompts"
+  ],
   "subagents": {
-    "scout": {
-      "model": "opencode-go/deepseek-v4-flash",
-      "thinking": "medium"
-    },
-    "review": {
-      "model": "openai-codex/gpt-5.6-sol",
-      "thinking": "high"
-    },
-    "commit": {
-      "model": "opencode-go/deepseek-v4-flash",
-      "thinking": "medium"
+    "preset": "personal",
+    "presets": {
+      "personal": {
+        "scout": {
+          "model": "opencode-go/deepseek-v4-flash",
+          "thinking": "medium"
+        },
+        "review": {
+          "model": "openai-codex/gpt-5.6-sol",
+          "thinking": "high"
+        },
+        "commit": {
+          "model": "opencode-go/deepseek-v4-flash",
+          "thinking": "medium"
+        }
+      },
+      "opencode-go": {
+        "scout": {
+          "model": "opencode-go/deepseek-v4-flash",
+          "thinking": "medium"
+        },
+        "review": {
+          "model": "opencode-go/glm-5.2",
+          "thinking": "high"
+        },
+        "commit": {
+          "model": "opencode-go/kimi-k2.7-code",
+          "thinking": "high"
+        }
+      },
+      "openai": {
+        "scout": {
+          "model": "openai-codex/gpt-5.6-luna",
+          "thinking": "low"
+        },
+        "review": {
+          "model": "openai-codex/gpt-5.6-sol",
+          "thinking": "high"
+        },
+        "commit": {
+          "model": "openai-codex/gpt-5.6-terra",
+          "thinking": "medium"
+        }
+      },
+      "copilot": {
+        "scout": {
+          "model": "github-copilot/gpt-5.6-luna",
+          "thinking": "medium"
+        },
+        "review": {
+          "model": "github-copilot/gpt-5.6-sol",
+          "thinking": "high"
+        },
+        "commit": {
+          "model": "github-copilot/gpt-5.6-terra",
+          "thinking": "medium"
+        }
+      }
     }
   },
   "theme": "dark"

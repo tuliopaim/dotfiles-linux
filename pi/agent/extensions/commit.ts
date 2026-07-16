@@ -4,13 +4,22 @@ import { fileURLToPath } from "node:url";
 import { truncateHead, type ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
 import { renderDelegationCall, renderDelegationResult } from "./shared/delegation-render.ts";
-import { COMMIT, runDelegatedPi, type DelegationDetails } from "./shared/delegation.ts";
+import {
+  COMMIT,
+  getDelegationConfig,
+  runDelegatedPi,
+  type DelegationConfig,
+  type DelegationDetails,
+} from "./shared/delegation.ts";
 
 const workflow = readFileSync(
   resolve(dirname(realpathSync(fileURLToPath(import.meta.url))), "../../../skills/commit-work/SKILL.md"),
   "utf8",
 );
-const config = { ...COMMIT, prompt: `${COMMIT.prompt}\n\n${workflow}` };
+function commitConfig(): DelegationConfig {
+  const config = getDelegationConfig("commit", COMMIT);
+  return { ...config, prompt: `${config.prompt}\n\n${workflow}` };
+}
 
 export default function (pi: ExtensionAPI) {
   pi.registerTool({
@@ -22,6 +31,7 @@ export default function (pi: ExtensionAPI) {
     parameters: Type.Object({ task: Type.String({ description: COMMIT.parameter }) }),
 
     async execute(_toolCallId, params, signal, onUpdate, ctx) {
+      const config = commitConfig();
       const details = await runDelegatedPi(config, params.task, ctx.cwd, signal, (details) => {
         onUpdate?.({
           content: [{ type: "text", text: details.output || details.activities.at(-1) || "(running…)" }],
@@ -39,6 +49,8 @@ export default function (pi: ExtensionAPI) {
     },
 
     renderCall(args, theme, context) {
+      const config = (context.state.config as DelegationConfig | undefined) ?? commitConfig();
+      context.state.config = config;
       return renderDelegationCall(config, args.task, context.expanded, theme);
     },
 
@@ -48,7 +60,7 @@ export default function (pi: ExtensionAPI) {
   });
 
   pi.registerCommand("commit", {
-    description: "Create intentional commits with the isolated DeepSeek commit tool",
+    description: "Create intentional commits with the isolated commit tool",
     handler: async (args, ctx) => {
       if (!ctx.isIdle()) {
         ctx.ui.notify("Agent is busy", "warning");

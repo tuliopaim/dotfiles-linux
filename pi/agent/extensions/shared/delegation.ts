@@ -3,27 +3,52 @@ import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
-function configured<T extends DelegationConfig>(name: string, defaults: T): T {
+let sessionPreset: string | undefined;
+
+function subagentSettings(): any {
   try {
     const agentDir = process.env.PI_CODING_AGENT_DIR ?? join(homedir(), ".pi", "agent");
-    const override = JSON.parse(readFileSync(join(agentDir, "settings.json"), "utf8"))?.subagents?.[name];
-    return {
-      ...defaults,
-      ...(typeof override?.model === "string" ? { model: override.model } : {}),
-      ...(typeof override?.thinking === "string" ? { thinking: override.thinking } : {}),
-    };
+    return JSON.parse(readFileSync(join(agentDir, "settings.json"), "utf8"))?.subagents;
   } catch {
-    return defaults;
+    return undefined;
   }
 }
 
-export const SCOUT = configured("scout", {
+export function getSubagentPresetNames(): string[] {
+  const presets = subagentSettings()?.presets;
+  return presets && typeof presets === "object" ? Object.keys(presets) : [];
+}
+
+export function getActiveSubagentPresetName(): string | undefined {
+  const configured = subagentSettings()?.preset;
+  return sessionPreset
+    ?? (process.env.PI_SUBAGENT_PRESET?.trim() || undefined)
+    ?? (typeof configured === "string" ? configured : undefined);
+}
+
+export function setSubagentPreset(name: string | undefined) {
+  sessionPreset = name;
+}
+
+export function getDelegationConfig(name: string, defaults: DelegationConfig): DelegationConfig {
+  const presetName = getActiveSubagentPresetName();
+  if (!presetName) return defaults;
+
+  const override = subagentSettings()?.presets?.[presetName]?.[name];
+  if (!override || typeof override.model !== "string" || typeof override.thinking !== "string") {
+    throw new Error(`Subagent preset "${presetName}" has no valid "${name}" configuration`);
+  }
+
+  return { ...defaults, model: override.model, thinking: override.thinking };
+}
+
+export const SCOUT = {
   name: "Scout",
   model: "opencode-go/deepseek-v4-flash",
   thinking: "medium",
   timeoutMs: 5 * 60_000,
   tools: "read,grep,find,ls",
-  description: "Delegate focused, read-only codebase reconnaissance to DeepSeek with medium reasoning.",
+  description: "Delegate focused, read-only codebase reconnaissance to a cheaper model.",
   snippet: "Delegate focused codebase reconnaissance to a cheaper read-only model",
   guidelines: [
     "Use scout before broad exploration when locating the answer likely requires more than 2-3 files.",
@@ -55,16 +80,16 @@ Rules:
 - Prefer exact symbols, paths, and line numbers over prose.
 - Trace definitions and callers when relevant.
 - Do not include large code excerpts or general architecture commentary unless requested.`,
-} as const);
+} as const;
 
-export const COMMIT = configured("commit", {
+export const COMMIT = {
   name: "Commit",
   model: "opencode-go/deepseek-v4-flash",
   thinking: "medium",
   timeoutMs: 15 * 60_000,
   tools: "read,grep,find,ls,bash",
-  description: "Delegate completed-work analysis and intentional git commits to DeepSeek.",
-  snippet: "Delegate git commit creation to an isolated DeepSeek child",
+  description: "Delegate completed-work analysis and intentional git commits to a specialized model.",
+  snippet: "Delegate git commit creation to an isolated specialized child",
   guidelines: [
     "Use commit only when the user explicitly asks to commit completed work.",
     "Pass any requested scope or commit-splitting instructions in the task.",
@@ -72,16 +97,16 @@ export const COMMIT = configured("commit", {
   ],
   parameter: "Optional commit scope, ticket context, or commit-splitting instructions",
   prompt: `You are an isolated git commit agent. Follow the injected commit-work workflow exactly. Inspect all changes before staging, keep unrelated work uncommitted, never expose secrets, never amend or force push, and report each created commit's SHA and message.`,
-} as const);
+} as const;
 
-export const REVIEW = configured("review", {
+export const REVIEW = {
   name: "Review",
   model: "openai-codex/gpt-5.6-sol",
   thinking: "high",
   timeoutMs: 15 * 60_000,
   tools: "read,grep,find,ls,bash",
-  description: "Delegate focused, read-only code review to GPT-5.6 Sol with high reasoning.",
-  snippet: "Delegate focused code review to GPT-5.6 Sol with high reasoning",
+  description: "Delegate focused, read-only code review to a high-reasoning model.",
+  snippet: "Delegate focused code review to a high-reasoning model",
   guidelines: [
     "Use review only when the user explicitly requests it, or after a high-risk change where an independent fresh-context review is materially useful; do not invoke it automatically.",
     "Give review the exact scope: working tree, commit/range, or named files, plus intended behavior.",
@@ -115,7 +140,7 @@ Rules:
 - Do not run builds or tests unless the delegated task explicitly asks.
 - Prefer exact file paths and line numbers over prose.
 - Stay under 1,200 words.`,
-} as const);
+} as const;
 
 export interface DelegationConfig {
   readonly name: string;

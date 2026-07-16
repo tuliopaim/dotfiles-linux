@@ -1,7 +1,16 @@
 import { truncateHead, type ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
 import { renderDelegationCall, renderDelegationResult } from "./shared/delegation-render.ts";
-import { runDelegatedPi, SCOUT, type DelegationDetails } from "./shared/delegation.ts";
+import {
+  getActiveSubagentPresetName,
+  getDelegationConfig,
+  getSubagentPresetNames,
+  runDelegatedPi,
+  SCOUT,
+  setSubagentPreset,
+  type DelegationConfig,
+  type DelegationDetails,
+} from "./shared/delegation.ts";
 
 export default function (pi: ExtensionAPI) {
   pi.registerTool({
@@ -13,7 +22,8 @@ export default function (pi: ExtensionAPI) {
     parameters: Type.Object({ task: Type.String({ description: SCOUT.parameter }) }),
 
     async execute(_toolCallId, params, signal, onUpdate, ctx) {
-      const details = await runDelegatedPi(SCOUT, params.task, ctx.cwd, signal, (details) => {
+      const config = getDelegationConfig("scout", SCOUT);
+      const details = await runDelegatedPi(config, params.task, ctx.cwd, signal, (details) => {
         onUpdate?.({
           content: [{ type: "text", text: details.output || details.activities.at(-1) || "(running…)" }],
           details,
@@ -30,11 +40,45 @@ export default function (pi: ExtensionAPI) {
     },
 
     renderCall(args, theme, context) {
-      return renderDelegationCall(SCOUT, args.task, context.expanded, theme);
+      const config = (context.state.config as DelegationConfig | undefined) ?? getDelegationConfig("scout", SCOUT);
+      context.state.config = config;
+      return renderDelegationCall(config, args.task, context.expanded, theme);
     },
 
     renderResult(result, { expanded }, theme) {
       return renderDelegationResult(result.details as DelegationDetails | undefined, expanded, theme);
     },
+  });
+
+  pi.registerCommand("subagent-preset", {
+    description: "Switch the model preset used by scout, review, and commit",
+    handler: async (args, ctx) => {
+      const names = getSubagentPresetNames();
+      if (names.length === 0) {
+        ctx.ui.notify("No subagent presets configured", "warning");
+        return;
+      }
+
+      const requested = args.trim();
+      const name = requested || await ctx.ui.select(
+        `Subagent preset (current: ${getActiveSubagentPresetName() ?? "none"})`,
+        names,
+      );
+      if (!name) return;
+      if (!names.includes(name)) {
+        ctx.ui.notify(`Unknown subagent preset "${name}". Available: ${names.join(", ")}`, "error");
+        return;
+      }
+
+      setSubagentPreset(name);
+      ctx.ui.notify(`Subagent preset "${name}" activated`, "info");
+    },
+  });
+
+  pi.on("session_start", (_event, ctx) => {
+    const active = getActiveSubagentPresetName();
+    if (active && !getSubagentPresetNames().includes(active)) {
+      ctx.ui.notify(`Unknown subagent preset "${active}"`, "warning");
+    }
   });
 }
