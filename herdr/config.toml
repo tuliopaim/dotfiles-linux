@@ -7,6 +7,7 @@ name = "catppuccin"
 # inactive tab labels and other UI that also uses this token. Matching the
 # panel bg (#1e1e2e) hides the border entirely but makes inactive tab names
 # unreadable.
+auto_switch = false
 [theme.custom]
 accent = "#45475a"
 
