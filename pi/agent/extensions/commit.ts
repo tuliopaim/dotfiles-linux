@@ -67,7 +67,7 @@ export default function (pi: ExtensionAPI) {
         return;
       }
       const task = args.trim() || "Analyze all completed work and create the appropriate commit or commits.";
-      pi.sendUserMessage(`Use the commit tool once with this task: ${task}`);
+      pi.sendUserMessage(`Call the commit tool immediately and exactly once with this task. Do not inspect the repository or call any other tool first: ${task}`);
     },
   });
 }
