@@ -2,15 +2,56 @@
 
 ## Multi-agent workflows
 
-The `workflow` tool handles long tasks with phased or parallel subagents; focused `scout`, `review`, and `commit` delegations remain separate. Say “workflow”, “orchestrate”, or “ultracode” to request it, and use `/workflows` to inspect runs.
+Use the `workflow` tool for substantial tasks that benefit from parallel research, phased implementation, or independent synthesis. Keep focused one-off work in the existing tools:
 
-Install its dependencies after cloning the dotfiles:
+- `scout` — locate and understand code
+- `review` — independently review completed changes
+- `commit` — create requested commits
+- `workflow` — coordinate several isolated agents
+
+Workflow children cannot invoke those delegation tools or recursively start workflows.
+
+### Orchestrated task with plan approval
+
+Start the reusable recipe with:
+
+```text
+/orchestrate Add organization-level API tokens
+```
+
+The planning workflow runs parallel reconnaissance, creates a plan, reviews it adversarially, and then stops without editing. Review or refine the returned plan in the parent conversation:
+
+```text
+Keep the migration backward-compatible and put the API tests in the existing token suite.
+```
+
+When satisfied, explicitly approve it:
+
+```text
+Approved, continue.
+```
+
+A new workflow implements the approved plan, integrates the agents' changes, and verifies the result. This is intentionally two workflow runs: the parent conversation is the human checkpoint, so no paused child or resume protocol is required.
+
+Use `/skill:orchestrated-task <task>` as the direct alternative to `/orchestrate`, and `/workflows` to inspect active and completed runs. Nothing commits automatically.
+
+For other large tasks, ask Pi to “use a workflow” or “orchestrate this.” Pi generates a task-specific script rather than selecting a fixed pipeline. Parallel implementation is allowed only when agents own disjoint files.
+
+### Setup and checks
+
+After cloning the dotfiles, install the workflow dependencies:
 
 ```sh
 npm install --prefix ~/dotfiles/pi/agent
 ```
 
-Run its checks with `npm run --prefix ~/dotfiles/pi/agent test:workflows`.
+Apply the Home Manager configuration and run `/reload` in Pi after configuration changes.
+
+Run the workflow checks with:
+
+```sh
+npm run --prefix ~/dotfiles/pi/agent test:workflows
+```
 
 ## Code review
 
