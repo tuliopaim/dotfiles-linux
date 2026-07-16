@@ -1,5 +1,17 @@
 # Pi local workflows
 
+## Multi-agent workflows
+
+The `workflow` tool handles long tasks with phased or parallel subagents; focused `scout`, `review`, and `commit` delegations remain separate. Say “workflow”, “orchestrate”, or “ultracode” to request it, and use `/workflows` to inspect runs.
+
+Install its dependencies after cloning the dotfiles:
+
+```sh
+npm install --prefix ~/dotfiles/pi/agent
+```
+
+Run its checks with `npm run --prefix ~/dotfiles/pi/agent test:workflows`.
+
 ## Code review
 
 Code review of agent-produced changes lives outside Pi now. See:
