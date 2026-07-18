@@ -21,6 +21,22 @@ function commitConfig(): DelegationConfig {
   return { ...config, prompt: `${config.prompt}\n\n${workflow}` };
 }
 
+async function runCommit(
+  task: string,
+  cwd: string,
+  signal?: AbortSignal,
+  onUpdate?: (details: DelegationDetails) => void,
+) {
+  const details = await runDelegatedPi(commitConfig(), task, cwd, signal, onUpdate);
+  const output = details.output || "(commit agent returned no output)";
+  const truncated = truncateHead(output, { maxLines: 200, maxBytes: 24 * 1024 });
+  details.output = truncated.truncated
+    ? `${truncated.content}\n\n[Commit output truncated to 200 lines / 24KB]`
+    : truncated.content;
+  details.truncated = truncated.truncated;
+  return details;
+}
+
 export default function (pi: ExtensionAPI) {
   pi.registerTool({
     name: "commit",
@@ -31,20 +47,12 @@ export default function (pi: ExtensionAPI) {
     parameters: Type.Object({ task: Type.String({ description: COMMIT.parameter }) }),
 
     async execute(_toolCallId, params, signal, onUpdate, ctx) {
-      const config = commitConfig();
-      const details = await runDelegatedPi(config, params.task, ctx.cwd, signal, (details) => {
+      const details = await runCommit(params.task, ctx.cwd, signal, (details) => {
         onUpdate?.({
           content: [{ type: "text", text: details.output || details.activities.at(-1) || "(running…)" }],
           details,
         });
       });
-      const output = details.output || "(commit agent returned no output)";
-      const truncated = truncateHead(output, { maxLines: 200, maxBytes: 24 * 1024 });
-      details.output = truncated.truncated
-        ? `${truncated.content}\n\n[Commit output truncated to 200 lines / 24KB]`
-        : truncated.content;
-      details.truncated = truncated.truncated;
-
       return { content: [{ type: "text", text: details.output }], details };
     },
 
@@ -60,14 +68,29 @@ export default function (pi: ExtensionAPI) {
   });
 
   pi.registerCommand("commit", {
-    description: "Create intentional commits with the isolated commit tool",
+    description: "Create intentional commits with the isolated commit agent",
     handler: async (args, ctx) => {
       if (!ctx.isIdle()) {
         ctx.ui.notify("Agent is busy", "warning");
         return;
       }
       const task = args.trim() || "Analyze all completed work and create the appropriate commit or commits.";
-      pi.sendUserMessage(`Call the commit tool immediately and exactly once with this task. Do not inspect the repository or call any other tool first: ${task}`);
+      ctx.ui.setStatus("commit", "commit agent running");
+      try {
+        const details = await runCommit(task, ctx.cwd, undefined, (details) => {
+          ctx.ui.setStatus("commit", details.activities.at(-1) || "commit agent running");
+        });
+        pi.sendMessage({
+          customType: "commit-result",
+          content: details.output,
+          display: true,
+          details,
+        });
+      } catch (error) {
+        ctx.ui.notify(error instanceof Error ? error.message : String(error), "error");
+      } finally {
+        ctx.ui.setStatus("commit", undefined);
+      }
     },
   });
 }
