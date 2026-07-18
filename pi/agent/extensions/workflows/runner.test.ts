@@ -7,6 +7,7 @@ import type {
 } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
 import { childToolPolicy } from "../shared/child-session.ts";
+import { validateAgentSelection } from "./index.ts";
 import {
   createFirstResponseWatchdog,
   guardWorkflowChildTools,
@@ -210,6 +211,25 @@ test("first assistant response disarms the watchdog without limiting the run", a
     new Promise<string>((resolve) => setTimeout(() => resolve("done"), 20)),
   );
   assert.equal(result, "done");
+});
+
+test("workflow agents require explicit provider, model, and effort", () => {
+  assert.match(validateAgentSelection({}) ?? "", /model.*required/i);
+  assert.match(
+    validateAgentSelection({ model: "deepseek-v4-flash", effort: "medium" }) ?? "",
+    /include its provider/i,
+  );
+  assert.match(
+    validateAgentSelection({ model: "opencode-go/deepseek-v4-flash" }) ?? "",
+    /effort.*required/i,
+  );
+  assert.equal(
+    validateAgentSelection({
+      model: "opencode-go/deepseek-v4-flash",
+      effort: "medium",
+    }),
+    undefined,
+  );
 });
 
 test("workflow children cannot recursively delegate", () => {

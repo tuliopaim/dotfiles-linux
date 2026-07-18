@@ -569,14 +569,27 @@ export async function runAgent(
   let transcript: TranscriptEntry[] = [];
   try {
     if (!aborted) {
-      const watchdog = createFirstResponseWatchdog(() => childSession.abort(), {
-        timeoutMs: options.firstResponseTimeoutMs,
-        model: modelId,
-      });
-      markFirstResponse = watchdog.markResponse;
-      await watchdog.waitFor(
-        childSession.prompt(buildWorkflowAgentPrompt(options.prompt)),
-      );
+      const prompt = async (text: string) => {
+        const watchdog = createFirstResponseWatchdog(() => childSession.abort(), {
+          timeoutMs: options.firstResponseTimeoutMs,
+          model: modelId,
+        });
+        markFirstResponse = watchdog.markResponse;
+        await watchdog.waitFor(childSession.prompt(text));
+      };
+      await prompt(buildWorkflowAgentPrompt(options.prompt));
+      if (
+        options.schema !== undefined &&
+        structured === undefined &&
+        !aborted &&
+        stopReason !== "error" &&
+        stopReason !== "aborted" &&
+        errorMessage === undefined
+      ) {
+        await prompt(
+          "Your research is complete, but you did not call structured_output. Do not repeat the research. Call structured_output now using your findings and matching its schema exactly.",
+        );
+      }
     }
   } catch (error) {
     errorMessage = errorMessage ?? errorText(error);

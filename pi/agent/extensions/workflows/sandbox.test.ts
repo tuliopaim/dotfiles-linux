@@ -45,6 +45,17 @@ test("sandbox exposes only workflow capabilities and validates results", async (
   assert.deepEqual(phases, ["Gather"]);
 });
 
+test("sandbox preserves optional agent attempts", async () => {
+  let receivedOptional: unknown;
+  await run(`return await agent("retryable", { optional: true });`, {
+    onAgent: async (_prompt, options) => {
+      receivedOptional = options.optional;
+      return { ok: false, output: "", error: "retry me" };
+    },
+  });
+  assert.equal(receivedOptional, true);
+});
+
 test("sandbox result serialization handles cycles and bigint", async () => {
   const result = await run(`
     const value = { count: 7n };

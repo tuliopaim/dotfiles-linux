@@ -9,7 +9,31 @@ Use the `workflow` tool for substantial tasks that benefit from parallel researc
 - `commit` — create requested commits
 - `workflow` — coordinate several isolated agents
 
-Workflow children cannot invoke those delegation tools or recursively start workflows.
+Workflow children cannot invoke those delegation tools or recursively start workflows. Every `agent()` call must explicitly select a `provider/model-id` and reasoning `effort`; missing either fails before contacting a provider.
+
+### Model routing
+
+| Role | Model | Effort | Benefit | Trade-off |
+|---|---|---|---|---|
+| Reconnaissance, code tracing, test discovery | `opencode-go/deepseek-v4-flash` | `medium` | Large context for cheap bulk reading | Not the default for delicate edits |
+| Implementation and integration | `opencode-go/kimi-k2.7-code` | `high` | Code-focused without OpenAI quota usage | Smaller 262K context |
+| Planning and synthesis | `openai-codex/gpt-5.6-sol` | `high` | Strong judgment over compact findings | Scarce weekly quota |
+| Consequential adversarial/final review | `openai-codex/gpt-5.6-sol` | `high` | Best reserved for correctness decisions | Scarce weekly quota |
+| Routine verification and report formatting | `opencode-go/deepseek-v4-flash` | `medium` or `low` | Cheap and sufficient | Less useful for ambiguous design decisions |
+
+Other enabled alternatives are `opencode-go/minimax-m3` for experiments and `openai-codex/gpt-5.6-terra` for strong implementation when OpenAI quota is intentionally available. Do not use Sol for reconnaissance or routine implementation. Keep reconnaissance outputs bounded so premium agents consume findings rather than raw transcripts.
+
+When a schema-bound agent returns prose without `structured_output`, the runner asks it once, in the same session, to submit its existing findings correctly. Agents are required by default: one failure mechanically blocks all later agents and fails the workflow. The parent orchestrator then inspects the error and decides whether to retry, narrow/split the assignment, or change models; workflows do not blindly retry failures or unchanged timeouts. Use `optional: true` only for planned best-effort read-only work whose absence cannot affect later phases.
+
+```js
+const scan = await agent(prompt, {
+  label: 'event-flow',
+  phase: 'Reconnaissance',
+  model: 'opencode-go/deepseek-v4-flash',
+  effort: 'medium',
+  schema: TRACE,
+})
+```
 
 ### Orchestrated task with plan approval
 

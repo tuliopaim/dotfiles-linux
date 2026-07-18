@@ -22,19 +22,23 @@ export const WORKFLOW_TOOL_DESCRIPTION = [
   "The script runs as an async function body with these primitives:",
   "• export const meta = { name, description, phases: [{ title, detail? }] } — metadata for the progress UI. Declare all phases up front.",
   "• phase(title) — mark the current phase at runtime (use titles from meta.phases).",
-  "• await agent(prompt, { label?, phase?, schema?, model?, provider?, effort? }) — run ONE subagent in an isolated context and wait for it. Always resolves to { ok, output, structured?, error? }. Check `ok` before using the result. When you pass a JSON `schema`, `structured` holds the validated object on success. `model`/`provider` override the session model; `effort` sets the thinking level (off|minimal|low|medium|high|xhigh|max). Children receive normal built-ins and trust-appropriate extensions, settings, skills, and AGENTS.md context, but cannot recursively orchestrate or ask the user.",
+  "• await agent(prompt, { model, effort, label?, phase?, schema?, provider?, optional? }) — run ONE subagent in an isolated context and wait for it. `model` and `effort` are required; omission fails before any provider request. Use an exact `provider/model-id`, or pass `provider` separately. `effort` is off|minimal|low|medium|high|xhigh|max. Agents are required by default: after one fails, later agents are blocked and the workflow fails. Set `optional: true` only for planned best-effort read-only work whose absence does not invalidate later phases. Always resolves to { ok, output, structured?, error? }; check `ok`. With a JSON `schema`, `structured` holds the validated object. Children receive normal built-ins and trust-appropriate extensions, settings, skills, and AGENTS.md context, but cannot recursively orchestrate or ask the user.",
   "• await parallel([() => agent(...), () => agent(...)], { concurrency? }) — run zero-argument agent thunks concurrently and return results in order. Concurrency is globally capped at 4 for the run.",
   "• args — the parsed value of the `args` tool parameter (or undefined).",
   "Workflow JavaScript runs in a restricted, killable child with no imports, eval, timers, filesystem, network, or process APIs. A run may make at most 32 agent calls and has no overall deadline. Each agent must receive its first assistant response event within 45 seconds so silent provider requests fail clearly; after that, agent() has no wall-clock deadline. Each individual child tool call times out independently after 3 minutes, becomes an error tool result, and leaves the agent loop free to recover. Use map/filter/if/await/template strings to orchestrate, and `return` a JSON-serializable aggregate.",
-  "Pass a `schema` to agent() whenever a later step branches on the result, so you get typed fields instead of prose. There is no resume: a failed run is simply re-run. Artifacts are saved under ~/.pi/agent/workflows/<runId>/ for inspection.",
+  "Model policy: reconnaissance/routine read-only checks use opencode-go/deepseek-v4-flash at medium; implementation/integration use opencode-go/kimi-k2.7-code at high; planning and consequential adversarial/final review may use openai-codex/gpt-5.6-sol at high. Never use Sol for reconnaissance, routine implementation, or report formatting. Keep reconnaissance bounded and reserve scarce premium quota for judgment.",
+  "Required-result policy: the runtime blocks later agents after a required failure. Do not retry failed calls inside the workflow by default. Let the workflow fail so the parent orchestrator can inspect the error and decide whether to retry, narrow/split the assignment, or change models. Never repeat an unchanged timeout, start a dependent or premium phase with missing findings, or automatically retry mutating agents.",
+  "Pass a `schema` to agent() whenever a later step branches on the result, so you get typed fields instead of prose. If an agent returns prose without calling structured_output, the runner gives it one same-session correction attempt before failing. There is no workflow resume. Artifacts are saved under ~/.pi/agent/workflows/<runId>/ for inspection.",
   "Example:",
   "export const meta = { name: 'reliability-review', description: 'Review modules for reliability risks, then report', phases: [{ title: 'Scan' }, { title: 'Report' }] }",
   "const FINDINGS = { type: 'object', properties: { issues: { type: 'array', items: { type: 'string' } }, ok: { type: 'boolean' } }, required: ['issues', 'ok'] }",
   "phase('Scan')",
-  "const scans = await parallel(args.files.map((f) => () => agent(`Review ${f} for correctness and reliability risks.`, { label: `scan:${f}`, phase: 'Scan', schema: FINDINGS })))",
-  "const findings = scans.filter((r) => r.ok).map((r) => r.structured)",
+  "const scans = await parallel(args.files.map((f) => () => agent(`Review ${f} for correctness and reliability risks. Return at most 8 evidence references and 800 words.`, { label: `scan:${f}`, phase: 'Scan', model: 'opencode-go/deepseek-v4-flash', effort: 'medium', schema: FINDINGS })))",
+  "const failures = scans.filter((r) => !r.ok)",
+  "if (failures.length) return { error: 'Required scan failed; retry or rerun before reporting', failures: failures.map((r) => r.error) }",
+  "const findings = scans.map((r) => r.structured)",
   "phase('Report')",
-  "const report = await agent(`Summarize these findings: ${JSON.stringify(findings)}`, { label: 'report', phase: 'Report' })",
+  "const report = await agent(`Summarize these findings: ${JSON.stringify(findings)}`, { label: 'report', phase: 'Report', model: 'opencode-go/deepseek-v4-flash', effort: 'low' })",
   "return { findings, report: report.ok ? report.output : report.error }",
 ].join("\n");
 
@@ -45,6 +49,9 @@ export const WORKFLOW_PROMPT_SNIPPET =
 /** Guides the model on appropriate workflow fan-out and mandatory agent result checks. */
 export const WORKFLOW_PROMPT_GUIDELINES = [
   "Use workflow when a task needs several subagents with phase dependencies or dynamic fan-out; keep focused one-off reconnaissance, review, and commit work in scout, review, and commit.",
+  "In workflow scripts, every agent() call must explicitly set `model` and `effort`; omission fails safely before a provider request.",
+  "Use DeepSeek V4 Flash/medium for reconnaissance, Kimi K2.7 Code/high for implementation, and reserve GPT-5.6 Sol/high for planning or consequential adversarial/final review.",
+  "Agents are required by default, so a failure mechanically blocks later agent calls. Let required failures return to the parent orchestrator for a retry decision; do not blindly retry inside the workflow. Use `optional: true` only for planned best-effort read-only work whose absence cannot affect later phases. Never feed placeholders or incomplete findings into dependent or premium phases, repeat an unchanged timeout, or automatically retry mutating agents.",
   "In workflow scripts, agent() never throws — always check `.ok` on its result before using `.output`/`.structured`.",
 ];
 

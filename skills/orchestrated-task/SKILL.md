@@ -7,6 +7,20 @@ description: Plan and implement large coding tasks with a dynamically generated 
 
 Use the `workflow` tool for both stages. Generate scripts for the actual task; this is a recipe, not a fixed pipeline.
 
+## Model routing
+
+Every `agent()` call must explicitly set both `model` and `effort`; omission fails before a provider request.
+
+| Work | Model | Effort |
+|---|---|---|
+| Reconnaissance and routine read-only checks | `opencode-go/deepseek-v4-flash` | `medium` |
+| Implementation and integration | `opencode-go/kimi-k2.7-code` | `high` |
+| Planning/synthesis | `openai-codex/gpt-5.6-sol` | `high` |
+| Consequential adversarial/final review | `openai-codex/gpt-5.6-sol` | `high` |
+| Report formatting | `opencode-go/deepseek-v4-flash` | `low` |
+
+Never use Sol for reconnaissance or routine implementation. Bound each reconnaissance assignment to at most 8 evidence references and 800 words; premium reasoning should consume compact findings, not raw transcripts.
+
 ## Stage 1: Plan
 
 Run one planning workflow that:
@@ -21,7 +35,7 @@ Run one planning workflow that:
    - dependencies and which packages are safe to run in parallel
    - risks, unresolved decisions, and verification commands
 
-Use structured schemas for outputs consumed by later agents. Check every `agent()` result's `ok` field before consuming it.
+Use structured schemas for outputs consumed by later agents. Check every `agent()` result's `ok` field before consuming it. Agents are required by default, and a failure mechanically blocks later agent calls. Let the workflow fail so the parent conversation can inspect the error and decide whether to retry, narrow/split the assignment, or change models. Do not repeat unchanged timeouts or automatically retry mutating agents. Use `optional: true` only for planned best-effort read-only work whose absence cannot affect later phases. Never pass placeholders or incomplete findings into planning. Keep Sol calls limited to the planner and genuinely consequential review/finalization steps.
 
 Planning agents must not edit files. When the workflow finishes, present the final plan and important reviewer concerns, then **stop**. Do not implement until the user explicitly approves. The user may question, edit, or ask to refine the plan in the parent conversation.
 

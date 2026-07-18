@@ -7,7 +7,7 @@
  *
  *   export const meta = { name, description, phases: [{ title, detail? }] }
  *   phase(title)                                  // mark runtime phase progression
- *   await agent(prompt, { label?, phase?, schema?, model?, provider?, effort? })
+ *   await agent(prompt, { model, effort, label?, phase?, schema?, provider?, optional? })
  *   await parallel([() => agent(...), ...], { concurrency? })
  *   args                                          // parsed JSON args passed with the tool call
  *
@@ -98,13 +98,25 @@ interface ScriptAgentResult {
   error?: string;
 }
 
-interface AgentCallOptions {
+export interface AgentCallOptions {
   label?: unknown;
   phase?: unknown;
   schema?: unknown;
   model?: unknown;
   provider?: unknown;
   effort?: unknown;
+  optional?: unknown;
+}
+
+export function validateAgentSelection(opts: AgentCallOptions): string | undefined {
+  if (typeof opts.model !== "string" || !opts.model.trim())
+    return "`model` is required (use `provider/model-id`)";
+  if (opts.provider === undefined && !opts.model.includes("/"))
+    return "`model` must include its provider (use `provider/model-id`)";
+  if (typeof opts.effort !== "string" || !opts.effort.trim())
+    return "`effort` is required";
+  if (!(THINKING_LEVELS as readonly string[]).includes(opts.effort))
+    return `invalid effort "${opts.effort}" (use ${THINKING_LEVELS.join("|")})`;
 }
 
 const WorkflowParams = Type.Object({
@@ -461,6 +473,7 @@ export default function workflows(pi: ExtensionAPI) {
       };
 
       let agentCounter = 0;
+      let blockingFailure: string | undefined;
       const agentFn = async (
         promptValue: unknown,
         optsValue: unknown = {},
@@ -484,8 +497,8 @@ export default function workflows(pi: ExtensionAPI) {
               ? opts.phase.slice(0, 160)
               : details.currentPhase,
           state: "running",
-          model: ctx.model?.id,
-          contextWindow: ctx.model?.contextWindow,
+          model: undefined,
+          contextWindow: undefined,
           startedAt: Date.now(),
           preview: "",
           usage: emptyUsage(),
@@ -499,9 +512,14 @@ export default function workflows(pi: ExtensionAPI) {
           record.state = "error";
           record.error = error;
           record.finishedAt = Date.now();
+          if (opts.optional !== true)
+            blockingFailure ??= `agent "${label}": ${error}`;
           emit();
           return { ok: false, output: "", error };
         };
+
+        if (blockingFailure)
+          return fail(`Blocked after required agent failure: ${blockingFailure}`);
 
         const prompt = buildWorkflowAgentPrompt(
           typeof promptValue === "string"
@@ -510,62 +528,39 @@ export default function workflows(pi: ExtensionAPI) {
         );
         if (!prompt.trim())
           return fail("agent() requires a non-empty prompt string");
+        const selectionError = validateAgentSelection(opts);
+        if (selectionError) return fail(`agent "${label}": ${selectionError}`);
         if (controller.signal.aborted)
           return fail("Workflow was aborted before this agent started");
 
         return controller
           .schedule(async (runSignal) => {
-            // Model/provider resolution: default to the parent session's model.
-            let model: WorkflowModel | undefined = ctx.model;
-            if (opts.model !== undefined || opts.provider !== undefined) {
-              const modelOpt =
-                typeof opts.model === "string" ? opts.model : undefined;
-              const providerOpt =
-                typeof opts.provider === "string" ? opts.provider : undefined;
-              if (!modelOpt)
-                return fail(
-                  `agent "${label}": \`provider\` requires \`model\` as well`,
-                );
-              let resolved: WorkflowModel | undefined;
-              if (providerOpt) {
-                resolved = ctx.modelRegistry.find(providerOpt, modelOpt);
-              } else {
-                const slash = modelOpt.indexOf("/");
-                if (slash > 0) {
-                  resolved = ctx.modelRegistry.find(
-                    modelOpt.slice(0, slash),
-                    modelOpt.slice(slash + 1),
-                  );
-                }
-                resolved ??= ctx.modelRegistry
-                  .getAll()
-                  .find((m) => m.id === modelOpt);
-              }
-              if (!resolved) {
-                const requested = providerOpt
-                  ? `${providerOpt}/${modelOpt}`
-                  : modelOpt;
-                return fail(
-                  `agent "${label}": unknown model "${requested}" (use provider/id)`,
-                );
-              }
-              model = resolved;
+            const modelOpt = (opts.model as string).trim();
+            const providerOpt =
+              typeof opts.provider === "string" ? opts.provider.trim() : undefined;
+            let model: WorkflowModel | undefined;
+            if (providerOpt) {
+              model = ctx.modelRegistry.find(providerOpt, modelOpt);
+            } else {
+              const slash = modelOpt.indexOf("/");
+              model = ctx.modelRegistry.find(
+                modelOpt.slice(0, slash),
+                modelOpt.slice(slash + 1),
+              );
+            }
+            if (!model) {
+              const requested = providerOpt
+                ? `${providerOpt}/${modelOpt}`
+                : modelOpt;
+              return fail(
+                `agent "${label}": unknown model "${requested}" (use provider/id)`,
+              );
             }
             record.model = model?.id;
             record.contextWindow = model?.contextWindow;
             emit();
 
-            // Effort → thinking level; default inherits the parent session.
-            let thinkingLevel: ThinkingLevel = pi.getThinkingLevel();
-            if (opts.effort !== undefined) {
-              const effort = String(opts.effort);
-              if (!(THINKING_LEVELS as readonly string[]).includes(effort)) {
-                return fail(
-                  `agent "${label}": invalid effort "${effort}" (use ${THINKING_LEVELS.join("|")})`,
-                );
-              }
-              thinkingLevel = effort as ThinkingLevel;
-            }
+            const thinkingLevel = opts.effort as ThinkingLevel;
 
             const resources = await getResources(opts.schema !== undefined);
             const outcome = await runAgent({
@@ -604,6 +599,8 @@ export default function workflows(pi: ExtensionAPI) {
               delete record.error;
             } else {
               record.error = outcome.error ?? "Agent failed";
+              if (opts.optional !== true)
+                blockingFailure ??= `agent "${label}": ${record.error}`;
             }
             emit();
 
@@ -630,6 +627,10 @@ export default function workflows(pi: ExtensionAPI) {
             onAgent: agentFn,
             onPhase: phaseFn,
           });
+          if (blockingFailure) {
+            details.error = `Required agent failed: ${blockingFailure}`;
+            status = "failed";
+          }
         } catch (error) {
           details.error = errorText(error);
           status = controller.signal.aborted ? "aborted" : "failed";
