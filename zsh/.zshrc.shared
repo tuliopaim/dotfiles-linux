@@ -71,6 +71,8 @@ alias oc='OH_MY_OPENCODE_SLIM_PRESET=mixed opencode'
 alias oco='OH_MY_OPENCODE_SLIM_PRESET=opencode-go opencode'
 
 alias cc='claude --dangerously-skip-permissions'
+alias ccw='CLAUDE_CONFIG_DIR="$HOME/.claude-work" claude --dangerously-skip-permissions'
+alias ccp='CLAUDE_CONFIG_DIR="$HOME/.claude-personal" claude --dangerously-skip-permissions'
 
 # Open buffer line in editor
 autoload -Uz edit-command-line
