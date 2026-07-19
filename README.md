@@ -33,15 +33,22 @@ This repository contains my personal dotfiles for macOS, including configuration
    nix run nix-darwin -- init --flake ~/dotfiles/nix-darwin
    ```
 
-4. **Configure the SSH keys**
+4. **Configure the personal GitHub SSH identity**
+   ```sshconfig
+   # ~/.ssh/config
+   Host github.com
+       User git
+       IdentityFile ~/.ssh/git_0
+       IdentitiesOnly yes
+   ```
 
 5. **Clone the repository**
    ```bash
-   git clone ssh@github.com-personal:tuliopaim/dotfiles-linux.git ~/dotfiles
+   git clone git@github.com:tuliopaim/dotfiles-linux.git ~/dotfiles
    cd ~/dotfiles
    ```
 
-6. **Initialize submodules** (for nvim and private configs)
+6. **Initialize submodules** (for nvim, Pi, and private configs)
    ```bash
    git submodule update --init --recursive
    ```
