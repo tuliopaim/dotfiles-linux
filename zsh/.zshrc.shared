@@ -14,6 +14,8 @@ if [[ -r "$ZSH/oh-my-zsh.sh" ]]; then
     source "$ZSH/oh-my-zsh.sh"
 fi
 
+RPROMPT='%F{cyan}%m%f'
+
 # Enable vi mode
 bindkey -v
 
