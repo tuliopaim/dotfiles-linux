@@ -66,7 +66,7 @@
   home-manager.backupFileExtension = "backup";
 
   security.pam.services.sudo_local = {
-    touchIdAuth = true;
+    touchIdAuth = false;
     reattach = true;
   };
 
@@ -106,9 +106,6 @@
     brews = [
       # Shell
       "mas"
-
-      # Multiplexer
-      "herdr"
 
       # Development tools
       "direnv"

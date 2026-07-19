@@ -35,5 +35,6 @@
 
     pkgs-unstable.lazygit
     pkgs-unstable.lazydocker
+    pkgs-unstable.herdr
   ];
 }
