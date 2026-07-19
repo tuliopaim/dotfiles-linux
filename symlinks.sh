@@ -49,7 +49,7 @@ create_symlink ~/dotfiles/opencode/opencode.json ~/.config/opencode/opencode.jso
 create_symlink ~/dotfiles/opencode/tui.json ~/.config/opencode/tui.json
 create_symlink ~/dotfiles/opencode/oh-my-opencode-slim.json ~/.config/opencode/oh-my-opencode-slim.json
 create_symlink ~/dotfiles/opencode/commands ~/.config/opencode/commands
-create_symlink ~/dotfiles/pi/agent/extensions ~/.pi/agent/extensions
+create_symlink ~/dotfiles/pi/agent/settings.json ~/.pi/agent/settings.json
 create_symlink ~/dotfiles/vscode/Code/User/settings.json ~/Library/Application\ Support/Cursor/User/settings.json
 create_symlink ~/dotfiles/vscode/Code/User/keybindings.json ~/Library/Application\ Support/Cursor/User/keybindings.json
 create_symlink ~/dotfiles/vscode/Code/User/settings.json ~/Library/Application\ Support/Code/User/settings.json
