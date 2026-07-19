@@ -108,7 +108,7 @@ bun ~/dotfiles/scripts/macos-stt/toggle.ts
 | `MACOS_STT_WHISPER_ARGS` | `""` | Extra args passed to whisper-cli |
 | `MACOS_STT_PI_BIN` | *(auto-search)* | Path to `pi` binary |
 | `MACOS_STT_PI_MODEL` | `opencode-go/deepseek-v4-flash` | Model used by pi for cleanup |
-| `MACOS_STT_PI_THINKING` | `off` | Pi thinking level |
+| `MACOS_STT_PI_THINKING` | `low` | Pi thinking level |
 | `MACOS_STT_RAW` | `false` | Default to raw mode |
 | `MACOS_STT_RECORD_CMD` | *(auto)* | Full recorder command template (`{audio}` is replaced) |
 | `MACOS_STT_AFRECORD_BIN` | `/usr/bin/afrecord` | afrecord binary path |
