@@ -169,6 +169,7 @@
       # Utilities
       "tailscale-app"
       "drawio"
+      "linearmouse"
       "localsend"
       "microsoft-auto-update"
       "obs"

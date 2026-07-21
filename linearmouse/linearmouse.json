@@ -1,0 +1,28 @@
+{
+  "$schema": "https://schema.linearmouse.app/0.11.3",
+  "schemes": [
+    {
+      "if": {
+        "device": {
+          "category": "mouse"
+        }
+      },
+      "buttons": {
+        "mappings": [
+          {
+            "button": 3,
+            "action": {
+              "keyPress": ["command", "["]
+            }
+          },
+          {
+            "button": 4,
+            "action": {
+              "keyPress": ["command", "]"]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -40,6 +40,7 @@ in
   # Mac-only symlinks
   xdg.configFile = {
     "ghostty".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/ghostty";
+    "linearmouse/linearmouse.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/linearmouse/linearmouse.json";
   };
 
   home.file = {
