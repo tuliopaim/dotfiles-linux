@@ -15,6 +15,7 @@
     age
     glow
     gnumake
+    gcc
     yazi
     gdu
     p7zip
