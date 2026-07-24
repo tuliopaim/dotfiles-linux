@@ -72,7 +72,7 @@ Environment:
                             exists, e.g. ~/.local/share/whisper-cpp/ggml-small.bin.
   MACOS_STT_PI_BIN          pi binary path. Defaults search Nix/Homebrew paths.
   MACOS_STT_RAW             Set to 1/true/yes to default to raw mode.
-  MACOS_STT_PI_MODEL        pi model (default: opencode-go/deepseek-v4-flash).
+  MACOS_STT_PI_MODEL        pi model (default: fireworks/accounts/fireworks/models/deepseek-v4-flash).
   MACOS_STT_PI_THINKING     pi thinking level (default: low).
   MACOS_STT_STATE_DIR       Parent for state files (default: TMPDIR or /tmp).
   MACOS_STT_AUDIO_DIR       Directory for recordings (default: state directory).
@@ -493,7 +493,7 @@ function cleanWithPi(raw: string): string {
     return raw;
   }
 
-  const model = process.env.MACOS_STT_PI_MODEL || "opencode-go/deepseek-v4-flash";
+  const model = process.env.MACOS_STT_PI_MODEL || "fireworks/accounts/fireworks/models/deepseek-v4-flash";
   const thinking = process.env.MACOS_STT_PI_THINKING || "low";
   console.error(`[pi] before cleanup: model=${model} thinking=${thinking} chars=${raw.length}`);
   console.error(`[pi] raw transcript: ${previewText(raw)}`);
