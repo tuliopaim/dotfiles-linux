@@ -8,8 +8,8 @@ optionally clean the transcript with pi, and auto-paste the result.
 
 1. **Press hotkey** → starts recording via `afrecord` or `ffmpeg` (16 kHz WAV).
 2. **Press hotkey again** → stops recording, runs `whisper-cli` to transcribe.
-3. **Cleanup** (optional) → pipes the raw transcript through `pi` for spelling
-   correction, punctuation, Portuguese→English translation, and light Markdown
+3. **Cleanup** (opt-in with `--clean`) → pipes the English transcript through `pi` for spelling
+   correction, punctuation, and light Markdown
    formatting (bullet/numbered lists, paragraphs) inferred from the dictation.
 4. **Paste** → copies the final text to the clipboard and simulates ⌘V.
 
@@ -74,11 +74,14 @@ transcripts are copied raw (no cleanup).
 Add to your `skhdrc`:
 
 ```conf
-# Toggle STT recording
-cmd + shift + alt - v : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts
+# English transcription with Pi cleanup
+cmd + shift + alt - v : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts --clean
 
-# Toggle STT recording (raw mode, no AI cleanup)
-cmd + shift + alt - r : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts --raw
+# Fast English transcription without Pi
+cmd + shift + alt - r : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts
+
+# Fast Portuguese transcription without Pi
+cmd + shift + alt - p : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts --portuguese
 
 # Cancel an active recording without transcribing it
 cmd + shift + alt - space : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts --cancel
@@ -95,7 +98,9 @@ bun ~/dotfiles/scripts/macos-stt/toggle.ts
 | Flag | Description |
 |------|-------------|
 | `--help` | Show usage |
-| `--raw` | Skip AI cleanup, paste raw whisper transcript |
+| `--raw` | Auto-detect the spoken language; skip AI cleanup |
+| `--clean` | Clean the English transcript with Pi |
+| `--portuguese` | Transcribe in Portuguese; skip AI cleanup |
 | `--cancel` | Cancel an active recording, delete its partial audio, and do not transcribe or paste |
 | `--correct-stdin` | Read text from stdin, clean with pi, copy & paste |
 
@@ -105,11 +110,12 @@ bun ~/dotfiles/scripts/macos-stt/toggle.ts
 |----------|---------|-------------|
 | `MACOS_STT_WHISPER_BIN` | *(auto-search)* | Path to `whisper-cli` binary |
 | `MACOS_STT_WHISPER_MODEL` | *(auto-search)* | Path to ggml model file |
-| `MACOS_STT_WHISPER_ARGS` | `""` | Extra args passed to whisper-cli |
+| `MACOS_STT_WHISPER_ARGS` | `-l en`; `-l pt` with `--portuguese`; `-l auto` with `--raw` | Extra args passed to whisper-cli |
 | `MACOS_STT_PI_BIN` | *(auto-search)* | Path to `pi` binary |
-| `MACOS_STT_PI_MODEL` | `fireworks/accounts/fireworks/models/deepseek-v4-flash` | Model used by pi for cleanup |
-| `MACOS_STT_PI_THINKING` | `low` | Pi thinking level |
+| `MACOS_STT_PI_MODEL` | `openai-codex/gpt-5.6-luna` | Model used by pi for cleanup |
+| `MACOS_STT_PI_THINKING` | `off` | Pi thinking level |
 | `MACOS_STT_RAW` | `false` | Default to raw mode |
+| `MACOS_STT_CLEAN` | `false` | Enable slower AI cleanup by default |
 | `MACOS_STT_RECORD_CMD` | *(auto)* | Full recorder command template (`{audio}` is replaced) |
 | `MACOS_STT_AFRECORD_BIN` | `/usr/bin/afrecord` | afrecord binary path |
 | `MACOS_STT_AFRECORD_ARGS` | `-f WAVE -c 1 -r 16000` | afrecord args before the audio path |

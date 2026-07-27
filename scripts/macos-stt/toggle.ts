@@ -47,19 +47,22 @@ const stateRoot = process.env.MACOS_STT_STATE_DIR || process.env.TMPDIR || tmpdi
 const stateDir = join(stateRoot, "macos-stt-toggle");
 const stateFile = join(stateDir, "state.json");
 const lockDir = join(stateDir, "processing.lock");
+const lockPidFile = join(lockDir, "pid");
 const statusPidFile = join(stateDir, "status.pid");
 const audioDir = process.env.MACOS_STT_AUDIO_DIR || stateDir;
 
 function usage(): string {
-  return `Usage: macos-stt/toggle.ts [--help] [--raw] [--cancel] [--correct-stdin]
+  return `Usage: macos-stt/toggle.ts [--help] [--raw] [--clean] [--portuguese] [--cancel] [--correct-stdin]
 
 Toggle macOS speech-to-text recording. First invocation starts recording with
 afrecord or ffmpeg/avfoundation; the next invocation stops recording, transcribes with
-whisper-cpp, cleans/translates with pi in non-interactive print mode, copies the result to the clipboard, and pastes it.
+whisper-cpp, optionally cleans with pi, copies the result to the clipboard, and pastes it.
 
 Options:
   --help             Show this help.
-  --raw              Skip AI cleanup; paste the raw whisper transcript.
+  --raw              Auto-detect the spoken language; skip AI cleanup.
+  --clean            Clean the English transcript with pi.
+  --portuguese       Transcribe in Portuguese; skip AI cleanup.
   --cancel           Cancel an active recording, delete its partial audio, and
                      do not transcribe or paste it.
   --correct-stdin    Read transcript text from stdin, clean it with pi if
@@ -72,8 +75,8 @@ Environment:
                             exists, e.g. ~/.local/share/whisper-cpp/ggml-small.bin.
   MACOS_STT_PI_BIN          pi binary path. Defaults search Nix/Homebrew paths.
   MACOS_STT_RAW             Set to 1/true/yes to default to raw mode.
-  MACOS_STT_PI_MODEL        pi model (default: fireworks/accounts/fireworks/models/deepseek-v4-flash).
-  MACOS_STT_PI_THINKING     pi thinking level (default: low).
+  MACOS_STT_PI_MODEL        pi model (default: openai-codex/gpt-5.6-luna).
+  MACOS_STT_PI_THINKING     pi thinking level (default: off).
   MACOS_STT_STATE_DIR       Parent for state files (default: TMPDIR or /tmp).
   MACOS_STT_AUDIO_DIR       Directory for recordings (default: state directory).
   MACOS_STT_KEEP_AUDIO      Set to 1/true/yes to keep audio after success.
@@ -165,13 +168,10 @@ function resolveWhisperModel(): string | undefined {
     process.env.MACOS_STT_WHISPER_MODEL ?? "",
     join(HOME, ".local/share/whisper-cpp/ggml-small.bin"),
     join(HOME, ".local/share/whisper-cpp/ggml-base.bin"),
-    join(HOME, ".local/share/whisper-cpp/ggml-base.en.bin"),
     join(HOME, ".cache/whisper/ggml-small.bin"),
     join(HOME, ".cache/whisper/ggml-base.bin"),
-    join(HOME, ".cache/whisper/ggml-base.en.bin"),
     join(HOME, ".cache/whisper-cpp/ggml-small.bin"),
     join(HOME, ".cache/whisper-cpp/ggml-base.bin"),
-    join(HOME, ".cache/whisper-cpp/ggml-base.en.bin"),
   ]);
 }
 
@@ -254,7 +254,16 @@ function removeState(): void {
 }
 
 function processing(): boolean {
-  return existsSync(lockDir);
+  if (!existsSync(lockDir)) return false;
+  try {
+    const ownerPid = Number(readFileSync(lockPidFile, "utf8"));
+    if (Number.isFinite(ownerPid) && isPidAlive(ownerPid)) return true;
+  } catch {
+    // Locks from older versions have no owner and are safe to reclaim.
+  }
+  console.error(`Removing stale processing lock: ${lockDir}`);
+  rmSync(lockDir, { recursive: true, force: true });
+  return false;
 }
 
 function ensureStatusIndicator(): void {
@@ -279,8 +288,14 @@ function ensureStatusIndicator(): void {
 
 async function withLock<T>(fn: () => Promise<T>): Promise<T | undefined> {
   ensureDirs();
+  if (processing()) {
+    notify(APP_TITLE, "Already processing a recording; please wait.");
+    console.error(`Lock exists: ${lockDir}`);
+    return undefined;
+  }
   try {
     mkdirSync(lockDir);
+    writeFileSync(lockPidFile, String(process.pid), { mode: 0o600 });
   } catch {
     notify(APP_TITLE, "Already processing a recording; please wait.");
     console.error(`Lock exists: ${lockDir}`);
@@ -355,21 +370,22 @@ function startRecording(): void {
 }
 
 async function terminateRecorder(state: State): Promise<void> {
-  if (isPidAlive(state.pid)) {
-    signalProcessTree(state.pid, "SIGINT");
-  }
-  await sleep(700);
-  if (isPidAlive(state.pid)) {
-    signalProcessTree(state.pid, "SIGTERM");
-    await sleep(500);
-  }
-  if (isPidAlive(state.pid)) {
-    signalProcessTree(state.pid, "SIGKILL");
-    await sleep(200);
-  }
+  if (!isPidAlive(state.pid)) return;
+  signalProcessTree(state.pid, "SIGINT");
+  if (await waitForPidExit(state.pid, 700)) return;
+  signalProcessTree(state.pid, "SIGTERM");
+  if (await waitForPidExit(state.pid, 500)) return;
+  signalProcessTree(state.pid, "SIGKILL");
+  await waitForPidExit(state.pid, 200);
 }
 
-async function stopRecording(state: State, raw = false): Promise<void> {
+async function waitForPidExit(pid: number, timeoutMs: number): Promise<boolean> {
+  const deadline = Date.now() + timeoutMs;
+  while (isPidAlive(pid) && Date.now() < deadline) await sleep(20);
+  return !isPidAlive(pid);
+}
+
+async function stopRecording(state: State, raw = true, language = "en"): Promise<void> {
   const stopStartedAtMs = Date.now();
   const recordingStartedAtMs = Date.parse(state.startedAt);
   removeState();
@@ -379,9 +395,9 @@ async function stopRecording(state: State, raw = false): Promise<void> {
     console.error(`[timing] recorded audio: ${formatDuration(Date.now() - recordingStartedAtMs)}`);
   }
   ensureStatusIndicator();
-  notify(APP_TITLE, raw ? "Processing recording (raw)…" : "Processing recording…");
-  console.error(`Processing audio: ${state.audioPath}${raw ? " (raw, no AI cleanup)" : ""}`);
-  await processAudio(state.audioPath, raw);
+  notify(APP_TITLE, raw ? "Transcribing recording…" : "Transcribing and cleaning recording…");
+  console.error(`Processing audio: ${state.audioPath}${raw ? " (no AI cleanup)" : ""}`);
+  await processAudio(state.audioPath, raw, language);
 }
 
 async function cancelRecording(): Promise<void> {
@@ -411,7 +427,7 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function transcribe(audioPath: string): string | undefined {
+function transcribe(audioPath: string, language = "en"): string | undefined {
   const startedAtMs = Date.now();
   const whisper = resolveWhisperBin();
   const model = resolveWhisperModel();
@@ -423,7 +439,7 @@ function transcribe(audioPath: string): string | undefined {
   }
 
   const outputBase = join(stateDir, `whisper-${timestamp()}`);
-  const extraArgs = splitArgs(process.env.MACOS_STT_WHISPER_ARGS || "");
+  const extraArgs = splitArgs(process.env.MACOS_STT_WHISPER_ARGS || `-l ${language}`);
   const args = ["-m", model, "-f", audioPath, "-nt", "-otxt", "-of", outputBase, ...extraArgs];
   const result = run(whisper, args, undefined, Number(process.env.MACOS_STT_WHISPER_TIMEOUT_MS || 300_000));
   logTiming("whisper transcription", startedAtMs);
@@ -493,8 +509,8 @@ function cleanWithPi(raw: string): string {
     return raw;
   }
 
-  const model = process.env.MACOS_STT_PI_MODEL || "fireworks/accounts/fireworks/models/deepseek-v4-flash";
-  const thinking = process.env.MACOS_STT_PI_THINKING || "low";
+  const model = process.env.MACOS_STT_PI_MODEL || "openai-codex/gpt-5.6-luna";
+  const thinking = process.env.MACOS_STT_PI_THINKING || "off";
   console.error(`[pi] before cleanup: model=${model} thinking=${thinking} chars=${raw.length}`);
   console.error(`[pi] raw transcript: ${previewText(raw)}`);
   const result = run(pi, ["--model", model, "--thinking", thinking, "-nt", "--no-session", "--no-extensions", "--no-skills", "--no-prompt-templates", "--no-themes", "-nc", "--print"], correctionPrompt(raw), Number(process.env.MACOS_STT_PI_TIMEOUT_MS || 120_000));
@@ -511,7 +527,7 @@ function cleanWithPi(raw: string): string {
   return cleaned;
 }
 
-function copyAndPaste(text: string): void {
+async function copyAndPaste(text: string): Promise<boolean> {
   const copyStartedAtMs = Date.now();
   const copy = run("/usr/bin/pbcopy", [], text, 10_000);
   logTiming("clipboard copy", copyStartedAtMs);
@@ -519,25 +535,25 @@ function copyAndPaste(text: string): void {
     notify(APP_TITLE, "Failed to copy transcript to clipboard.");
     console.error(copy.stderr.trim() || copy.error?.message || "pbcopy failed");
     process.exitCode = 1;
-    return;
+    return false;
   }
 
   const delay = Number(process.env.MACOS_STT_PASTE_DELAY_MS || 150);
   const pasteScript = 'tell application "System Events" to keystroke "v" using command down';
-  setTimeout(() => {
-    const pasteStartedAtMs = Date.now();
-    const paste = run("/usr/bin/osascript", ["-e", pasteScript], undefined, 10_000);
-    logTiming("paste", pasteStartedAtMs);
-    if (paste.status !== 0) {
-      notify(APP_TITLE, "Transcript copied. Automatic paste failed; paste manually with Cmd+V.");
-      console.error(paste.stderr.trim() || paste.error?.message || "osascript paste failed");
-      return;
-    }
-    notify(APP_TITLE, "Transcript pasted.");
-  }, Number.isFinite(delay) ? delay : 150);
+  await sleep(Number.isFinite(delay) ? Math.max(0, delay) : 150);
+  const pasteStartedAtMs = Date.now();
+  const paste = run("/usr/bin/osascript", ["-e", pasteScript], undefined, 10_000);
+  logTiming("paste", pasteStartedAtMs);
+  if (paste.status !== 0) {
+    notify(APP_TITLE, "Transcript copied. Automatic paste failed; paste manually with Cmd+V.");
+    console.error(paste.stderr.trim() || paste.error?.message || "osascript paste failed");
+    return true;
+  }
+  notify(APP_TITLE, "Transcript pasted.");
+  return true;
 }
 
-async function processAudio(audioPath: string, raw = false): Promise<void> {
+async function processAudio(audioPath: string, raw = true, language = "en"): Promise<void> {
   const totalStartedAtMs = Date.now();
   if (!existsSync(audioPath)) {
     notify(APP_TITLE, `Audio file not found: ${audioPath}`);
@@ -545,16 +561,16 @@ async function processAudio(audioPath: string, raw = false): Promise<void> {
     return;
   }
 
-  const transcript = transcribe(audioPath);
+  const transcript = transcribe(audioPath, language);
   if (!transcript) {
     process.exitCode = 1;
     return;
   }
 
   const finalText = raw ? transcript : cleanWithPi(transcript);
-  copyAndPaste(finalText);
+  const delivered = await copyAndPaste(finalText);
 
-  if (!/^(1|true|yes)$/i.test(process.env.MACOS_STT_KEEP_AUDIO || "")) {
+  if (delivered && !/^(1|true|yes)$/i.test(process.env.MACOS_STT_KEEP_AUDIO || "")) {
     rmSync(audioPath, { force: true });
   }
 
@@ -569,7 +585,7 @@ async function correctStdin(raw = false): Promise<void> {
     return;
   }
   const finalText = raw ? input : cleanWithPi(input);
-  copyAndPaste(finalText);
+  await copyAndPaste(finalText);
 }
 
 async function main(): Promise<void> {
@@ -578,7 +594,11 @@ async function main(): Promise<void> {
     process.stdout.write(usage());
     return;
   }
-  const raw = args.includes("--raw") || /^(1|true|yes)$/i.test(process.env.MACOS_STT_RAW || "");
+  const explicitRaw = args.includes("--raw");
+  const portuguese = args.includes("--portuguese");
+  const clean = args.includes("--clean") || /^(1|true|yes)$/i.test(process.env.MACOS_STT_CLEAN || "");
+  const raw = explicitRaw || portuguese || !clean || /^(1|true|yes)$/i.test(process.env.MACOS_STT_RAW || "");
+  const language = portuguese ? "pt" : explicitRaw ? "auto" : "en";
   if (args.includes("--cancel")) {
     ensureDirs();
     await cancelRecording();
@@ -606,7 +626,7 @@ async function main(): Promise<void> {
     startRecording();
     return;
   }
-  await withLock(() => stopRecording(state, raw));
+  await withLock(() => stopRecording(state, raw, language));
 }
 
 main().catch((error) => {
