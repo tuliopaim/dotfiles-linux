@@ -18,6 +18,14 @@ if [[ -r "$GHOSTTY_RESOURCES_DIR/shell-integration/zsh/ghostty-integration" ]]; 
   source "$GHOSTTY_RESOURCES_DIR/shell-integration/zsh/ghostty-integration"
 fi
 
+# Nix aliases
+fupdate() {
+  nix flake update --flake ~/dotfiles/nix/
+}
+fswitch() {
+  home-manager switch --flake ~/dotfiles/nix/#tuliopaim@server
+}
+
 # Linux-specific aliases
 alias k="kubectl"
 
