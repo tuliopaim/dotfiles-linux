@@ -12,7 +12,6 @@ auto_switch = false
 accent = "#45475a"
 
 [ui]
-agent_panel_scope = "all"
 
 [keys]
 # Match tmux prefix (ctrl+s).
