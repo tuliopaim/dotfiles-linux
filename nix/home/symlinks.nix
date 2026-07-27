@@ -16,6 +16,11 @@ in
   home.file.".pi/agent/settings.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/pi/agent/settings.json";
   home.file.".ideavimrc".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/ideavim/.ideavimrc";
 
+  home.file.".claude/skills".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/skills";
+  # settings.json stays a real per-machine file: Claude Code rewrites it itself
+  # (/model, /config, /statusline), and an atomic write would replace a symlink.
+  home.file.".claude/statusline.sh".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/claude/statusline.sh";
+
   home.sessionVariables = {
     EDITOR = "nvim";
     DOTNET_ROOT = "$HOME/.dotnet";
