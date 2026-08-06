@@ -142,7 +142,6 @@
       "microsoft-edge"
 
       # Development
-      "cursor"
       "dbeaver-community"
       "ghostty"
       "postman"
