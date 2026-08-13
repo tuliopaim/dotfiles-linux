@@ -12,6 +12,7 @@ auto_switch = false
 accent = "#45475a"
 
 [ui]
+pane_scrollbars = false
 
 [keys]
 # Match tmux prefix (ctrl+s).
