@@ -7,7 +7,7 @@ in
   # opencode: individual file symlinks, not xdg.configFile (which reifies the whole dir)
   home.file.".config/opencode/opencode.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/opencode.json";
   home.file.".config/opencode/tui.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/tui.json";
-  home.file.".config/opencode/oh-my-opencode-slim.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/oh-my-opencode-slim.json";
+  home.file.".config/opencode/cli.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/cli.json";
   home.file.".config/opencode/commands".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/commands";
   xdg.configFile."kanata/kanata.kbd".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/kanata/kanata.kbd";
   # herdr: only the config file; the rest of ~/.config/herdr is runtime state (sockets, logs, session)
