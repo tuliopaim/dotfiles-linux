@@ -98,7 +98,35 @@ running=$(pgrep -f "$TMP/recorder" | wc -l | tr -d ' ')
 toggle --cancel >/dev/null 2>&1 || true
 pkill -f "$TMP/recorder" 2>/dev/null || true
 
+# --- default input follows macOS instead of guessing from device names ------
+cat >"$TMP/ffmpeg" <<'EOF'
+#!/bin/sh
+case " $* " in
+  *" -list_devices "*)
+    cat >&2 <<'DEVICES'
+[AVFoundation indev @ 0x1] AVFoundation video devices:
+[AVFoundation indev @ 0x1] [0] Capture screen 0
+[AVFoundation indev @ 0x1] AVFoundation audio devices:
+[AVFoundation indev @ 0x1] [0] G435 Wireless Gaming Headset
+[AVFoundation indev @ 0x1] [1] Microsoft Teams Audio
+DEVICES
+    exit 1
+    ;;
+esac
+trap 'exit 0' INT TERM
+while :; do sleep 1; done
+EOF
+chmod +x "$TMP/ffmpeg"
+unset MACOS_STT_RECORD_CMD
+export MACOS_STT_FFMPEG_BIN="$TMP/ffmpeg"
+output=$(toggle 2>&1)
+printf '%s\n' "$output" | grep -q 'input=:default' \
+  || fail "did not select the macOS default input: $output"
+toggle --cancel >/dev/null 2>&1 || true
+pkill -f "$TMP/ffmpeg" 2>/dev/null || true
+
 # --- Portuguese selects the pt model language -------------------------------
+export MACOS_STT_RECORD_CMD="$TMP/recorder {audio}"
 toggle --portuguese >/dev/null 2>&1
 sleep 0.1
 toggle --portuguese >/dev/null 2>&1 || true

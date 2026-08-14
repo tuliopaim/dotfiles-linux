@@ -145,7 +145,7 @@ bun ~/dotfiles/scripts/macos-stt/toggle.ts
 | `MACOS_STT_AFRECORD_BIN` | `/usr/bin/afrecord` | afrecord binary path |
 | `MACOS_STT_AFRECORD_ARGS` | `-f WAVE -c 1 -r 16000` | afrecord args before the audio path |
 | `MACOS_STT_FFMPEG_BIN` | *(auto-search)* | ffmpeg binary path |
-| `MACOS_STT_FFMPEG_INPUT` | *(auto-detect mic)* | ffmpeg avfoundation input device |
+| `MACOS_STT_FFMPEG_INPUT` | `:default` | ffmpeg avfoundation input device |
 | `MACOS_STT_STATE_DIR` | `~/.local/state` | Parent directory for state files |
 | `MACOS_STT_MAX_RECORDING_SECONDS` | `1800` | Hard cap after which the recorder stops itself |
 | `MACOS_STT_AUDIO_DIR` | *(state dir)* | Directory for recording files |

@@ -103,7 +103,7 @@ Environment:
   MACOS_STT_AFRECORD_ARGS   afrecord args before the audio path
                             (default: -f WAVE -c 1 -r 16000).
   MACOS_STT_FFMPEG_BIN      ffmpeg path. Used as fallback recorder on macOS.
-  MACOS_STT_FFMPEG_INPUT    ffmpeg avfoundation input (default: :0).
+  MACOS_STT_FFMPEG_INPUT    ffmpeg avfoundation input (default: :default).
 
 Model setup example (outside this repo):
   mkdir -p ~/.local/share/whisper-cpp
@@ -231,20 +231,9 @@ function resolveFfmpegBin(): string | undefined {
   ]);
 }
 
-function resolveFfmpegInput(ffmpeg: string): string {
-  if (process.env.MACOS_STT_FFMPEG_INPUT) return process.env.MACOS_STT_FFMPEG_INPUT;
-
-  // Avoid ffmpeg's avfoundation audio device 0 by default. It is often a
-  // virtual/silent device (for example "Microsoft Teams Audio"), which makes
-  // Whisper hallucinate short outputs like "You.". Pick a real microphone when
-  // possible.
-  const list = run(ffmpeg, ["-f", "avfoundation", "-list_devices", "true", "-i", ""], undefined, 10_000);
-  const devices = [...list.stderr.matchAll(/^.*\[(\d+)\]\s+(.+)$/gm)]
-    .map((match) => ({ index: match[1], name: match[2].trim() }))
-    .filter((device) => /microphone|mic/i.test(device.name));
-  const preferred = devices.find((device) => !/teams|zoom|blackhole|loopback|soundflower/i.test(device.name)) ?? devices[0];
-  const input = preferred ? `:${preferred.index}` : ":default";
-  console.error(`[recording] ffmpeg avfoundation input=${input}${preferred ? ` (${preferred.name})` : ""}`);
+function resolveFfmpegInput(): string {
+  const input = process.env.MACOS_STT_FFMPEG_INPUT || ":default";
+  console.error(`[recording] ffmpeg avfoundation input=${input}`);
   return input;
 }
 
@@ -454,7 +443,7 @@ function startRecording(): void {
     // -t is a hard stop so a recording that never gets stopped cannot hold the
     // microphone open forever. Without it an orphaned recorder runs until reboot.
     args = ffmpeg
-      ? ["-hide_banner", "-loglevel", "error", "-f", "avfoundation", "-i", resolveFfmpegInput(ffmpeg), "-ac", "1", "-ar", "16000", "-t", String(maxRecordingSeconds()), "-y", audioPath]
+    ? ["-hide_banner", "-loglevel", "error", "-f", "avfoundation", "-i", resolveFfmpegInput(), "-ac", "1", "-ar", "16000", "-t", String(maxRecordingSeconds()), "-y", audioPath]
       : [...splitArgs(process.env.MACOS_STT_AFRECORD_ARGS || "-f WAVE -c 1 -r 16000"), audioPath];
   }
 
