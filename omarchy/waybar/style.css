@@ -110,3 +110,14 @@ tooltip {
   min-width: 12px;
   margin-right: 17px;
 }
+
+#custom-weather {
+  margin-left: 7.5px;
+  margin-right: 7.5px;
+}
+
+#custom-weather.unavailable {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+}
