@@ -1,5 +1,6 @@
 ---
 name: orchestrated-task
+disable-model-invocation: true
 description: Plan and implement large coding tasks with a dynamically generated multi-agent workflow and a mandatory human review checkpoint. Use when the user invokes /orchestrate or asks to orchestrate a substantial implementation.
 ---
 
