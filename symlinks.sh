@@ -40,20 +40,26 @@ create_symlink ~/dotfiles/zsh/.zshrc ~/.zshrc
 create_symlink ~/dotfiles/tmux/.tmux.conf ~/.tmux.conf
 create_symlink ~/dotfiles/nvim ~/.config/nvim
 create_symlink ~/dotfiles/ghostty ~/.config/ghostty
-mkdir -p ~/.config/yabai ~/.config/skhd
-create_symlink ~/dotfiles/yabai/.yabairc ~/.config/yabai/yabairc
-create_symlink ~/dotfiles/skhd/.skhdrc ~/.config/skhd/skhdrc
 create_symlink ~/dotfiles/ideavim/.ideavimrc ~/.ideavimrc
 create_symlink ~/dotfiles/private/.config/git ~/.config/git
 create_symlink ~/dotfiles/opencode/opencode.json ~/.config/opencode/opencode.json
 create_symlink ~/dotfiles/opencode/tui.json ~/.config/opencode/tui.json
-create_symlink ~/dotfiles/opencode/oh-my-opencode-slim.json ~/.config/opencode/oh-my-opencode-slim.json
+create_symlink ~/dotfiles/opencode/cli.json ~/.config/opencode/cli.json
 create_symlink ~/dotfiles/opencode/commands ~/.config/opencode/commands
+create_symlink ~/dotfiles/kanata/kanata.kbd ~/.config/kanata/kanata.kbd
+create_symlink ~/dotfiles/herdr/config.toml ~/.config/herdr/config.toml
 create_symlink ~/dotfiles/pi/agent/settings.json ~/.pi/agent/settings.json
-create_symlink ~/dotfiles/vscode/Code/User/settings.json ~/Library/Application\ Support/Cursor/User/settings.json
-create_symlink ~/dotfiles/vscode/Code/User/keybindings.json ~/Library/Application\ Support/Cursor/User/keybindings.json
-create_symlink ~/dotfiles/vscode/Code/User/settings.json ~/Library/Application\ Support/Code/User/settings.json
-create_symlink ~/dotfiles/vscode/Code/User/keybindings.json ~/Library/Application\ Support/Code/User/keybindings.json
+create_symlink ~/dotfiles/skills ~/.claude/skills
+create_symlink ~/dotfiles/claude/statusline.sh ~/.claude/statusline.sh
+
+if [ "$(uname)" = "Darwin" ]; then
+    create_symlink ~/dotfiles/yabai/.yabairc ~/.config/yabai/yabairc
+    create_symlink ~/dotfiles/skhd/.skhdrc ~/.config/skhd/skhdrc
+    create_symlink ~/dotfiles/vscode/Code/User/settings.json ~/Library/Application\ Support/Cursor/User/settings.json
+    create_symlink ~/dotfiles/vscode/Code/User/keybindings.json ~/Library/Application\ Support/Cursor/User/keybindings.json
+    create_symlink ~/dotfiles/vscode/Code/User/settings.json ~/Library/Application\ Support/Code/User/settings.json
+    create_symlink ~/dotfiles/vscode/Code/User/keybindings.json ~/Library/Application\ Support/Code/User/keybindings.json
+fi
 
 # Hyprland configs (protect from Omarchy updates overwriting customizations)
 mkdir -p ~/.config/hypr
