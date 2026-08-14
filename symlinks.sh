@@ -57,13 +57,12 @@ create_symlink ~/dotfiles/vscode/Code/User/keybindings.json ~/Library/Applicatio
 
 # Hyprland configs (protect from Omarchy updates overwriting customizations)
 mkdir -p ~/.config/hypr
-create_symlink ~/dotfiles/omarchy/hypr/hyprland.conf ~/.config/hypr/hyprland.conf
-create_symlink ~/dotfiles/omarchy/hypr/bindings.conf ~/.config/hypr/bindings.conf
-create_symlink ~/dotfiles/omarchy/hypr/input.conf ~/.config/hypr/input.conf
-create_symlink ~/dotfiles/omarchy/hypr/looknfeel.conf ~/.config/hypr/looknfeel.conf
-create_symlink ~/dotfiles/omarchy/hypr/autostart.conf ~/.config/hypr/autostart.conf
-create_symlink ~/dotfiles/omarchy/hypr/envs.conf ~/.config/hypr/envs.conf
-# monitors.conf is already symlinked
+create_symlink ~/dotfiles/omarchy/hypr/hyprland.lua ~/.config/hypr/hyprland.lua
+create_symlink ~/dotfiles/omarchy/hypr/bindings.lua ~/.config/hypr/bindings.lua
+create_symlink ~/dotfiles/omarchy/hypr/input.lua ~/.config/hypr/input.lua
+create_symlink ~/dotfiles/omarchy/hypr/looknfeel.lua ~/.config/hypr/looknfeel.lua
+create_symlink ~/dotfiles/omarchy/hypr/autostart.lua ~/.config/hypr/autostart.lua
+create_symlink ~/dotfiles/omarchy/hypr/monitors.lua ~/.config/hypr/monitors.lua
 
 # Waybar configs (protect from Omarchy updates overwriting customizations)
 create_symlink ~/dotfiles/omarchy/waybar/config.jsonc ~/.config/waybar/config.jsonc

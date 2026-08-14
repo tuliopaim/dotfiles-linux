@@ -1,0 +1,35 @@
+-- Replace Omarchy defaults that overlap the vim-style navigation bindings.
+hl.unbind("SUPER + W")
+hl.unbind("SUPER + K")
+hl.unbind("SUPER + J")
+hl.unbind("SUPER + L")
+hl.unbind("SUPER + ALT + K")
+hl.unbind("SUPER + SHIFT + S")
+hl.unbind("PRINT")
+hl.unbind("ALT + PRINT")
+
+o.bind("SUPER + Q", "Close window", hl.dsp.window.close())
+o.bind("SUPER + SHIFT + Q", "Close active window", hl.dsp.window.close())
+o.bind("SUPER + SHIFT + S", "Toggle split", hl.dsp.layout("togglesplit"))
+
+o.bind("SUPER + H", "Focus left", hl.dsp.focus({ direction = "l" }))
+o.bind("SUPER + L", "Focus right", hl.dsp.focus({ direction = "r" }))
+o.bind("SUPER + K", "Focus up", hl.dsp.focus({ direction = "u" }))
+o.bind("SUPER + J", "Focus down", hl.dsp.focus({ direction = "d" }))
+
+o.bind("SUPER + SHIFT + H", "Move window left", hl.dsp.window.swap({ direction = "l" }))
+o.bind("SUPER + SHIFT + L", "Move window right", hl.dsp.window.swap({ direction = "r" }))
+o.bind("SUPER + SHIFT + K", "Move window up", hl.dsp.window.swap({ direction = "u" }))
+o.bind("SUPER + SHIFT + J", "Move window down", hl.dsp.window.swap({ direction = "d" }))
+
+o.bind("SUPER + ALT + H", "Resize window left", hl.dsp.window.resize({ x = -20, y = 0, relative = true }))
+o.bind("SUPER + ALT + L", "Resize window right", hl.dsp.window.resize({ x = 20, y = 0, relative = true }))
+o.bind("SUPER + ALT + K", "Resize window up", hl.dsp.window.resize({ x = 0, y = -20, relative = true }))
+o.bind("SUPER + ALT + J", "Resize window down", hl.dsp.window.resize({ x = 0, y = 20, relative = true }))
+
+o.bind("ALT + SHIFT + 1", "Full screenshot", "omarchy-capture-screenshot fullscreen")
+o.bind("ALT + SHIFT + 2", "Region screenshot", "omarchy-capture-screenshot region")
+o.bind("SUPER + SEMICOLON", "Clipboard", "omarchy-shell shell toggle omarchy.clipboard")
+o.bind("SUPER + SHIFT + V", "Speech to text", "handy --toggle-transcription")
+o.bind("SUPER + SHIFT + ALT + V", "Speech to text (clean)", os.getenv("HOME") .. "/dotfiles/scripts/handy-gemini-transcription")
+o.bind("SUPER + BACKSLASH", "Toggle workspace layout", "omarchy-hyprland-workspace-layout-toggle")
