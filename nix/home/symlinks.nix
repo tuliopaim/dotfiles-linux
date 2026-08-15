@@ -8,12 +8,16 @@ in
   home.file.".config/opencode/opencode.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/opencode.json";
   home.file.".config/opencode/tui.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/tui.json";
   home.file.".config/opencode/cli.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/cli.json";
-  home.file.".config/opencode/commands".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/commands";
+  home.file.".config/opencode/commands/commit.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/commands/commit.md";
+  home.file.".config/opencode/commands/review-comments.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/commands/review-comments.md";
+  home.file.".config/opencode/commands/review.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/commands/review.md";
+  home.file.".config/opencode/AGENTS.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/agents/AGENTS.md";
   xdg.configFile."kanata/kanata.kbd".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/kanata/kanata.kbd";
   # herdr: only the config file; the rest of ~/.config/herdr is runtime state (sockets, logs, session)
   home.file.".config/herdr/config.toml".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/herdr/config.toml";
 
   home.file.".pi/agent/settings.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/pi/agent/settings.json";
+  home.file.".pi/agent/AGENTS.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/agents/AGENTS.md";
   home.file.".ideavimrc".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/ideavim/.ideavimrc";
 
   home.file.".claude/skills".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/skills";

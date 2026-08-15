@@ -7,7 +7,13 @@
         ]
     },
     "lsp": false,
-    "permission": "allow",
+    "permissions": [
+        { "action": "*", "resource": "*", "effect": "allow" },
+        { "action": "read", "resource": "~/.ssh", "effect": "deny" },
+        { "action": "read", "resource": "~/.ssh/*", "effect": "deny" },
+        { "action": "shell", "resource": "*~/.ssh*", "effect": "deny" },
+        { "action": "shell", "resource": "*$HOME/.ssh*", "effect": "deny" }
+    ],
     "mcp": {
         "chrome-devtools": {
             "type": "local",

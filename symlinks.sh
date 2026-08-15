@@ -43,9 +43,11 @@ create_symlink ~/dotfiles/ghostty ~/.config/ghostty
 create_symlink ~/dotfiles/ideavim/.ideavimrc ~/.ideavimrc
 create_symlink ~/dotfiles/private/.config/git ~/.config/git
 create_symlink ~/dotfiles/opencode/opencode.json ~/.config/opencode/opencode.json
-create_symlink ~/dotfiles/opencode/tui.json ~/.config/opencode/tui.json
 create_symlink ~/dotfiles/opencode/cli.json ~/.config/opencode/cli.json
-create_symlink ~/dotfiles/opencode/commands ~/.config/opencode/commands
+create_symlink ~/dotfiles/opencode/tui.json ~/.config/opencode/tui.json
+create_symlink ~/dotfiles/opencode/commands/commit.md ~/.config/opencode/commands/commit.md
+create_symlink ~/dotfiles/opencode/commands/review-comments.md ~/.config/opencode/commands/review-comments.md
+create_symlink ~/dotfiles/opencode/commands/review.md ~/.config/opencode/commands/review.md
 create_symlink ~/dotfiles/kanata/kanata.kbd ~/.config/kanata/kanata.kbd
 create_symlink ~/dotfiles/herdr/config.toml ~/.config/herdr/config.toml
 create_symlink ~/dotfiles/pi/agent/settings.json ~/.pi/agent/settings.json
