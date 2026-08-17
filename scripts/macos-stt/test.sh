@@ -132,4 +132,24 @@ sleep 0.1
 toggle --portuguese >/dev/null 2>&1 || true
 grep -qx -- 'pt' "$MACOS_STT_TEST_ARGS" || fail "missing pt language"
 
+# --- parakeet backend: routes to parakeet-cli with --model/--input ----------
+cat >"$TMP/parakeet-cli" <<'EOF'
+#!/bin/sh
+printf '%s\n' "$@" >"$MACOS_STT_TEST_ARGS"
+echo "Hello, parakeet."
+EOF
+chmod +x "$TMP/parakeet-cli"
+export MACOS_STT_BACKEND=parakeet
+export MACOS_STT_PARAKEET_BIN="$TMP/parakeet-cli"
+export MACOS_STT_PARAKEET_MODEL="$TMP/model"
+rm -f "$TMP/pasted.txt"
+toggle >/dev/null 2>&1
+sleep 0.1
+toggle >/dev/null 2>&1 || true
+grep -qx 'Hello, parakeet.' "$TMP/pasted.txt" \
+  || fail "unexpected parakeet transcript: $(cat "$TMP/pasted.txt")"
+grep -qx -- '--model' "$MACOS_STT_TEST_ARGS" || fail "missing parakeet --model"
+grep -qx -- '--input' "$MACOS_STT_TEST_ARGS" || fail "missing parakeet --input"
+unset MACOS_STT_BACKEND MACOS_STT_PARAKEET_BIN MACOS_STT_PARAKEET_MODEL
+
 printf 'ok — stop recorder: %sms\n' "$elapsed"

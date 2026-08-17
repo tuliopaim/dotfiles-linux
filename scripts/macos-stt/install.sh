@@ -1,23 +1,34 @@
 #!/bin/sh
-# Install the warm whisper-server launchd agent.
+# Install a warm transcription-server launchd agent — whisper or parakeet per
+# MACOS_STT_BACKEND. Each backend gets its own agent, so both can run at once.
 #
 # Without it, every dictation reloads the model from disk, and the first run
 # after a reboot also pays for Metal shader compilation (measured at ~8.6s
-# versus ~0.8s warm). Keeping the model resident costs the RAM of the model
-# file — roughly 600 MB for large-v3-turbo.
+# versus ~0.8s warm for whisper). Keeping the model resident costs the RAM of
+# the model file — roughly 600 MB for whisper large-v3-turbo.
 #
-# To remove it again:
-#   launchctl bootout gui/$(id -u)/com.tuliopaim.macos-stt-server
-#   rm ~/Library/LaunchAgents/com.tuliopaim.macos-stt-server.plist
+# To remove an agent again:
+#   launchctl bootout gui/$(id -u)/com.tuliopaim.macos-stt-server          # whisper
+#   launchctl bootout gui/$(id -u)/com.tuliopaim.macos-stt-parakeet-server # parakeet
+#   rm ~/Library/LaunchAgents/com.tuliopaim.macos-stt-*.plist
 set -eu
 
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 AGENT_DIR=$HOME/Library/LaunchAgents
 LOG_DIR=${MACOS_STT_LOG_DIR:-$HOME/Library/Logs/macos-stt}
-LABEL=com.tuliopaim.macos-stt-server
-
 BUN=${MACOS_STT_BUN_BIN:-/etc/profiles/per-user/tuliopaim/bin/bun}
-SERVER_URL=${MACOS_STT_SERVER_URL:-http://127.0.0.1:8910}
+
+BACKEND=${MACOS_STT_BACKEND:-whisper}
+if [ "$BACKEND" = parakeet ]; then
+  LABEL=com.tuliopaim.macos-stt-parakeet-server
+  SERVER_URL=${MACOS_STT_PARAKEET_SERVER_URL:-http://127.0.0.1:8911}
+  LOG_SUFFIX=parakeet
+else
+  LABEL=com.tuliopaim.macos-stt-server
+  SERVER_URL=${MACOS_STT_SERVER_URL:-http://127.0.0.1:8910}
+  LOG_SUFFIX=server
+fi
+BACKEND_ENV="<key>MACOS_STT_BACKEND</key><string>$BACKEND</string>"
 
 mkdir -p "$AGENT_DIR" "$LOG_DIR"
 
@@ -37,11 +48,12 @@ cat >"$plist" <<EOF
   <key>EnvironmentVariables</key>
   <dict>
     <key>MACOS_STT_SERVER_URL</key><string>$SERVER_URL</string>
+    $BACKEND_ENV
   </dict>
   <key>RunAtLoad</key><true/>
   <key>KeepAlive</key><true/>
-  <key>StandardErrorPath</key><string>$LOG_DIR/server.log</string>
-  <key>StandardOutPath</key><string>$LOG_DIR/server.log</string>
+  <key>StandardErrorPath</key><string>$LOG_DIR/$LOG_SUFFIX.log</string>
+  <key>StandardOutPath</key><string>$LOG_DIR/$LOG_SUFFIX.log</string>
 </dict>
 </plist>
 EOF
@@ -54,7 +66,7 @@ echo "==> Loaded $LABEL"
 
 cat <<EOF
 
-Installed. Logs: $LOG_DIR/server.log
+Installed $BACKEND agent ($LABEL). Logs: $LOG_DIR/$LOG_SUFFIX.log
 
 Check it is answering:
   curl -s -o /dev/null -w '%{http_code}\\n' $SERVER_URL/

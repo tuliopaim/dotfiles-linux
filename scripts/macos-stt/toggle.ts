@@ -29,6 +29,13 @@ const APP_TITLE = "macOS STT";
 const HOME = homedir();
 const BASE_ENV = {
   ...process.env,
+  // Force a UTF-8 locale on every child. skhd/launchd launch us without LC_*
+  // vars, and macOS then defaults to MacRoman — pbcopy decodes its stdin with
+  // the locale, so accented text like "ê" (UTF-8 c3 aa) landed on the
+  // clipboard as "√™" (MacRoman re-encoded as UTF-8).
+  LANG: process.env.LANG || "en_US.UTF-8",
+  LC_ALL: process.env.LC_ALL || "en_US.UTF-8",
+  LC_CTYPE: process.env.LC_CTYPE || "en_US.UTF-8",
   PATH: [
     "/opt/homebrew/bin",
     "/usr/local/bin",
@@ -77,15 +84,24 @@ Options:
                      do not transcribe or paste it.
   --correct-stdin    Read transcript text from stdin, clean it with pi if
                      available, copy it, and paste it. Does not record audio.
-  --serve            Run whisper-server in the foreground with the resolved
-                     model, keeping it warm for fast transcription. Intended
-                     for the launchd agent.
+  --serve            Run the warm transcription server in the foreground (whisper-server
+                     or parakeet-server, per MACOS_STT_BACKEND) with the resolved
+                     model. Intended for the launchd agent.
 
 Environment:
+  MACOS_STT_BACKEND        whisper (default) or parakeet. Parakeet runs NVIDIA's
+                            multilingual TDT models through parakeet.cpp: faster and
+                            with native punctuation, but English/European-focused.
   MACOS_STT_WHISPER_BIN     whisper-cpp binary path. Defaults search common
                             absolute paths such as /opt/homebrew/bin/whisper-cli.
   MACOS_STT_WHISPER_MODEL   ggml model path. Required unless a known local model
                             exists, e.g. ~/.local/share/whisper-cpp/ggml-large-v3-turbo-q5_0.bin.
+  MACOS_STT_PARAKEET_BIN    parakeet-cli path (default: search ~/.local/bin, Homebrew, Nix).
+  MACOS_STT_PARAKEET_SERVER_BIN  parakeet-server path (default: same search as above).
+  MACOS_STT_PARAKEET_MODEL  parakeet gguf path. Defaults to a known model under
+                            ~/.local/share/parakeet-cpp/, e.g. tdt-0.6b-v3-q8_0.gguf.
+  MACOS_STT_PARAKEET_SERVER_URL  parakeet-server base URL (default: http://127.0.0.1:8911).
+  MACOS_STT_PARAKEET_TIMEOUT_MS  parakeet-cli timeout (default: 300000).
   MACOS_STT_WHISPER_PROMPT  Initial prompt priming punctuation/casing.
   MACOS_STT_USE_SERVER      Set to 0 to always spawn whisper-cli (default: use server).
   MACOS_STT_SERVER_URL      whisper-server base URL (default: http://127.0.0.1:8910).
@@ -206,6 +222,50 @@ function resolveWhisperServerBin(): string | undefined {
     "/run/current-system/sw/bin/whisper-server",
     "/opt/homebrew/bin/whisper-server",
     "/usr/local/bin/whisper-server",
+  ]);
+}
+
+function backend(): "whisper" | "parakeet" {
+  return (process.env.MACOS_STT_BACKEND || "whisper").toLowerCase() === "parakeet" ? "parakeet" : "whisper";
+}
+
+function resolveParakeetBin(): string | undefined {
+  return firstExisting([
+    process.env.MACOS_STT_PARAKEET_BIN ?? "",
+    join(HOME, ".local/bin/parakeet-cli"),
+    "/opt/homebrew/bin/parakeet-cli",
+    "/usr/local/bin/parakeet-cli",
+    "/etc/profiles/per-user/tuliopaim/bin/parakeet-cli",
+    join(HOME, ".nix-profile/bin/parakeet-cli"),
+    "/run/current-system/sw/bin/parakeet-cli",
+  ]);
+}
+
+function resolveParakeetServerBin(): string | undefined {
+  return firstExisting([
+    process.env.MACOS_STT_PARAKEET_SERVER_BIN ?? "",
+    join(HOME, ".local/bin/parakeet-server"),
+    "/opt/homebrew/bin/parakeet-server",
+    "/usr/local/bin/parakeet-server",
+    "/etc/profiles/per-user/tuliopaim/bin/parakeet-server",
+    join(HOME, ".nix-profile/bin/parakeet-server"),
+    "/run/current-system/sw/bin/parakeet-server",
+  ]);
+}
+
+function resolveParakeetModel(): string | undefined {
+  // Ordered best-first. tdt-0.6b-v3 is NVIDIA's multilingual TDT transducer
+  // (25 European languages incl. Portuguese); q8_0 is WER 0 vs NeMo. The
+  // ~/.cache paths are where parakeet-server stashes alias downloads.
+  return firstExisting([
+    process.env.MACOS_STT_PARAKEET_MODEL ?? "",
+    join(HOME, ".local/share/parakeet-cpp/tdt-0.6b-v3-q8_0.gguf"),
+    join(HOME, ".local/share/parakeet-cpp/tdt-0.6b-v3-f16.gguf"),
+    join(HOME, ".local/share/parakeet-cpp/parakeet-tdt-0.6b-v3-q8_0.gguf"),
+    join(HOME, ".local/share/parakeet-cpp/tdt-0.6b-v2-q8_0.gguf"),
+    join(HOME, ".local/share/parakeet-cpp/tdt_ctc-110m-f16.gguf"),
+    join(HOME, ".cache/parakeet.cpp/models/tdt-0.6b-v3-f16.gguf"),
+    join(HOME, ".cache/parakeet.cpp/models/tdt_ctc-110m-f16.gguf"),
   ]);
 }
 
@@ -548,6 +608,10 @@ function serverUrl(): string {
   return (process.env.MACOS_STT_SERVER_URL || "http://127.0.0.1:8910").replace(/\/+$/, "");
 }
 
+function parakeetServerUrl(): string {
+  return (process.env.MACOS_STT_PARAKEET_SERVER_URL || "http://127.0.0.1:8911").replace(/\/+$/, "");
+}
+
 function serverEnabled(): boolean {
   return !/^(0|false|no)$/i.test(process.env.MACOS_STT_USE_SERVER || "1");
 }
@@ -655,8 +719,78 @@ function transcribeViaCli(audioPath: string, language: string): string[] | undef
   return segments;
 }
 
+/**
+ * Parakeet backend via parakeet-server (OpenAI-compatible endpoint). The
+ * server keeps the model resident, same idea as whisper-server. Parakeet emits
+ * its own punctuation, so there is no prompt priming and the language is
+ * auto-detected; verbose_json comes back as a single segment covering the
+ * whole transcript.
+ */
+async function transcribeParakeetViaServer(audioPath: string): Promise<string[] | undefined> {
+  if (!serverEnabled()) return undefined;
+  const startedAtMs = Date.now();
+  const url = `${parakeetServerUrl()}/v1/audio/transcriptions`;
+
+  try {
+    const form = new FormData();
+    form.append("file", new Blob([readFileSync(audioPath)]), "audio.wav");
+    form.append("response_format", "verbose_json");
+
+    const response = await fetch(url, {
+      method: "POST",
+      body: form,
+      signal: AbortSignal.timeout(Number(process.env.MACOS_STT_SERVER_TIMEOUT_MS || 300_000)),
+    });
+    if (!response.ok) {
+      console.error(`[parakeet] ${url} returned ${response.status}; falling back to parakeet-cli`);
+      return undefined;
+    }
+
+    const payload = (await response.json()) as { text?: string };
+    logTiming("parakeet transcription (server)", startedAtMs);
+    return payload.text ? [payload.text] : [];
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    console.error(`[parakeet] ${url} unavailable (${reason}); falling back to parakeet-cli`);
+    return undefined;
+  }
+}
+
+function transcribeParakeetViaCli(audioPath: string): string[] | undefined {
+  const startedAtMs = Date.now();
+  const cli = resolveParakeetBin();
+  const model = resolveParakeetModel();
+  if (!cli || !model) {
+    const missing = !cli ? "parakeet-cli binary" : "parakeet model";
+    notify(APP_TITLE, `Missing ${missing}; audio left at ${audioPath}`);
+    console.error(
+      `Missing ${missing}. Install parakeet.cpp and set MACOS_STT_PARAKEET_MODEL, or download a gguf to ~/.local/share/parakeet-cpp/. Audio: ${audioPath}`
+    );
+    return undefined;
+  }
+
+  const result = run(
+    cli,
+    ["transcribe", "--model", model, "--input", audioPath],
+    undefined,
+    Number(process.env.MACOS_STT_PARAKEET_TIMEOUT_MS || 300_000)
+  );
+  logTiming("parakeet transcription (cli)", startedAtMs);
+
+  if (result.status !== 0) {
+    console.error(`parakeet failed with status ${result.status}`);
+    if (result.stderr.trim()) console.error(result.stderr.trim());
+    return undefined;
+  }
+  const text = result.stdout.trim();
+  return text ? [text] : [];
+}
+
 async function transcribe(audioPath: string, language = "en"): Promise<string | undefined> {
-  const segments = (await transcribeViaServer(audioPath, language)) ?? transcribeViaCli(audioPath, language);
+  const segments =
+    backend() === "parakeet"
+      ? (await transcribeParakeetViaServer(audioPath)) ?? transcribeParakeetViaCli(audioPath)
+      : (await transcribeViaServer(audioPath, language)) ?? transcribeViaCli(audioPath, language);
   if (!segments) {
     notify(APP_TITLE, `Transcription failed; audio left at ${audioPath}`);
     return undefined;
@@ -809,6 +943,31 @@ async function processAudio(audioPath: string, raw = true, language = "en"): Pro
  * hardcode a model path that may change.
  */
 function serve(): never | void {
+  if (backend() === "parakeet") {
+    const server = resolveParakeetServerBin();
+    if (!server) {
+      console.error("Missing parakeet-server binary; cannot start the transcription server.");
+      process.exitCode = 1;
+      return;
+    }
+    const url = new URL(parakeetServerUrl());
+    // A local gguf if we have one; otherwise the alias, which parakeet-server
+    // downloads on first run and caches under ~/.cache/parakeet.cpp/models.
+    const model = resolveParakeetModel() ?? "tdt-0.6b-v3";
+    const args = [
+      "--model", model,
+      "--host", url.hostname,
+      "--port", url.port || "8911",
+      ...splitArgs(process.env.MACOS_STT_SERVER_ARGS || ""),
+    ];
+    console.error(`Starting parakeet-server: ${server} ${args.join(" ")}`);
+    const child = spawn(server, args, { stdio: "inherit", env: BASE_ENV });
+    child.on("exit", (code, signal) => {
+      process.exitCode = code ?? (signal ? 1 : 0);
+    });
+    return;
+  }
+
   const server = resolveWhisperServerBin();
   const model = resolveWhisperModel();
   if (!server || !model) {

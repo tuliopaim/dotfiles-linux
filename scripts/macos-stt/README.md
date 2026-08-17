@@ -1,7 +1,7 @@
 # macOS STT — Speech-to-Text Toggle
 
 A hotkey-activated speech-to-text workflow for macOS. Press a key to start
-recording, press again to stop, transcribe with a local whisper.cpp model,
+recording, press again to stop, transcribe with a local whisper.cpp or parakeet.cpp model,
 optionally clean the transcript with pi, and auto-paste the result.
 
 ## How it works
@@ -28,9 +28,10 @@ A menu-bar indicator shows the current state: **●** recording, **⏳** process
 
 | Tool | Purpose | Install |
 |------|---------|---------|
-| [`whisper.cpp`](https://github.com/ggerganov/whisper.cpp) (`whisper-cli`) | Local speech-to-text | `brew install whisper-cpp` or Nix |
+| [`whisper.cpp`](https://github.com/ggerganov/whisper.cpp) (`whisper-cli`) | Local speech-to-text (default backend) | `brew install whisper-cpp` or Nix |
 | ggml model file | Whisper model weights | Download from Hugging Face (see below) |
-| [pi](https://github.com/earendil-works/pi) | Optional AI transcript cleanup | Via Nix or Homebrew |
+| [`parakeet.cpp`](https://github.com/mudler/parakeet.cpp) (`parakeet-cli`/`parakeet-server`) | Optional NVIDIA Parakeet backend — faster, native punctuation | Prebuilt macOS binaries from GitHub releases (see below) |
+| pi | Optional AI transcript cleanup | Via Nix or Homebrew |
 | `afrecord` or `ffmpeg` | Audio recording | Built-in macOS (`afrecord`) or `brew install ffmpeg` |
 
 ## Setup
@@ -86,6 +87,52 @@ launchctl bootout gui/$(id -u)/com.tuliopaim.macos-stt-server
 rm ~/Library/LaunchAgents/com.tuliopaim.macos-stt-server.plist
 ```
 
+### 5. (Optional) Try the Parakeet backend
+
+[Parakeet](https://github.com/NVIDIA/NeMo) is NVIDIA's speech-recognition family;
+[parakeet.cpp](https://github.com/mudler/parakeet.cpp) ports it to the same
+ggml/Metal stack as whisper.cpp, so it slots into this script as a second
+backend. Compared with Whisper large-v3-turbo it is roughly 3× faster on Apple
+Silicon and emits its own punctuation and capitalization, at essentially the
+same word error rate on clean dictation audio (on rough conversational audio,
+Whisper turbo still edges it). It covers English plus ~24 European languages —
+Portuguese included — but not Whisper's full 99-language long tail.
+
+Install the binaries (prebuilt macOS arm64 Metal release):
+
+```bash
+curl -L -o /tmp/parakeet.tar.gz \
+  https://github.com/mudler/parakeet.cpp/releases/latest/download/parakeet-v0.5.0-bin-macos-metal-arm64.tar.gz
+mkdir -p ~/.local/bin
+# adjust the version directory name to whatever the archive contains
+cd /tmp && tar xzf parakeet.tar.gz
+cp parakeet-*-bin-macos-metal-arm64/parakeet-cli parakeet-*-bin-macos-metal-arm64/parakeet-server ~/.local/bin/
+```
+
+Download a model (q8_0, 941 MB — the multilingual 0.6B TDT v3):
+
+```bash
+mkdir -p ~/.local/share/parakeet-cpp
+curl -L -o ~/.local/share/parakeet-cpp/tdt-0.6b-v3-q8_0.gguf \
+  https://huggingface.co/mudler/parakeet-cpp-gguf/resolve/main/tdt-0.6b-v3-q8_0.gguf
+```
+
+Enable it — for a single skhd binding, or globally by exporting it (also add it
+to the launchd agent with `MACOS_STT_BACKEND=parakeet ./install.sh`):
+
+```conf
+cmd + shift + alt - p : MACOS_STT_BACKEND=parakeet /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts
+```
+
+Models are auto-detected in this order: `tdt-0.6b-v3-q8_0.gguf`, `tdt-0.6b-v3-f16.gguf`,
+`tdt-0.6b-v2-q8_0.gguf`, `tdt_ctc-110m-f16.gguf`. The warm server also accepts
+the alias `tdt-0.6b-v3` directly and downloads it on first run, caching under
+`~/.cache/parakeet.cpp/models`. The `--serve` flag and `MACOS_STT_USE_SERVER`
+fallback behave exactly as with whisper. Note that Parakeet has no prompt
+priming, language is auto-detected (the `--portuguese`/`--raw` flags still
+decide whether the transcript gets pi-cleaned), and the pt hotkey transcribes
+in Portuguese but skips the pt→en translation in `--clean` mode as usual.
+
 ## Usage
 
 ### Via skhd (recommended)
@@ -128,11 +175,17 @@ bun ~/dotfiles/scripts/macos-stt/toggle.ts
 
 | Variable | Default | Description |
 |----------|---------|-------------|
+| `MACOS_STT_BACKEND` | `whisper` | Backend: `whisper` or `parakeet` |
 | `MACOS_STT_WHISPER_BIN` | *(auto-search)* | Path to `whisper-cli` binary |
 | `MACOS_STT_WHISPER_MODEL` | *(auto-search)* | Path to ggml model file |
 | `MACOS_STT_WHISPER_PROMPT` | *(punctuated sample)* | Initial prompt priming punctuation and casing |
 | `MACOS_STT_WHISPER_ARGS` | `-l en`; `-l pt` with `--portuguese`; `-l auto` with `--raw` | Extra args passed to whisper-cli |
-| `MACOS_STT_USE_SERVER` | `1` | Set to `0` to always spawn `whisper-cli` |
+| `MACOS_STT_PARAKEET_BIN` | *(auto-search)* | Path to `parakeet-cli` binary |
+| `MACOS_STT_PARAKEET_SERVER_BIN` | *(auto-search)* | Path to `parakeet-server` binary |
+| `MACOS_STT_PARAKEET_MODEL` | *(auto-search)* | Path to Parakeet gguf model file |
+| `MACOS_STT_PARAKEET_SERVER_URL` | `http://127.0.0.1:8911` | parakeet-server base URL (separate port so both servers can run) |
+| `MACOS_STT_PARAKEET_TIMEOUT_MS` | `300000` | parakeet-cli timeout |
+| `MACOS_STT_USE_SERVER` | `1` | Set to `0` to always spawn the CLI (either backend) |
 | `MACOS_STT_SERVER_URL` | `http://127.0.0.1:8910` | whisper-server base URL |
 | `MACOS_STT_SERVER_ARGS` | *(none)* | Extra args for `--serve` |
 | `MACOS_STT_WHISPER_SERVER_BIN` | *(auto-search)* | Path to `whisper-server` |
