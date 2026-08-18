@@ -1,3 +1,7 @@
+# Locale: interactive zsh never sources /etc/profile (login-shell only),
+# so without this we fall back to POSIX and omz git prompt chokes on multibyte chars.
+export LANG="${LANG:-en_US.UTF-8}"
+
 # Initialize zoxide
 if command -v zoxide &> /dev/null; then
     eval "$(zoxide init zsh)"
