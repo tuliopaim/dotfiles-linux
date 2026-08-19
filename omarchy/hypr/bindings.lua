@@ -31,5 +31,4 @@ o.bind("ALT + SHIFT + 1", "Full screenshot", "omarchy-capture-screenshot fullscr
 o.bind("ALT + SHIFT + 2", "Region screenshot", "omarchy-capture-screenshot region")
 o.bind("SUPER + SEMICOLON", "Clipboard", "omarchy-shell shell toggle omarchy.clipboard")
 o.bind("SUPER + SHIFT + V", "Speech to text", "handy --toggle-transcription")
-o.bind("SUPER + SHIFT + ALT + V", "Speech to text (clean)", os.getenv("HOME") .. "/dotfiles/scripts/handy-gemini-transcription")
 o.bind("SUPER + BACKSLASH", "Toggle workspace layout", "omarchy-hyprland-workspace-layout-toggle")
