@@ -115,6 +115,12 @@
       "skillPath": "skills/engineering/to-tickets/SKILL.md",
       "computedHash": "0349eee265e7005e667b4543de849672106c46d545e998f37d3319300bb07751"
     },
+    "unslop": {
+      "source": "cursor/plugins",
+      "sourceType": "github",
+      "skillPath": "pstack/skills/unslop/SKILL.md",
+      "computedHash": "5dc349bde8a3886e3c4a78d38cccaf434899ae50aecc648054c36e9d631d2b01"
+    },
     "wayfinder": {
       "source": "mattpocock/skills",
       "sourceType": "github",
