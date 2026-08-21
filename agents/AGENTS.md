@@ -18,3 +18,39 @@ These rules govern prose such as responses, explanations, documentation, plans, 
 - Never follow a style rule when doing so would make the writing less accurate, less clear, or unnatural.
 
 Before delivering prose, make one editing pass: remove repetition, shorten needlessly complex wording, replace vague claims with concrete language, and confirm that the result sounds like a thoughtful human wrote it.
+
+## Git repositories and worktrees
+
+This machine uses a bare-repository layout. Keep the Git administration files in
+the repository's `.bare` directory and keep working trees as siblings of it.
+
+For a new repository, use the helper instead of `git clone`:
+
+```sh
+~/dotfiles/scripts/clone-wt <repository-url> [repository-directory]
+cd <repository-directory>
+git worktree add -b main main origin/main
+```
+
+Adjust `main` if the repository uses a different default branch. The resulting
+layout should look like this:
+
+```text
+repository-directory/
+├── .bare/             # Git administration data; do not edit or remove
+├── .git               # File pointing to ./.bare
+├── main/              # A working tree
+└── feature-name/      # Another working tree
+```
+
+When creating another working tree, place it alongside the current one (under
+the same repository directory), not in `/tmp`, the home directory, or an
+unrelated checkout:
+
+```sh
+git worktree add -b feature-name ../feature-name origin/main
+```
+
+If the branch already exists, omit `-b` and use the existing branch name. Do
+not run `git clone`, `git init`, or manually move `.git` directories to create
+additional worktrees. Do not place a worktree inside `.bare`.
