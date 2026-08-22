@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+# Manage the OpenCode v2 web UI as a persistent LaunchAgent service.
+# Accessible over the local network and Tailscale.
+#
+# Usage: opencode2-web [start|stop|restart|status|url]
+#   (no args)  ensure running, print LAN + Tailscale URLs with QR codes
+
+set -euo pipefail
+
+LABEL="com.tuliopaim.opencode2-web"
+PLIST="$HOME/Library/LaunchAgents/${LABEL}.plist"
+PORT=4577
+PASSWORD="phone-open-4577"
+OPENCODE2="$HOME/.bun/bin/opencode2"
+
+write_plist() {
+  mkdir -p "$(dirname "$PLIST")"
+  cat > "$PLIST" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>${LABEL}</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>${OPENCODE2}</string>
+    <string>serve</string>
+    <string>--hostname</string><string>0.0.0.0</string>
+    <string>--port</string><string>${PORT}</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>OPENCODE_PASSWORD</key><string>${PASSWORD}</string>
+  </dict>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>StandardOutPath</key><string>/tmp/opencode2-web.log</string>
+  <key>StandardErrorPath</key><string>/tmp/opencode2-web.log</string>
+</dict>
+</plist>
+EOF
+}
+
+is_running() {
+  launchctl list "$LABEL" &>/dev/null
+}
+
+lan_ip() {
+  ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || echo ""
+}
+
+tailscale_ip() {
+  command -v tailscale >/dev/null && tailscale ip -4 2>/dev/null | head -1 || echo ""
+}
+
+print_urls() {
+  local lan ts user="opencode"
+  echo
+  echo "OpenCode v2 web UI (user: ${user}, pass: ${PASSWORD})"
+  if lan_ip="$(lan_ip)" && [[ -n "$lan_ip" ]]; then
+    echo "  Local net : http://${lan_ip}:${PORT}"
+    if command -v qrencode >/dev/null; then
+      qrencode -t utf8 "http://${lan_ip}:${PORT}"
+    fi
+  else
+    echo "  Local net : unavailable (no LAN IP found)"
+  fi
+  if ts="$(tailscale_ip)" && [[ -n "$ts" ]]; then
+    echo "  Tailscale : http://${ts}:${PORT}"
+    if command -v qrencode >/dev/null; then
+      qrencode -t utf8 "http://${ts}:${PORT}"
+    fi
+  else
+    echo "  Tailscale : unavailable"
+  fi
+}
+
+case "${1:-}" in
+  start)
+    if is_running; then
+      echo "Already running."
+    else
+      # Stop any stray manual instance holding the port.
+      pkill -f "opencode2 serve --hostname 0.0.0.0 --port ${PORT}" 2>/dev/null || true
+      sleep 1
+      write_plist
+      launchctl load "$PLIST"
+      sleep 2
+      is_running && echo "Started ${LABEL}." || { echo "Failed to start. See /tmp/opencode2-web.log"; exit 1; }
+    fi
+    ;;
+  stop)
+    if is_running; then
+      launchctl unload "$PLIST"
+      echo "Stopped."
+    else
+      echo "Not running."
+    fi
+    ;;
+  restart)
+    "$0" stop
+    "$0" start
+    ;;
+  status)
+    if is_running; then
+      echo "Running (label: ${LABEL}, port: ${PORT})"
+      curl -s -m 3 -o /dev/null -u "opencode:${PASSWORD}" \
+        -w "health check: HTTP %{http_code}\n" "http://127.0.0.1:${PORT}/health" || true
+    else
+      echo "Not running."
+    fi
+    ;;
+  url)
+    print_urls
+    ;;
+  "")
+    "$0" start
+    print_urls
+    ;;
+  *)
+    echo "Usage: opencode2-web [start|stop|restart|status|url]" >&2
+    exit 2
+    ;;
+esac
