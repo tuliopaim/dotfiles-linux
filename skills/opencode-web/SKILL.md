@@ -14,9 +14,9 @@ opencode2-web stop       # unload service
 
 Facts:
 
-- Runs `~/.bun/bin/opencode2 serve` as a LaunchAgent (`com.tuliopaim.opencode2-web`), so it survives reboots and crashes.
-- Port is fixed at 4577. Password is set in the script (`OPENCODE_PASSWORD`); username is ignored — any value works.
-- LAN URL uses the Mac's Wi-Fi IP; Tailscale URL comes from `tailscale ip -4`. The Tailscale one works from anywhere.
+- Uses OpenCode's shared background service, so the TUI and web UI use the same sessions. The LaunchAgent (`com.tuliopaim.opencode2-web`) only runs `opencode2 service start` at login. It does not supervise the server because that conflicts with OpenCode's own service manager.
+- Port is fixed at 4577. The script stores its password in OpenCode's managed service configuration; the username is ignored, so any value works.
+- The service binds to localhost. The Tailscale Serve HTTPS URL works from anywhere inside the tailnet.
 - Logs: `/tmp/opencode2-web.log`. Plist: `~/Library/LaunchAgents/com.tuliopaim.opencode2-web.plist`.
 - If the phone loads but freezes on an old session, it's browser cache/service worker — have them use a private tab or clear site data for the host.
 - QR rendering needs `qrencode` (brew). URLs still print without it.

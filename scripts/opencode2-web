@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Manage the OpenCode v2 web UI as a persistent LaunchAgent service.
-# Accessible over the local network and Tailscale.
+# Manage the shared OpenCode v2 service and start it at login.
+# OpenCode owns the server process; launchd only runs the login bootstrap.
 #
 # Usage: opencode2-web [start|stop|restart|status|url]
-#   (no args)  ensure running, print LAN + Tailscale URLs with QR codes
+#   (no args)  ensure running, print local + Tailscale URLs with QR codes
 
 set -euo pipefail
 
@@ -24,16 +24,10 @@ write_plist() {
   <key>ProgramArguments</key>
   <array>
     <string>${OPENCODE2}</string>
-    <string>serve</string>
-    <string>--hostname</string><string>0.0.0.0</string>
-    <string>--port</string><string>${PORT}</string>
+    <string>service</string>
+    <string>start</string>
   </array>
-  <key>EnvironmentVariables</key>
-  <dict>
-    <key>OPENCODE_PASSWORD</key><string>${PASSWORD}</string>
-  </dict>
   <key>RunAtLoad</key><true/>
-  <key>KeepAlive</key><true/>
   <key>StandardOutPath</key><string>/tmp/opencode2-web.log</string>
   <key>StandardErrorPath</key><string>/tmp/opencode2-web.log</string>
 </dict>
@@ -41,71 +35,90 @@ write_plist() {
 EOF
 }
 
-is_running() {
+configure_service() {
+  [[ "$($OPENCODE2 service get hostname)" == "127.0.0.1" ]] || \
+    "$OPENCODE2" service set hostname 127.0.0.1
+  [[ "$($OPENCODE2 service get port)" == "$PORT" ]] || \
+    "$OPENCODE2" service set port "$PORT"
+  [[ "$($OPENCODE2 service get password)" == "$PASSWORD" ]] || \
+    "$OPENCODE2" service set password "$PASSWORD"
+}
+
+is_loaded() {
   launchctl list "$LABEL" &>/dev/null
 }
 
-lan_ip() {
-  ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || echo ""
+is_running() {
+  "$OPENCODE2" service status &>/dev/null
 }
 
-tailscale_ip() {
-  command -v tailscale >/dev/null && tailscale ip -4 2>/dev/null | head -1 || echo ""
+install_bootstrap() {
+  if is_loaded && [[ -f "$PLIST" ]] && \
+    [[ "$(plutil -extract ProgramArguments.1 raw "$PLIST" 2>/dev/null || true)" == "service" ]] && \
+    [[ "$(plutil -extract ProgramArguments.2 raw "$PLIST" 2>/dev/null || true)" == "start" ]]; then
+    return
+  fi
+  if is_loaded; then
+    launchctl unload "$PLIST"
+  fi
+  write_plist
+  launchctl load "$PLIST"
+}
+
+tailscale_dns() {
+  command -v tailscale >/dev/null && \
+    tailscale status --json 2>/dev/null | jq -r '.Self.DNSName // ""' | sed 's/\.$//' || echo ""
 }
 
 print_urls() {
-  local lan ts user="opencode"
+  local dns user="opencode"
   echo
   echo "OpenCode v2 web UI (user: ${user}, pass: ${PASSWORD})"
-  if lan_ip="$(lan_ip)" && [[ -n "$lan_ip" ]]; then
-    echo "  Local net : http://${lan_ip}:${PORT}"
+  echo "  Local     : http://127.0.0.1:${PORT}"
+  if dns="$(tailscale_dns)" && [[ -n "$dns" ]]; then
+    echo "  Tailscale : https://${dns}"
     if command -v qrencode >/dev/null; then
-      qrencode -t utf8 "http://${lan_ip}:${PORT}"
+      qrencode -t utf8 "https://${dns}"
     fi
   else
-    echo "  Local net : unavailable (no LAN IP found)"
-  fi
-  if ts="$(tailscale_ip)" && [[ -n "$ts" ]]; then
-    echo "  Tailscale : http://${ts}:${PORT}"
-    if command -v qrencode >/dev/null; then
-      qrencode -t utf8 "http://${ts}:${PORT}"
-    fi
-  else
-    echo "  Tailscale : unavailable"
+    echo "  Tailscale : unavailable (configure Tailscale Serve)"
   fi
 }
 
 case "${1:-}" in
   start)
-    if is_running; then
-      echo "Already running."
-    else
-      # Stop any stray manual instance holding the port.
-      pkill -f "opencode2 serve --hostname 0.0.0.0 --port ${PORT}" 2>/dev/null || true
-      sleep 1
-      write_plist
-      launchctl load "$PLIST"
-      sleep 2
-      is_running && echo "Started ${LABEL}." || { echo "Failed to start. See /tmp/opencode2-web.log"; exit 1; }
-    fi
+    configure_service
+    install_bootstrap
+    "$OPENCODE2" service start >/dev/null
+    echo "Started."
     ;;
   stop)
-    if is_running; then
+    was_active=false
+    if is_loaded; then
+      was_active=true
       launchctl unload "$PLIST"
+    fi
+    if is_running; then
+      was_active=true
+      "$OPENCODE2" service stop >/dev/null 2>&1 || true
+    fi
+    if "$was_active"; then
       echo "Stopped."
     else
       echo "Not running."
     fi
     ;;
   restart)
-    "$0" stop
-    "$0" start
+    configure_service
+    install_bootstrap
+    "$OPENCODE2" service restart >/dev/null
+    echo "Restarted."
     ;;
   status)
     if is_running; then
-      echo "Running (label: ${LABEL}, port: ${PORT})"
+      echo "Running shared service (port: ${PORT})"
       curl -s -m 3 -o /dev/null -u "opencode:${PASSWORD}" \
-        -w "health check: HTTP %{http_code}\n" "http://127.0.0.1:${PORT}/health" || true
+        -w "health check: HTTP %{http_code}\n" "http://127.0.0.1:${PORT}/api/health" || true
     else
       echo "Not running."
     fi
