@@ -141,7 +141,7 @@ Add to your `skhdrc`:
 
 ```conf
 # English transcription with Pi cleanup
-cmd + shift + alt - v : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts --clean
+f9 : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts --clean
 
 # Fast English transcription without Pi
 cmd + shift + alt - r : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts
