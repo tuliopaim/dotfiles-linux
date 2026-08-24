@@ -28,6 +28,9 @@
         }
     },
     "agents": {
+        "explore": {
+            "model": "opencode-go/deepseek-v4-flash#medium"
+        },
         "review": {
             "description": "Delegate focused, read-only code review to a high-reasoning model. Call this after a long or high-risk implementation finishes: an independent fresh-context review is materially useful. Give it the exact scope (working tree, commit/range, or files) plus intended behavior. Do not invoke it automatically for small, low-risk changes, and use it at most once per change unless new code is added after the review.",
             "mode": "all",
