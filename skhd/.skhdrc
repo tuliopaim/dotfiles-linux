@@ -111,12 +111,8 @@ alt - return : open -a /Applications/Ghostty.app
 # ============================================================
 # SPEECH TO TEXT
 # ============================================================
-# English, raw parakeet (parakeet already punctuates; no pi pass)
-f9 : MACOS_STT_BACKEND=parakeet /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts
-# Fast English without Pi (whisper)
-cmd + shift + alt - r : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts
-# Fast Portuguese without Pi (whisper)
-cmd + shift + alt - p : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts --portuguese
+# Parakeet already punctuates, so F9 uses the raw transcript.
+f9 : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts
 cmd + shift + alt - space : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts --cancel
 
 # ============================================================

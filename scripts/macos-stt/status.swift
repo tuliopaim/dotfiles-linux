@@ -5,7 +5,9 @@ import Foundation
 let args = CommandLine.arguments
 let stateFile = args.count > 1 ? args[1] : ""
 let lockDir = args.count > 2 ? args[2] : ""
-let idleGraceSeconds = TimeInterval(ProcessInfo.processInfo.environment["MACOS_STT_STATUS_IDLE_GRACE_SECONDS"] ?? "1.5") ?? 1.5
+let environment = ProcessInfo.processInfo.environment
+let idleGrace = environment["STT_STATUS_IDLE_GRACE_SECONDS"] ?? environment["MACOS_STT_STATUS_IDLE_GRACE_SECONDS"] ?? "1.5"
+let idleGraceSeconds = TimeInterval(idleGrace) ?? 1.5
 
 final class StatusController: NSObject {
   private let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -16,7 +18,7 @@ final class StatusController: NSObject {
     NSApp.setActivationPolicy(.accessory)
     if let button = item.button {
       button.font = NSFont.monospacedSystemFont(ofSize: 16, weight: .semibold)
-      button.toolTip = "macOS STT"
+      button.toolTip = "STT"
     }
     Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { [weak self] _ in
       self?.refresh()
@@ -33,20 +35,20 @@ final class StatusController: NSObject {
     let recording = exists(stateFile)
 
     if processing {
-      set(title: "⏳", tooltip: "macOS STT: transcribing")
+      set(title: "⏳", tooltip: "STT: transcribing")
       idleSince = nil
       return
     }
 
     if recording {
-      set(title: "●", tooltip: "macOS STT: recording", color: .systemRed)
+      set(title: "●", tooltip: "STT: recording", color: .systemRed)
       idleSince = nil
       return
     }
 
     if idleSince == nil {
       idleSince = Date()
-      set(title: "✓", tooltip: "macOS STT: done", color: .systemGreen)
+      set(title: "✓", tooltip: "STT: done", color: .systemGreen)
       return
     }
 

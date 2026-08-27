@@ -1,14 +1,15 @@
 #!/usr/bin/env bun
-import { spawn, spawnSync } from "child_process";
+import { spawn } from "child_process";
 import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "fs";
-import { homedir } from "os";
 import { join } from "path";
+import { DesktopIntegration } from "./desktop";
+import { CHILD_ENV, HOME, findExecutable, findFile, run, setting, splitArgs } from "./runtime";
 
 /**
- * macOS speech-to-text toggle for skhd.
+ * Cross-platform speech-to-text toggle for desktop hotkeys.
  *
- * Press once to start recording, press again to stop, transcribe with whisper-cpp,
- * optionally clean/translate with pi, copy with pbcopy, and paste with System Events.
+ * Press once to start recording, press again to stop, transcribe with parakeet.cpp,
+ * optionally clean/translate with pi, copy to the clipboard, and paste.
  */
 
 type State = {
@@ -18,37 +19,7 @@ type State = {
   logPath?: string;
 };
 
-type RunResult = {
-  status: number | null;
-  stdout: string;
-  stderr: string;
-  error?: Error;
-};
-
-const APP_TITLE = "macOS STT";
-const HOME = homedir();
-const BASE_ENV = {
-  ...process.env,
-  // Force a UTF-8 locale on every child. skhd/launchd launch us without LC_*
-  // vars, and macOS then defaults to MacRoman — pbcopy decodes its stdin with
-  // the locale, so accented text like "ê" (UTF-8 c3 aa) landed on the
-  // clipboard as "√™" (MacRoman re-encoded as UTF-8).
-  LANG: process.env.LANG || "en_US.UTF-8",
-  LC_ALL: process.env.LC_ALL || "en_US.UTF-8",
-  LC_CTYPE: process.env.LC_CTYPE || "en_US.UTF-8",
-  PATH: [
-    "/opt/homebrew/bin",
-    "/usr/local/bin",
-    "/etc/profiles/per-user/tuliopaim/bin",
-    join(HOME, ".nix-profile/bin"),
-    "/run/current-system/sw/bin",
-    "/usr/bin",
-    "/bin",
-    "/usr/sbin",
-    "/sbin",
-    process.env.PATH ?? "",
-  ].filter(Boolean).join(":"),
-};
+const APP_TITLE = "STT";
 
 // Deliberately not $TMPDIR. macOS runs com.apple.bsd.dirhelper daily at 03:35
 // and deletes anything under /var/folders/.../T untouched for 3 days. state.json
@@ -57,7 +28,8 @@ const BASE_ENV = {
 // recorder process. It then holds the microphone open indefinitely, writing to
 // an unlinked file that `ls` cannot show and whose disk space is never
 // reclaimed. Observed in the wild: one ffmpeg alive for 9 days, 702 MB written.
-const stateRoot = process.env.MACOS_STT_STATE_DIR || join(HOME, ".local/state");
+const stateRoot = setting("STATE_DIR") || process.env.XDG_STATE_HOME || join(HOME, ".local/state");
+// Keep the existing directory name so active installations do not lose state.
 const stateDir = join(stateRoot, "macos-stt");
 const stateFile = join(stateDir, "state.json");
 const lockDir = join(stateDir, "processing.lock");
@@ -65,70 +37,47 @@ const lockPidFile = join(lockDir, "pid");
 const decisionLockDir = join(stateDir, "decision.lock");
 const decisionLockPidFile = join(decisionLockDir, "pid");
 const statusPidFile = join(stateDir, "status.pid");
-const audioDir = process.env.MACOS_STT_AUDIO_DIR || stateDir;
+const audioDir = setting("AUDIO_DIR") || stateDir;
+const desktop = new DesktopIntegration(stateFile, lockDir, statusPidFile);
 
 function usage(): string {
-  return `Usage: macos-stt/toggle.ts [--help] [--raw] [--clean] [--portuguese]
-                          [--cancel] [--correct-stdin] [--serve]
+  return `Usage: toggle.ts [--help] [--raw] [--clean] [--portuguese]
+                   [--cancel] [--correct-stdin] [--serve]
 
-Toggle macOS speech-to-text recording. First invocation starts recording with
-afrecord or ffmpeg/avfoundation; the next invocation stops recording, transcribes with
-whisper-cpp, optionally cleans with pi, copies the result to the clipboard, and pastes it.
+Toggle speech-to-text recording. The first invocation starts recording; the next
+stops, transcribes, optionally cleans with pi, copies, and pastes the result.
 
 Options:
   --help             Show this help.
-  --raw              Auto-detect the spoken language; skip AI cleanup.
+  --raw              Skip AI cleanup.
   --clean            Clean the English transcript with pi.
-  --portuguese       Transcribe in Portuguese; skip AI cleanup.
+  --portuguese       Skip cleanup; Parakeet auto-detects Portuguese.
   --cancel           Cancel an active recording, delete its partial audio, and
                      do not transcribe or paste it.
   --correct-stdin    Read transcript text from stdin, clean it with pi if
                      available, copy it, and paste it. Does not record audio.
-  --serve            Run the warm transcription server in the foreground (whisper-server
-                     or parakeet-server, per MACOS_STT_BACKEND) with the resolved
-                     model. Intended for the launchd agent.
+  --serve            Run the configured warm transcription server in the foreground.
 
 Environment:
-  MACOS_STT_BACKEND        whisper (default) or parakeet. Parakeet runs NVIDIA's
-                            multilingual TDT models through parakeet.cpp: faster and
-                            with native punctuation, but English/European-focused.
-  MACOS_STT_WHISPER_BIN     whisper-cpp binary path. Defaults search common
-                            absolute paths such as /opt/homebrew/bin/whisper-cli.
-  MACOS_STT_WHISPER_MODEL   ggml model path. Required unless a known local model
-                            exists, e.g. ~/.local/share/whisper-cpp/ggml-large-v3-turbo-q5_0.bin.
-  MACOS_STT_PARAKEET_BIN    parakeet-cli path (default: search ~/.local/bin, Homebrew, Nix).
-  MACOS_STT_PARAKEET_SERVER_BIN  parakeet-server path (default: same search as above).
-  MACOS_STT_PARAKEET_MODEL  parakeet gguf path. Defaults to a known model under
-                            ~/.local/share/parakeet-cpp/, e.g. tdt-0.6b-v3-q8_0.gguf.
-  MACOS_STT_PARAKEET_SERVER_URL  parakeet-server base URL (default: http://127.0.0.1:8911).
-  MACOS_STT_PARAKEET_TIMEOUT_MS  parakeet-cli timeout (default: 300000).
-  MACOS_STT_WHISPER_PROMPT  Initial prompt priming punctuation/casing.
-  MACOS_STT_USE_SERVER      Set to 0 to always spawn whisper-cli (default: use server).
-  MACOS_STT_SERVER_URL      whisper-server base URL (default: http://127.0.0.1:8910).
-  MACOS_STT_PI_BIN          pi binary path. Defaults search Nix/Homebrew paths.
-  MACOS_STT_RAW             Set to 1/true/yes to default to raw mode.
-  MACOS_STT_PI_MODEL        pi model (default: openai-codex/gpt-5.6-luna).
-  MACOS_STT_PI_THINKING     pi thinking level (default: off).
-  MACOS_STT_STATE_DIR       Parent for state files (default: TMPDIR or /tmp).
-  MACOS_STT_AUDIO_DIR       Directory for recordings (default: state directory).
-  MACOS_STT_KEEP_AUDIO      Set to 1/true/yes to keep audio after success.
-  MACOS_STT_PASTE_DELAY_MS  Delay before Cmd+V (default: 150).
-  MACOS_STT_RECORD_CMD      Full recorder command template. If it contains {audio},
-                            that token is replaced; otherwise the audio path is appended.
-  MACOS_STT_AFRECORD_BIN    afrecord path. Used when set or when /usr/bin/afrecord exists.
-  MACOS_STT_AFRECORD_ARGS   afrecord args before the audio path
-                            (default: -f WAVE -c 1 -r 16000).
-  MACOS_STT_FFMPEG_BIN      ffmpeg path. Used as fallback recorder on macOS.
-  MACOS_STT_FFMPEG_INPUT    ffmpeg avfoundation input (default: :default).
+  STT_PARAKEET_BIN     parakeet-cli path; otherwise searched on PATH.
+  STT_PARAKEET_MODEL   parakeet gguf model path.
+  STT_USE_SERVER       Set to 0 to always use the transcription CLI.
+  STT_PI_BIN           pi path; otherwise searched on PATH.
+  STT_STATE_DIR        State directory parent (default: XDG_STATE_HOME or ~/.local/state).
+  STT_AUDIO_DIR        Recording directory (default: the state directory).
+  STT_KEEP_AUDIO       Keep audio after successful delivery when true.
+  STT_RECORD_CMD       Recorder command template; {audio} is replaced with the WAV path.
+  STT_COPY_CMD         Clipboard command. Transcript text is passed on stdin.
+  STT_PASTE_CMD        Auto-paste command, or "none" to copy only.
+  STT_AUTO_PASTE       Set to 0 to copy without simulating a paste.
+  STT_PASTE_DELAY_MS   Delay before auto-paste (default: 150).
+  STT_FFMPEG_INPUT     macOS AVFoundation input (:default) or Linux input (default).
+  STT_FFMPEG_FORMAT    Linux ffmpeg input format (default: pulse; use alsa if needed).
+
+The old MACOS_STT_* names remain accepted for compatibility.
 
 Model setup example (outside this repo):
-  mkdir -p ~/.local/share/whisper-cpp
-  curl -L -o ~/.local/share/whisper-cpp/ggml-small.bin \\
-    https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin
-  export MACOS_STT_WHISPER_MODEL=~/.local/share/whisper-cpp/ggml-small.bin
-
-skhd should invoke Bun with absolute paths, for example:
-  /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts
+  export STT_PARAKEET_MODEL=~/.local/share/parakeet-cpp/tdt-0.6b-v3-q8_0.gguf
 `;
 }
 
@@ -137,117 +86,29 @@ function ensureDirs(): void {
   mkdirSync(audioDir, { recursive: true });
 }
 
-function shellQuote(value: string): string {
-  return `'${value.replace(/'/g, `'\\''`)}'`;
-}
-
-function appleString(value: string): string {
-  return `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
-}
-
 function notify(title: string, message: string): void {
-  // Intentionally avoid macOS notification banners; the menu bar indicator shows state.
   console.error(`${title}: ${message}`);
 }
 
-function run(bin: string, args: string[], input?: string, timeoutMs = 120_000): RunResult {
-  const result = spawnSync(bin, args, {
-    input,
-    encoding: "utf8",
-    maxBuffer: 20 * 1024 * 1024,
-    timeout: timeoutMs,
-    env: BASE_ENV,
-  });
-  return {
-    status: result.status,
-    stdout: result.stdout ?? "",
-    stderr: result.stderr ?? "",
-    error: result.error,
-  };
-}
-
-function executable(path: string | undefined): path is string {
-  if (!path) return false;
-  try {
-    return existsSync(path) && statSync(path).isFile();
-  } catch {
-    return false;
-  }
-}
-
-function firstExisting(paths: string[]): string | undefined {
-  return paths.find(executable);
-}
-
-function resolveWhisperBin(): string | undefined {
-  return firstExisting([
-    process.env.MACOS_STT_WHISPER_BIN ?? "",
-    "/opt/homebrew/bin/whisper-cli",
-    "/opt/homebrew/bin/whisper-cpp",
-    "/usr/local/bin/whisper-cli",
-    "/usr/local/bin/whisper-cpp",
-    "/etc/profiles/per-user/tuliopaim/bin/whisper-cli",
-    "/etc/profiles/per-user/tuliopaim/bin/whisper-cpp",
-    join(HOME, ".nix-profile/bin/whisper-cli"),
-    join(HOME, ".nix-profile/bin/whisper-cpp"),
-    "/run/current-system/sw/bin/whisper-cli",
-    "/run/current-system/sw/bin/whisper-cpp",
-  ]);
-}
-
-function resolveWhisperModel(): string | undefined {
-  // Ordered best-first. large-v3-turbo is markedly better at punctuation,
-  // casing, and proper nouns than small, and still runs faster than realtime
-  // on Apple Silicon, so it wins the default slot despite the larger file.
-  return firstExisting([
-    process.env.MACOS_STT_WHISPER_MODEL ?? "",
-    join(HOME, ".local/share/whisper-cpp/ggml-large-v3-turbo-q5_0.bin"),
-    join(HOME, ".local/share/whisper-cpp/ggml-large-v3-turbo.bin"),
-    join(HOME, ".local/share/whisper-cpp/ggml-small.bin"),
-    join(HOME, ".local/share/whisper-cpp/ggml-base.bin"),
-    join(HOME, ".cache/whisper/ggml-large-v3-turbo-q5_0.bin"),
-    join(HOME, ".cache/whisper/ggml-small.bin"),
-    join(HOME, ".cache/whisper/ggml-base.bin"),
-    join(HOME, ".cache/whisper-cpp/ggml-large-v3-turbo-q5_0.bin"),
-    join(HOME, ".cache/whisper-cpp/ggml-small.bin"),
-    join(HOME, ".cache/whisper-cpp/ggml-base.bin"),
-  ]);
-}
-
-function resolveWhisperServerBin(): string | undefined {
-  return firstExisting([
-    process.env.MACOS_STT_WHISPER_SERVER_BIN ?? "",
-    "/etc/profiles/per-user/tuliopaim/bin/whisper-server",
-    join(HOME, ".nix-profile/bin/whisper-server"),
-    "/run/current-system/sw/bin/whisper-server",
-    "/opt/homebrew/bin/whisper-server",
-    "/usr/local/bin/whisper-server",
-  ]);
-}
-
-function backend(): "whisper" | "parakeet" {
-  return (process.env.MACOS_STT_BACKEND || "whisper").toLowerCase() === "parakeet" ? "parakeet" : "whisper";
-}
-
 function resolveParakeetBin(): string | undefined {
-  return firstExisting([
-    process.env.MACOS_STT_PARAKEET_BIN ?? "",
+  return findExecutable([
+    setting("PARAKEET_BIN"),
+    "parakeet-cli",
     join(HOME, ".local/bin/parakeet-cli"),
     "/opt/homebrew/bin/parakeet-cli",
     "/usr/local/bin/parakeet-cli",
-    "/etc/profiles/per-user/tuliopaim/bin/parakeet-cli",
     join(HOME, ".nix-profile/bin/parakeet-cli"),
     "/run/current-system/sw/bin/parakeet-cli",
   ]);
 }
 
 function resolveParakeetServerBin(): string | undefined {
-  return firstExisting([
-    process.env.MACOS_STT_PARAKEET_SERVER_BIN ?? "",
+  return findExecutable([
+    setting("PARAKEET_SERVER_BIN"),
+    "parakeet-server",
     join(HOME, ".local/bin/parakeet-server"),
     "/opt/homebrew/bin/parakeet-server",
     "/usr/local/bin/parakeet-server",
-    "/etc/profiles/per-user/tuliopaim/bin/parakeet-server",
     join(HOME, ".nix-profile/bin/parakeet-server"),
     "/run/current-system/sw/bin/parakeet-server",
   ]);
@@ -257,8 +118,8 @@ function resolveParakeetModel(): string | undefined {
   // Ordered best-first. tdt-0.6b-v3 is NVIDIA's multilingual TDT transducer
   // (25 European languages incl. Portuguese); q8_0 is WER 0 vs NeMo. The
   // ~/.cache paths are where parakeet-server stashes alias downloads.
-  return firstExisting([
-    process.env.MACOS_STT_PARAKEET_MODEL ?? "",
+  return findFile([
+    setting("PARAKEET_MODEL"),
     join(HOME, ".local/share/parakeet-cpp/tdt-0.6b-v3-q8_0.gguf"),
     join(HOME, ".local/share/parakeet-cpp/tdt-0.6b-v3-f16.gguf"),
     join(HOME, ".local/share/parakeet-cpp/parakeet-tdt-0.6b-v3-q8_0.gguf"),
@@ -270,31 +131,14 @@ function resolveParakeetModel(): string | undefined {
 }
 
 function resolvePiBin(): string | undefined {
-  return firstExisting([
-    process.env.MACOS_STT_PI_BIN ?? "",
-    "/etc/profiles/per-user/tuliopaim/bin/pi",
+  return findExecutable([
+    setting("PI_BIN"),
+    "pi",
     join(HOME, ".nix-profile/bin/pi"),
     "/run/current-system/sw/bin/pi",
     "/opt/homebrew/bin/pi",
     "/usr/local/bin/pi",
   ]);
-}
-
-function resolveFfmpegBin(): string | undefined {
-  return firstExisting([
-    process.env.MACOS_STT_FFMPEG_BIN ?? "",
-    "/etc/profiles/per-user/tuliopaim/bin/ffmpeg",
-    join(HOME, ".nix-profile/bin/ffmpeg"),
-    "/run/current-system/sw/bin/ffmpeg",
-    "/opt/homebrew/bin/ffmpeg",
-    "/usr/local/bin/ffmpeg",
-  ]);
-}
-
-function resolveFfmpegInput(): string {
-  const input = process.env.MACOS_STT_FFMPEG_INPUT || ":default";
-  console.error(`[recording] ffmpeg avfoundation input=${input}`);
-  return input;
 }
 
 function isPidAlive(pid: number): boolean {
@@ -349,26 +193,6 @@ function processing(): boolean {
   return false;
 }
 
-function ensureStatusIndicator(): void {
-  try {
-    const existingPid = existsSync(statusPidFile) ? Number(readFileSync(statusPidFile, "utf8")) : NaN;
-    if (Number.isFinite(existingPid) && isPidAlive(existingPid)) return;
-
-    const script = process.env.MACOS_STT_STATUS_SCRIPT || join(import.meta.dir, "status.swift");
-    if (!executable(script)) return;
-
-    const child = spawn("/usr/bin/swift", [script, stateFile, lockDir], {
-      detached: true,
-      stdio: ["ignore", "ignore", "ignore"],
-      env: BASE_ENV,
-    });
-    child.unref();
-    if (child.pid) writeFileSync(statusPidFile, String(child.pid), { mode: 0o600 });
-  } catch (error) {
-    console.error(`Failed to start status indicator: ${String(error)}`);
-  }
-}
-
 /**
  * Serialises the read-state/start-recorder/write-state decision.
  *
@@ -386,14 +210,23 @@ async function withDecisionLock<T>(fn: () => T): Promise<T | undefined> {
       mkdirSync(decisionLockDir);
       break;
     } catch {
-      // Reclaim a lock whose owner died mid-decision.
+      let stale = false;
       try {
         const owner = Number(readFileSync(decisionLockPidFile, "utf8"));
-        if (!Number.isFinite(owner) || !isPidAlive(owner)) {
-          rmSync(decisionLockDir, { recursive: true, force: true });
+        stale = Number.isFinite(owner)
+          ? !isPidAlive(owner)
+          : Date.now() - statSync(decisionLockDir).mtimeMs > 250;
+      } catch {
+        // mkdir and writing the owner file are separate operations. Another
+        // process can observe the directory during that tiny gap. Only reclaim
+        // an ownerless lock after it has had time to finish initialization.
+        try {
+          stale = Date.now() - statSync(decisionLockDir).mtimeMs > 250;
+        } catch {
           continue;
         }
-      } catch {
+      }
+      if (stale) {
         rmSync(decisionLockDir, { recursive: true, force: true });
         continue;
       }
@@ -420,7 +253,9 @@ async function withDecisionLock<T>(fn: () => T): Promise<T | undefined> {
  */
 function reapOrphanRecorders(keepPid?: number): void {
   const prefix = join(audioDir, "recording-");
-  const listing = run("/bin/ps", ["-eo", "pid=,command="], undefined, 5000);
+  const ps = findExecutable(["ps", "/bin/ps", "/usr/bin/ps"]);
+  if (!ps) return;
+  const listing = run(ps, ["-eo", "pid=,command="], undefined, 5000);
   if (listing.status !== 0) return;
 
   for (const line of listing.stdout.split("\n")) {
@@ -471,13 +306,8 @@ function logTiming(label: string, startedAtMs: number): void {
   console.error(`[timing] ${label}: ${formatDuration(Date.now() - startedAtMs)}`);
 }
 
-function splitArgs(value: string): string[] {
-  const matches = value.match(/(?:[^\s"']+|"[^"]*"|'[^']*')+/g) ?? [];
-  return matches.map((part) => part.replace(/^(['"])(.*)\1$/, "$2"));
-}
-
 function maxRecordingSeconds(): number {
-  const parsed = Number(process.env.MACOS_STT_MAX_RECORDING_SECONDS || 1800);
+  const parsed = Number(setting("MAX_RECORDING_SECONDS") || 1800);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 1800;
 }
 
@@ -485,44 +315,16 @@ function startRecording(): void {
   ensureDirs();
   const audioPath = join(audioDir, `recording-${timestamp()}.wav`);
   const logPath = join(stateDir, `recording-${timestamp()}.log`);
-
-  let command: string;
-  let args: string[];
-  if (process.env.MACOS_STT_RECORD_CMD) {
-    const template = process.env.MACOS_STT_RECORD_CMD.includes("{audio}")
-      ? process.env.MACOS_STT_RECORD_CMD.replaceAll("{audio}", shellQuote(audioPath))
-      : `${process.env.MACOS_STT_RECORD_CMD} ${shellQuote(audioPath)}`;
-    command = "/bin/sh";
-    args = ["-lc", template];
-  } else if (process.env.MACOS_STT_AFRECORD_BIN || executable("/usr/bin/afrecord")) {
-    command = process.env.MACOS_STT_AFRECORD_BIN || "/usr/bin/afrecord";
-    args = [...splitArgs(process.env.MACOS_STT_AFRECORD_ARGS || "-f WAVE -c 1 -r 16000"), audioPath];
-  } else {
-    const ffmpeg = resolveFfmpegBin();
-    command = ffmpeg || "/usr/bin/afrecord";
-    // -t is a hard stop so a recording that never gets stopped cannot hold the
-    // microphone open forever. Without it an orphaned recorder runs until reboot.
-    args = ffmpeg
-    ? ["-hide_banner", "-loglevel", "error", "-f", "avfoundation", "-i", resolveFfmpegInput(), "-ac", "1", "-ar", "16000", "-t", String(maxRecordingSeconds()), "-y", audioPath]
-      : [...splitArgs(process.env.MACOS_STT_AFRECORD_ARGS || "-f WAVE -c 1 -r 16000"), audioPath];
-  }
-
-  if (command !== "/bin/sh" && !executable(command)) {
-    notify(APP_TITLE, `Recorder not found: ${command}`);
+  const recorder = desktop.startRecorder(audioPath, maxRecordingSeconds());
+  if ("error" in recorder) {
+    notify(APP_TITLE, recorder.error);
     process.exitCode = 1;
     return;
   }
-
-  const child = spawn(command, args, {
-    detached: true,
-    stdio: ["ignore", "ignore", "ignore"],
-    env: BASE_ENV,
-  });
-  child.unref();
-  writeState({ pid: child.pid ?? -1, audioPath, startedAt: new Date().toISOString(), logPath });
-  ensureStatusIndicator();
+  writeState({ pid: recorder.pid, audioPath, startedAt: new Date().toISOString(), logPath });
+  desktop.showStatus();
   notify(APP_TITLE, "Recording started. Press the hotkey again to transcribe.");
-  console.error(`Recording started: pid=${child.pid} audio=${audioPath}`);
+  console.error(`Recording started: pid=${recorder.pid} audio=${audioPath}`);
 }
 
 async function terminateRecorder(state: State): Promise<void> {
@@ -541,7 +343,7 @@ async function waitForPidExit(pid: number, timeoutMs: number): Promise<boolean> 
   return !isPidAlive(pid);
 }
 
-async function stopRecording(state: State, raw = true, language = "en"): Promise<void> {
+async function stopRecording(state: State, raw = true): Promise<void> {
   const stopStartedAtMs = Date.now();
   const recordingStartedAtMs = Date.parse(state.startedAt);
   removeState();
@@ -550,10 +352,10 @@ async function stopRecording(state: State, raw = true, language = "en"): Promise
   if (Number.isFinite(recordingStartedAtMs)) {
     console.error(`[timing] recorded audio: ${formatDuration(Date.now() - recordingStartedAtMs)}`);
   }
-  ensureStatusIndicator();
+  desktop.showStatus();
   notify(APP_TITLE, raw ? "Transcribing recording…" : "Transcribing and cleaning recording…");
   console.error(`Processing audio: ${state.audioPath}${raw ? " (no AI cleanup)" : ""}`);
-  await processAudio(state.audioPath, raw, language);
+  await processAudio(state.audioPath, raw);
 }
 
 async function cancelRecording(): Promise<void> {
@@ -583,7 +385,7 @@ async function cancelRecording(): Promise<void> {
 
   await terminateRecorder(state);
   rmSync(state.audioPath, { force: true });
-  ensureStatusIndicator();
+  desktop.showStatus();
   notify(APP_TITLE, "Recording cancelled.");
   console.error(`Recording cancelled; deleted partial audio: ${state.audioPath}`);
 }
@@ -592,141 +394,19 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Priming the decoder with correctly punctuated text biases it toward emitting
-// punctuation and capitals of its own. Costs nothing at inference time.
-const DEFAULT_PROMPTS: Record<string, string> = {
-  en: "Hello, and welcome. This is a dictated note: it uses commas, periods, question marks, and proper capitalization. Does that read well? Yes, it does.",
-  pt: "Olá, tudo bem? Esta é uma nota ditada: usa vírgulas, pontos, pontos de interrogação e letras maiúsculas corretas. Ficou bom? Sim, ficou.",
-};
-
-function whisperPrompt(language: string): string {
-  if (process.env.MACOS_STT_WHISPER_PROMPT !== undefined) return process.env.MACOS_STT_WHISPER_PROMPT;
-  return DEFAULT_PROMPTS[language] ?? DEFAULT_PROMPTS.en;
-}
-
-function serverUrl(): string {
-  return (process.env.MACOS_STT_SERVER_URL || "http://127.0.0.1:8910").replace(/\/+$/, "");
-}
-
 function parakeetServerUrl(): string {
-  return (process.env.MACOS_STT_PARAKEET_SERVER_URL || "http://127.0.0.1:8911").replace(/\/+$/, "");
+  return (setting("PARAKEET_SERVER_URL") || "http://127.0.0.1:8911").replace(/\/+$/, "");
 }
 
 function serverEnabled(): boolean {
-  return !/^(0|false|no)$/i.test(process.env.MACOS_STT_USE_SERVER || "1");
+  return !/^(0|false|no)$/i.test(setting("USE_SERVER") || "1");
 }
 
 /**
- * Transcribe against a warm whisper-server. The server keeps the model resident,
- * which removes model load (and, after a reboot, Metal shader compilation) from
- * every dictation — the difference between ~0.8s and several seconds on the
- * first request of the day. Returns undefined if the server is unreachable so
- * the caller can fall back to spawning whisper-cli.
+ * Parakeet server uses an OpenAI-compatible endpoint and keeps the model
+ * resident. It emits punctuation and auto-detects the spoken language.
  */
-async function transcribeViaServer(audioPath: string, language: string): Promise<string[] | undefined> {
-  if (!serverEnabled()) return undefined;
-  const startedAtMs = Date.now();
-  const url = `${serverUrl()}${process.env.MACOS_STT_SERVER_INFERENCE_PATH || "/inference"}`;
-
-  try {
-    const form = new FormData();
-    form.append("file", new Blob([readFileSync(audioPath)]), "audio.wav");
-    form.append("response_format", "verbose_json");
-    form.append("language", language);
-    form.append("prompt", whisperPrompt(language));
-    form.append("temperature", "0");
-
-    const response = await fetch(url, {
-      method: "POST",
-      body: form,
-      signal: AbortSignal.timeout(Number(process.env.MACOS_STT_SERVER_TIMEOUT_MS || 300_000)),
-    });
-    if (!response.ok) {
-      console.error(`[server] ${url} returned ${response.status}; falling back to whisper-cli`);
-      return undefined;
-    }
-
-    const payload = (await response.json()) as { text?: string; segments?: { text?: string }[] };
-    logTiming("whisper transcription (server)", startedAtMs);
-
-    if (Array.isArray(payload.segments) && payload.segments.length > 0) {
-      return payload.segments.map((segment) => segment.text ?? "");
-    }
-    // No segment detail (plain `json` response format): treat the whole reply
-    // as one segment rather than discarding a perfectly good transcript.
-    return payload.text ? [payload.text] : [];
-  } catch (error) {
-    const reason = error instanceof Error ? error.message : String(error);
-    console.error(`[server] ${url} unavailable (${reason}); falling back to whisper-cli`);
-    return undefined;
-  }
-}
-
-function transcribeViaCli(audioPath: string, language: string): string[] | undefined {
-  const startedAtMs = Date.now();
-  const whisper = resolveWhisperBin();
-  const model = resolveWhisperModel();
-  if (!whisper || !model) {
-    const missing = !whisper ? "whisper-cpp binary" : "whisper model";
-    notify(APP_TITLE, `Missing ${missing}; audio left at ${audioPath}`);
-    console.error(`Missing ${missing}. Install/rebuild whisper-cpp and set/download MACOS_STT_WHISPER_MODEL. Audio: ${audioPath}`);
-    return undefined;
-  }
-
-  const outputBase = join(stateDir, `whisper-${timestamp()}`);
-  const extraArgs = splitArgs(process.env.MACOS_STT_WHISPER_ARGS || `-l ${language}`);
-  // -sns drops non-speech tokens like [BLANK_AUDIO] and (clears throat);
-  // -oj keeps segment offsets so paragraph breaks can be recovered below.
-  const args = [
-    "-m", model,
-    "-f", audioPath,
-    "-oj", "-of", outputBase,
-    "-np", "-sns",
-    "--prompt", whisperPrompt(language),
-    ...extraArgs,
-  ];
-  const result = run(whisper, args, undefined, Number(process.env.MACOS_STT_WHISPER_TIMEOUT_MS || 300_000));
-  logTiming("whisper transcription (cli)", startedAtMs);
-
-  const outputJsonPath = `${outputBase}.json`;
-  let segments: string[] | undefined;
-  if (existsSync(outputJsonPath)) {
-    try {
-      const parsed = JSON.parse(readFileSync(outputJsonPath, "utf8")) as {
-        transcription?: { text?: string }[];
-      };
-      segments = (parsed.transcription ?? []).map((entry) => entry.text ?? "");
-    } catch (error) {
-      console.error(`Failed to parse ${outputJsonPath}: ${String(error)}`);
-    }
-    rmSync(outputJsonPath, { force: true });
-  }
-
-  if (!segments) {
-    if (result.status !== 0) {
-      if (result.stderr.trim()) console.error(result.stderr.trim());
-      return undefined;
-    }
-    segments = result.stdout.trim() ? [result.stdout] : [];
-  }
-
-  if (result.status !== 0 && segments.length === 0) {
-    console.error(`whisper failed with status ${result.status}`);
-    if (result.stderr.trim()) console.error(result.stderr.trim());
-    return undefined;
-  }
-
-  return segments;
-}
-
-/**
- * Parakeet backend via parakeet-server (OpenAI-compatible endpoint). The
- * server keeps the model resident, same idea as whisper-server. Parakeet emits
- * its own punctuation, so there is no prompt priming and the language is
- * auto-detected; verbose_json comes back as a single segment covering the
- * whole transcript.
- */
-async function transcribeParakeetViaServer(audioPath: string): Promise<string[] | undefined> {
+async function transcribeViaServer(audioPath: string): Promise<string[] | undefined> {
   if (!serverEnabled()) return undefined;
   const startedAtMs = Date.now();
   const url = `${parakeetServerUrl()}/v1/audio/transcriptions`;
@@ -739,7 +419,7 @@ async function transcribeParakeetViaServer(audioPath: string): Promise<string[] 
     const response = await fetch(url, {
       method: "POST",
       body: form,
-      signal: AbortSignal.timeout(Number(process.env.MACOS_STT_SERVER_TIMEOUT_MS || 300_000)),
+      signal: AbortSignal.timeout(Number(setting("SERVER_TIMEOUT_MS") || 300_000)),
     });
     if (!response.ok) {
       console.error(`[parakeet] ${url} returned ${response.status}; falling back to parakeet-cli`);
@@ -756,7 +436,7 @@ async function transcribeParakeetViaServer(audioPath: string): Promise<string[] 
   }
 }
 
-function transcribeParakeetViaCli(audioPath: string): string[] | undefined {
+function transcribeViaCli(audioPath: string): string[] | undefined {
   const startedAtMs = Date.now();
   const cli = resolveParakeetBin();
   const model = resolveParakeetModel();
@@ -764,7 +444,7 @@ function transcribeParakeetViaCli(audioPath: string): string[] | undefined {
     const missing = !cli ? "parakeet-cli binary" : "parakeet model";
     notify(APP_TITLE, `Missing ${missing}; audio left at ${audioPath}`);
     console.error(
-      `Missing ${missing}. Install parakeet.cpp and set MACOS_STT_PARAKEET_MODEL, or download a gguf to ~/.local/share/parakeet-cpp/. Audio: ${audioPath}`
+      `Missing ${missing}. Install parakeet.cpp and set STT_PARAKEET_MODEL, or download a gguf to ~/.local/share/parakeet-cpp/. Audio: ${audioPath}`
     );
     return undefined;
   }
@@ -773,7 +453,7 @@ function transcribeParakeetViaCli(audioPath: string): string[] | undefined {
     cli,
     ["transcribe", "--model", model, "--input", audioPath],
     undefined,
-    Number(process.env.MACOS_STT_PARAKEET_TIMEOUT_MS || 300_000)
+    Number(setting("PARAKEET_TIMEOUT_MS") || 300_000)
   );
   logTiming("parakeet transcription (cli)", startedAtMs);
 
@@ -786,11 +466,8 @@ function transcribeParakeetViaCli(audioPath: string): string[] | undefined {
   return text ? [text] : [];
 }
 
-async function transcribe(audioPath: string, language = "en"): Promise<string | undefined> {
-  const segments =
-    backend() === "parakeet"
-      ? (await transcribeParakeetViaServer(audioPath)) ?? transcribeParakeetViaCli(audioPath)
-      : (await transcribeViaServer(audioPath, language)) ?? transcribeViaCli(audioPath, language);
+async function transcribe(audioPath: string): Promise<string | undefined> {
+  const segments = (await transcribeViaServer(audioPath)) ?? transcribeViaCli(audioPath);
   if (!segments) {
     notify(APP_TITLE, `Transcription failed; audio left at ${audioPath}`);
     return undefined;
@@ -800,24 +477,17 @@ async function transcribe(audioPath: string, language = "en"): Promise<string | 
 
   if (!transcript || /^\[(BLANK_AUDIO|MUSIC|SILENCE)\]$/i.test(transcript)) {
     notify(APP_TITLE, `No speech detected; audio left at ${audioPath}`);
-    console.error(`whisper returned no speech; likely silent/wrong microphone input. Try MACOS_STT_FFMPEG_INPUT=:1 (or list devices with: ffmpeg -f avfoundation -list_devices true -i "")`);
+    const inputHelp = process.platform === "darwin"
+      ? 'Try STT_FFMPEG_INPUT=:1 (list devices with: ffmpeg -f avfoundation -list_devices true -i "").'
+      : "Check STT_FFMPEG_INPUT and STT_FFMPEG_FORMAT for your PulseAudio, PipeWire, or ALSA source.";
+    console.error(`Parakeet returned no speech; likely silent or wrong microphone input. ${inputHelp}`);
     return undefined;
   }
 
   return transcript;
 }
 
-/**
- * Join whisper segments into a single block of text.
- *
- * Deliberately no pause-based paragraph splitting: whisper.cpp gives no usable
- * silence signal. Without VAD, segment boundaries are padded so each segment
- * starts exactly where the previous one ended (a 2.5s pause shows up as a 0ms
- * gap); with VAD, the silence is cut out before decoding and the segments merge
- * outright. Recovering real pauses would need a separate whisper-vad-speech-segments
- * pass aligned back onto the transcript. Paragraph structure is left to the pi
- * cleanup pass, which infers it from the wording instead.
- */
+/** Join transcript segments into a single normalized block of text. */
 function segmentsToText(segments: string[]): string {
   return segments
     .map(stripAnnotations)
@@ -865,15 +535,15 @@ function cleanWithPi(raw: string): string {
   const pi = resolvePiBin();
   if (!pi) {
     notify(APP_TITLE, "pi not found; using raw transcript.");
-    console.error("pi not found; set MACOS_STT_PI_BIN to enable cleanup.");
+    console.error("pi not found; set STT_PI_BIN to enable cleanup.");
     return raw;
   }
 
-  const model = process.env.MACOS_STT_PI_MODEL || "openai-codex/gpt-5.6-luna";
-  const thinking = process.env.MACOS_STT_PI_THINKING || "off";
+  const model = setting("PI_MODEL") || "openai-codex/gpt-5.6-luna";
+  const thinking = setting("PI_THINKING") || "off";
   console.error(`[pi] before cleanup: model=${model} thinking=${thinking} chars=${raw.length}`);
   console.error(`[pi] raw transcript: ${previewText(raw)}`);
-  const result = run(pi, ["--model", model, "--thinking", thinking, "-nt", "--no-session", "--no-extensions", "--no-skills", "--no-prompt-templates", "--no-themes", "-nc", "--print"], correctionPrompt(raw), Number(process.env.MACOS_STT_PI_TIMEOUT_MS || 120_000));
+  const result = run(pi, ["--model", model, "--thinking", thinking, "-nt", "--no-session", "--no-extensions", "--no-skills", "--no-prompt-templates", "--no-themes", "-nc", "--print"], correctionPrompt(raw), Number(setting("PI_TIMEOUT_MS") || 120_000));
   logTiming("pi cleanup", startedAtMs);
   const cleaned = result.stdout.trim();
   console.error(`[pi] after cleanup: status=${result.status} chars=${cleaned.length}`);
@@ -888,32 +558,26 @@ function cleanWithPi(raw: string): string {
 }
 
 async function copyAndPaste(text: string): Promise<boolean> {
-  const copyStartedAtMs = Date.now();
-  const copy = run("/usr/bin/pbcopy", [], text, 10_000);
-  logTiming("clipboard copy", copyStartedAtMs);
-  if (copy.status !== 0) {
+  const delivery = await desktop.deliverText(text);
+  if (!delivery.copied) {
     notify(APP_TITLE, "Failed to copy transcript to clipboard.");
-    console.error(copy.stderr.trim() || copy.error?.message || "pbcopy failed");
+    if (delivery.error) console.error(delivery.error);
     process.exitCode = 1;
     return false;
   }
 
-  const delay = Number(process.env.MACOS_STT_PASTE_DELAY_MS || 150);
-  const pasteScript = 'tell application "System Events" to keystroke "v" using command down';
-  await sleep(Number.isFinite(delay) ? Math.max(0, delay) : 150);
-  const pasteStartedAtMs = Date.now();
-  const paste = run("/usr/bin/osascript", ["-e", pasteScript], undefined, 10_000);
-  logTiming("paste", pasteStartedAtMs);
-  if (paste.status !== 0) {
-    notify(APP_TITLE, "Transcript copied. Automatic paste failed; paste manually with Cmd+V.");
-    console.error(paste.stderr.trim() || paste.error?.message || "osascript paste failed");
+  if (!delivery.pasted) {
+    notify(APP_TITLE, delivery.pasteAttempted
+      ? "Transcript copied. Automatic paste failed; paste manually."
+      : "Transcript copied to the clipboard.");
+    if (delivery.error) console.error(delivery.error);
     return true;
   }
   notify(APP_TITLE, "Transcript pasted.");
   return true;
 }
 
-async function processAudio(audioPath: string, raw = true, language = "en"): Promise<void> {
+async function processAudio(audioPath: string, raw = true): Promise<void> {
   const totalStartedAtMs = Date.now();
   if (!existsSync(audioPath)) {
     notify(APP_TITLE, `Audio file not found: ${audioPath}`);
@@ -921,7 +585,7 @@ async function processAudio(audioPath: string, raw = true, language = "en"): Pro
     return;
   }
 
-  const transcript = await transcribe(audioPath, language);
+  const transcript = await transcribe(audioPath);
   if (!transcript) {
     process.exitCode = 1;
     return;
@@ -930,62 +594,32 @@ async function processAudio(audioPath: string, raw = true, language = "en"): Pro
   const finalText = raw ? transcript : cleanWithPi(transcript);
   const delivered = await copyAndPaste(finalText);
 
-  if (delivered && !/^(1|true|yes)$/i.test(process.env.MACOS_STT_KEEP_AUDIO || "")) {
+  if (delivered && !/^(1|true|yes)$/i.test(setting("KEEP_AUDIO") || "")) {
     rmSync(audioPath, { force: true });
   }
 
   logTiming("total processing", totalStartedAtMs);
 }
 
-/**
- * Replace this process with whisper-server, holding the model resident.
- * Keeping model resolution here means the launchd agent does not have to
- * hardcode a model path that may change.
- */
+/** Start parakeet-server with the resolved model and configured URL. */
 function serve(): never | void {
-  if (backend() === "parakeet") {
-    const server = resolveParakeetServerBin();
-    if (!server) {
-      console.error("Missing parakeet-server binary; cannot start the transcription server.");
-      process.exitCode = 1;
-      return;
-    }
-    const url = new URL(parakeetServerUrl());
-    // A local gguf if we have one; otherwise the alias, which parakeet-server
-    // downloads on first run and caches under ~/.cache/parakeet.cpp/models.
-    const model = resolveParakeetModel() ?? "tdt-0.6b-v3";
-    const args = [
-      "--model", model,
-      "--host", url.hostname,
-      "--port", url.port || "8911",
-      ...splitArgs(process.env.MACOS_STT_SERVER_ARGS || ""),
-    ];
-    console.error(`Starting parakeet-server: ${server} ${args.join(" ")}`);
-    const child = spawn(server, args, { stdio: "inherit", env: BASE_ENV });
-    child.on("exit", (code, signal) => {
-      process.exitCode = code ?? (signal ? 1 : 0);
-    });
-    return;
-  }
-
-  const server = resolveWhisperServerBin();
-  const model = resolveWhisperModel();
-  if (!server || !model) {
-    console.error(`Missing ${!server ? "whisper-server binary" : "whisper model"}; cannot start the transcription server.`);
+  const server = resolveParakeetServerBin();
+  if (!server) {
+    console.error("Missing parakeet-server binary; cannot start the transcription server.");
     process.exitCode = 1;
     return;
   }
-
-  const url = new URL(serverUrl());
+  const url = new URL(parakeetServerUrl());
+  // A local gguf if available; otherwise parakeet-server downloads this alias.
+  const model = resolveParakeetModel() ?? "tdt-0.6b-v3";
   const args = [
-    "-m", model,
+    "--model", model,
     "--host", url.hostname,
-    "--port", url.port || "8910",
-    "-sns",
-    ...splitArgs(process.env.MACOS_STT_SERVER_ARGS || ""),
+    "--port", url.port || "8911",
+    ...splitArgs(setting("SERVER_ARGS") || ""),
   ];
-  console.error(`Starting whisper-server: ${server} ${args.join(" ")}`);
-  const child = spawn(server, args, { stdio: "inherit", env: BASE_ENV });
+  console.error(`Starting parakeet-server: ${server} ${args.join(" ")}`);
+  const child = spawn(server, args, { stdio: "inherit", env: CHILD_ENV });
   child.on("exit", (code, signal) => {
     process.exitCode = code ?? (signal ? 1 : 0);
   });
@@ -1010,9 +644,8 @@ async function main(): Promise<void> {
   }
   const explicitRaw = args.includes("--raw");
   const portuguese = args.includes("--portuguese");
-  const clean = args.includes("--clean") || /^(1|true|yes)$/i.test(process.env.MACOS_STT_CLEAN || "");
-  const raw = explicitRaw || portuguese || !clean || /^(1|true|yes)$/i.test(process.env.MACOS_STT_RAW || "");
-  const language = portuguese ? "pt" : explicitRaw ? "auto" : "en";
+  const clean = args.includes("--clean") || /^(1|true|yes)$/i.test(setting("CLEAN") || "");
+  const raw = explicitRaw || portuguese || !clean || /^(1|true|yes)$/i.test(setting("RAW") || "");
   if (args.includes("--serve")) {
     serve();
     return;
@@ -1057,7 +690,7 @@ async function main(): Promise<void> {
     return state;
   });
 
-  if (pending) await withLock(() => stopRecording(pending, raw, language));
+  if (pending) await withLock(() => stopRecording(pending, raw));
 }
 
 main().catch((error) => {

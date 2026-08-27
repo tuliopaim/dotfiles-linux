@@ -1,115 +1,49 @@
-# macOS STT — Speech-to-Text Toggle
+# STT: desktop speech-to-text toggle
 
-A hotkey-activated speech-to-text workflow for macOS. Press a key to start
-recording, press again to stop, transcribe with a local whisper.cpp or parakeet.cpp model,
-optionally clean the transcript with pi, and auto-paste the result.
+A hotkey-activated speech-to-text workflow for macOS and Linux. Press once to
+record, press again to stop, transcribe locally with parakeet.cpp, optionally
+clean the text with pi, then copy and paste it into the focused application.
 
 ## How it works
 
-1. **Press hotkey** → starts recording via `afrecord` or `ffmpeg` (16 kHz WAV).
-2. **Press hotkey again** → stops recording and transcribes:
-   - first against a warm `whisper-server` holding the model in memory,
-   - falling back to spawning `whisper-cli` if the server is not running.
-3. **Cleanup** (opt-in with `--clean`) → pipes the English transcript through `pi`
-   for spelling correction, punctuation, and light Markdown formatting
-   (bullet/numbered lists, paragraphs) inferred from the dictation.
-4. **Paste** → copies the final text to the clipboard and simulates ⌘V.
+1. The first invocation records a mono 16 kHz WAV file.
+2. The second invocation stops the recorder and sends the audio to a warm
+   `parakeet-server`.
+3. If the server is unavailable, the tool falls back to `parakeet-cli`.
+4. `--clean` sends the transcript through pi for light copy editing.
+5. The desktop adapter copies the result and simulates paste when supported.
 
-A menu-bar indicator shows the current state: **●** recording, **⏳** processing,
-**✓** idle (auto-dismisses after 1.5 s).
+On macOS, a menu-bar item shows recording and processing state. Linux runs
+without a status indicator.
 
-> **Leave a beat before you speak.** The recorder needs roughly 600 ms to open
-> the microphone (measured: 3.00 s of wall clock yields 2.43 s of audio), so
-> anything said in the moment right after the hotkey is lost. Pressing the key
-> and then starting to talk naturally covers this. It is also why hold-to-talk
-> was tried and abandoned — see [Why there is no hold-to-talk](#why-there-is-no-hold-to-talk).
+## Code layout
+
+- `toggle.ts` owns state, locking, transcription, and cleanup.
+- `desktop.ts` owns recording, clipboard delivery, auto-paste, and the macOS
+  status indicator.
+- `runtime.ts` resolves configuration and executables, then runs child
+  processes with a predictable locale and `PATH`.
 
 ## Dependencies
 
-| Tool | Purpose | Install |
-|------|---------|---------|
-| [`whisper.cpp`](https://github.com/ggerganov/whisper.cpp) (`whisper-cli`) | Local speech-to-text (default backend) | `brew install whisper-cpp` or Nix |
-| ggml model file | Whisper model weights | Download from Hugging Face (see below) |
-| [`parakeet.cpp`](https://github.com/mudler/parakeet.cpp) (`parakeet-cli`/`parakeet-server`) | Optional NVIDIA Parakeet backend — faster, native punctuation | Prebuilt macOS binaries from GitHub releases (see below) |
-| pi | Optional AI transcript cleanup | Via Nix or Homebrew |
-| `afrecord` or `ffmpeg` | Audio recording | Built-in macOS (`afrecord`) or `brew install ffmpeg` |
+| Tool | Purpose |
+|------|---------|
+| Bun | Runs the TypeScript entry point |
+| `parakeet-cli` and optionally `parakeet-server` | Local transcription |
+| Parakeet gguf model | Model weights |
+| pi | Optional transcript cleanup |
+| `afrecord`, FFmpeg, or `arecord` | Audio recording |
+| Platform clipboard tools | Copy and automatic paste |
 
-## Setup
+Linux clipboard tools:
 
-### 1. Install whisper-cli (if not already present)
+- Wayland: `wl-copy`; optionally `wtype` for automatic paste
+- X11: `xclip` or `xsel`; optionally `xdotool` for automatic paste
 
-```bash
-brew install whisper-cpp
-# or: nix profile install nixpkgs#whisper-cpp
-```
+## Parakeet setup
 
-### 2. Download a model
-
-```bash
-mkdir -p ~/.local/share/whisper-cpp
-
-# large-v3-turbo (~574 MB) — the default. Noticeably better punctuation,
-# casing and proper nouns than small, and still faster than realtime on Apple
-# Silicon.
-curl -L -o ~/.local/share/whisper-cpp/ggml-large-v3-turbo-q5_0.bin \
-  https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo-q5_0.bin
-```
-
-Models are auto-detected in this order: `ggml-large-v3-turbo-q5_0.bin`,
-`ggml-large-v3-turbo.bin`, `ggml-small.bin`, `ggml-base.bin`.
-
-### 3. (Optional) Install pi for AI transcript cleanup
-
-```bash
-nix profile install nixpkgs#pi   # or: brew install pi
-```
-
-The script searches for pi in common Nix/Homebrew paths. If it's not found,
-transcripts are copied raw (no cleanup).
-
-### 4. (Optional) Install the warm whisper-server
-
-```bash
-./install.sh
-```
-
-Installs a launchd agent (`com.tuliopaim.macos-stt-server`) that keeps the model
-resident, so dictations do not reload it from disk each time. Worth about 0.3 s
-per dictation in steady state, and much more on the first run after a reboot
-(~8.6 s cold versus ~0.8 s warm, because of Metal shader compilation). It costs
-the RAM of the model, roughly 600 MB.
-
-Everything works without it — `toggle.ts` falls back to `whisper-cli`
-automatically. To remove it:
-
-```bash
-launchctl bootout gui/$(id -u)/com.tuliopaim.macos-stt-server
-rm ~/Library/LaunchAgents/com.tuliopaim.macos-stt-server.plist
-```
-
-### 5. (Optional) Try the Parakeet backend
-
-[Parakeet](https://github.com/NVIDIA/NeMo) is NVIDIA's speech-recognition family;
-[parakeet.cpp](https://github.com/mudler/parakeet.cpp) ports it to the same
-ggml/Metal stack as whisper.cpp, so it slots into this script as a second
-backend. Compared with Whisper large-v3-turbo it is roughly 3× faster on Apple
-Silicon and emits its own punctuation and capitalization, at essentially the
-same word error rate on clean dictation audio (on rough conversational audio,
-Whisper turbo still edges it). It covers English plus ~24 European languages —
-Portuguese included — but not Whisper's full 99-language long tail.
-
-Install the binaries (prebuilt macOS arm64 Metal release):
-
-```bash
-curl -L -o /tmp/parakeet.tar.gz \
-  https://github.com/mudler/parakeet.cpp/releases/latest/download/parakeet-v0.5.0-bin-macos-metal-arm64.tar.gz
-mkdir -p ~/.local/bin
-# adjust the version directory name to whatever the archive contains
-cd /tmp && tar xzf parakeet.tar.gz
-cp parakeet-*-bin-macos-metal-arm64/parakeet-cli parakeet-*-bin-macos-metal-arm64/parakeet-server ~/.local/bin/
-```
-
-Download a model (q8_0, 941 MB — the multilingual 0.6B TDT v3):
+Install `parakeet-cli` and `parakeet-server`, then place a model under
+`~/.local/share/parakeet-cpp/`:
 
 ```bash
 mkdir -p ~/.local/share/parakeet-cpp
@@ -117,135 +51,102 @@ curl -L -o ~/.local/share/parakeet-cpp/tdt-0.6b-v3-q8_0.gguf \
   https://huggingface.co/mudler/parakeet-cpp-gguf/resolve/main/tdt-0.6b-v3-q8_0.gguf
 ```
 
-Enable it — for a single skhd binding, or globally by exporting it (also add it
-to the launchd agent with `MACOS_STT_BACKEND=parakeet ./install.sh`):
+The tool searches for these models in order:
 
-```conf
-cmd + shift + alt - p : MACOS_STT_BACKEND=parakeet /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts
+1. `tdt-0.6b-v3-q8_0.gguf`
+2. `tdt-0.6b-v3-f16.gguf`
+3. `parakeet-tdt-0.6b-v3-q8_0.gguf`
+4. `tdt-0.6b-v2-q8_0.gguf`
+5. `tdt_ctc-110m-f16.gguf`
+
+Use `STT_PARAKEET_MODEL` if the model lives elsewhere.
+
+## Warm server
+
+Keeping Parakeet resident avoids loading the model for every dictation.
+
+On macOS:
+
+```bash
+./install.sh
 ```
 
-Models are auto-detected in this order: `tdt-0.6b-v3-q8_0.gguf`, `tdt-0.6b-v3-f16.gguf`,
-`tdt-0.6b-v2-q8_0.gguf`, `tdt_ctc-110m-f16.gguf`. The warm server also accepts
-the alias `tdt-0.6b-v3` directly and downloads it on first run, caching under
-`~/.cache/parakeet.cpp/models`. The `--serve` flag and `MACOS_STT_USE_SERVER`
-fallback behave exactly as with whisper. Note that Parakeet has no prompt
-priming, language is auto-detected (the `--portuguese`/`--raw` flags still
-decide whether the transcript gets pi-cleaned), and the pt hotkey transcribes
-in Portuguese but skips the pt→en translation in `--clean` mode as usual.
+On Linux with systemd:
+
+```bash
+./install-linux.sh
+```
+
+Both installers remove obsolete Whisper background units left by earlier
+versions.
 
 ## Usage
 
-### Via skhd (recommended)
-
-Add to your `skhdrc`:
-
-```conf
-# English transcription with Pi cleanup
-f9 : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts --clean
-
-# Fast English transcription without Pi
-cmd + shift + alt - r : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts
-
-# Fast Portuguese transcription without Pi
-cmd + shift + alt - p : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts --portuguese
-
-# Cancel an active recording without transcribing it
-cmd + shift + alt - space : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts --cancel
-```
-
-### Direct invocation
+Run directly or bind the same command through skhd, desktop keyboard settings,
+your Wayland compositor, or `sxhkd`:
 
 ```bash
-bun ~/dotfiles/scripts/macos-stt/toggle.ts
+bun /absolute/path/to/toggle.ts
 ```
 
-### Options
+Options:
 
 | Flag | Description |
 |------|-------------|
-| `--help` | Show usage |
-| `--raw` | Auto-detect the spoken language; skip AI cleanup |
-| `--clean` | Clean the English transcript with Pi |
-| `--portuguese` | Transcribe in Portuguese; skip AI cleanup |
-| `--cancel` | Cancel an active recording, delete its partial audio, and do not transcribe or paste |
-| `--correct-stdin` | Read text from stdin, clean with pi, copy & paste |
-| `--serve` | Run `whisper-server` in the foreground (used by the launchd agent) |
+| `--raw` | Skip pi cleanup |
+| `--clean` | Clean and translate mixed Portuguese/English into US English with pi |
+| `--portuguese` | Skip cleanup; Parakeet auto-detects Portuguese |
+| `--cancel` | Cancel recording and delete the partial audio |
+| `--correct-stdin` | Clean, copy, and paste text read from stdin |
+| `--serve` | Run `parakeet-server` in the foreground |
 
-## Environment variables
+## Linux recording
+
+FFmpeg defaults to the PulseAudio-compatible `default` source, which works with
+most PipeWire desktops. To use ALSA directly:
+
+```bash
+export STT_FFMPEG_FORMAT=alsa
+export STT_FFMPEG_INPUT=default
+```
+
+To copy without simulated paste:
+
+```bash
+export STT_AUTO_PASTE=0
+```
+
+## Configuration
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `MACOS_STT_BACKEND` | `whisper` | Backend: `whisper` or `parakeet` |
-| `MACOS_STT_WHISPER_BIN` | *(auto-search)* | Path to `whisper-cli` binary |
-| `MACOS_STT_WHISPER_MODEL` | *(auto-search)* | Path to ggml model file |
-| `MACOS_STT_WHISPER_PROMPT` | *(punctuated sample)* | Initial prompt priming punctuation and casing |
-| `MACOS_STT_WHISPER_ARGS` | `-l en`; `-l pt` with `--portuguese`; `-l auto` with `--raw` | Extra args passed to whisper-cli |
-| `MACOS_STT_PARAKEET_BIN` | *(auto-search)* | Path to `parakeet-cli` binary |
-| `MACOS_STT_PARAKEET_SERVER_BIN` | *(auto-search)* | Path to `parakeet-server` binary |
-| `MACOS_STT_PARAKEET_MODEL` | *(auto-search)* | Path to Parakeet gguf model file |
-| `MACOS_STT_PARAKEET_SERVER_URL` | `http://127.0.0.1:8911` | parakeet-server base URL (separate port so both servers can run) |
-| `MACOS_STT_PARAKEET_TIMEOUT_MS` | `300000` | parakeet-cli timeout |
-| `MACOS_STT_USE_SERVER` | `1` | Set to `0` to always spawn the CLI (either backend) |
-| `MACOS_STT_SERVER_URL` | `http://127.0.0.1:8910` | whisper-server base URL |
-| `MACOS_STT_SERVER_ARGS` | *(none)* | Extra args for `--serve` |
-| `MACOS_STT_WHISPER_SERVER_BIN` | *(auto-search)* | Path to `whisper-server` |
-| `MACOS_STT_PI_BIN` | *(auto-search)* | Path to `pi` binary |
-| `MACOS_STT_PI_MODEL` | `openai-codex/gpt-5.6-luna` | Model used by pi for cleanup |
-| `MACOS_STT_PI_THINKING` | `off` | Pi thinking level |
-| `MACOS_STT_RAW` | `false` | Default to raw mode |
-| `MACOS_STT_CLEAN` | `false` | Enable slower AI cleanup by default |
-| `MACOS_STT_RECORD_CMD` | *(auto)* | Full recorder command template (`{audio}` is replaced) |
-| `MACOS_STT_AFRECORD_BIN` | `/usr/bin/afrecord` | afrecord binary path |
-| `MACOS_STT_AFRECORD_ARGS` | `-f WAVE -c 1 -r 16000` | afrecord args before the audio path |
-| `MACOS_STT_FFMPEG_BIN` | *(auto-search)* | ffmpeg binary path |
-| `MACOS_STT_FFMPEG_INPUT` | `:default` | ffmpeg avfoundation input device |
-| `MACOS_STT_STATE_DIR` | `~/.local/state` | Parent directory for state files |
-| `MACOS_STT_MAX_RECORDING_SECONDS` | `1800` | Hard cap after which the recorder stops itself |
-| `MACOS_STT_AUDIO_DIR` | *(state dir)* | Directory for recording files |
-| `MACOS_STT_KEEP_AUDIO` | `false` | Keep audio files after successful transcription |
-| `MACOS_STT_PASTE_DELAY_MS` | `150` | Delay before simulating ⌘V |
-| `MACOS_STT_STATUS_IDLE_GRACE_SECONDS` | `1.5` | Seconds before menu-bar indicator auto-dismisses |
+| `STT_PARAKEET_BIN` | searched on `PATH` | `parakeet-cli` path |
+| `STT_PARAKEET_SERVER_BIN` | searched on `PATH` | `parakeet-server` path |
+| `STT_PARAKEET_MODEL` | auto-detected | Parakeet gguf model path |
+| `STT_PARAKEET_SERVER_URL` | `http://127.0.0.1:8911` | Warm server URL |
+| `STT_PARAKEET_TIMEOUT_MS` | `300000` | CLI timeout |
+| `STT_USE_SERVER` | `1` | Set to `0` to always use the CLI |
+| `STT_SERVER_ARGS` | none | Extra `parakeet-server` arguments |
+| `STT_SERVER_TIMEOUT_MS` | `300000` | Server request timeout |
+| `STT_PI_BIN` | searched on `PATH` | pi path |
+| `STT_PI_MODEL` | `openai-codex/gpt-5.6-luna` | pi cleanup model |
+| `STT_PI_THINKING` | `off` | pi thinking level |
+| `STT_RAW` | `false` | Skip cleanup by default |
+| `STT_CLEAN` | `false` | Enable cleanup by default |
+| `STT_RECORD_CMD` | platform default | Recorder command; `{audio}` is replaced |
+| `STT_COPY_CMD` | platform default | Clipboard command; text arrives on stdin |
+| `STT_PASTE_CMD` | platform default | Paste command; use `none` for copy only |
+| `STT_AUTO_PASTE` | `true` | Enable simulated paste |
+| `STT_FFMPEG_BIN` | searched on `PATH` | FFmpeg path |
+| `STT_FFMPEG_FORMAT` | `pulse` on Linux | Linux FFmpeg input format |
+| `STT_FFMPEG_INPUT` | platform-dependent | Audio input device |
+| `STT_STATE_DIR` | `$XDG_STATE_HOME` or `~/.local/state` | State parent directory |
+| `STT_AUDIO_DIR` | state directory | Recording directory |
+| `STT_MAX_RECORDING_SECONDS` | `1800` | Recording limit |
+| `STT_KEEP_AUDIO` | `false` | Keep audio after successful delivery |
+| `STT_PASTE_DELAY_MS` | `150` | Delay before automatic paste |
 
-## Notes on output quality
-
-Punctuation and casing come from the model, helped by an initial prompt
-(`--prompt`) written in correctly punctuated prose — priming the decoder that
-way biases it toward producing the same. `-sns` suppresses non-speech tokens
-like `[BLANK_AUDIO]`.
-
-**Paragraph breaks are deliberately not inferred from pauses.** whisper.cpp
-gives no usable silence signal: without VAD, segment boundaries are padded so
-each segment begins exactly where the previous one ended (a 2.5 s pause shows up
-as a 0 ms gap), and with VAD enabled the silence is cut before decoding and the
-segments merge outright. Recovering real pauses would need a separate
-`whisper-vad-speech-segments` pass aligned back onto the transcript. Structure
-is left to the `--clean` pass, which infers it from the wording.
-
-VAD is still worth enabling if you pause a lot mid-dictation, since it skips
-silence during decoding:
-
-```bash
-export MACOS_STT_WHISPER_ARGS="-l en --vad -vm $HOME/.local/share/whisper-cpp/ggml-silero-v5.1.2.bin"
-```
-
-(Model: `https://huggingface.co/ggml-org/whisper-vad/resolve/main/ggml-silero-v5.1.2.bin`.)
-
-## Why there is no hold-to-talk
-
-A Wispr Flow-style "hold ctrl+shift to dictate" mode was built and removed. It
-worked mechanically — a listen-only `CGEventTap` daemon saw the chord correctly
-on both the built-in keyboard and the Corne — but the audio was unusable.
-
-Spawning a recorder per dictation costs roughly 600 ms before the microphone
-produces samples, plus the hold threshold and interpreter startup: close to a
-second. The press-then-speak toggle hides that behind human reaction time.
-Hold-to-talk does not, so the opening of every sentence was lost and Whisper
-returned hallucinations like `"Thank you."` on what was effectively silence.
-
-Doing it properly requires keeping the audio device open continuously in a
-resident process and capturing into a ring buffer with pre-roll, so a keypress
-only marks a position in already-flowing audio. That means the microphone stays
-open for as long as the daemon runs. Not worth it here.
+Former `MACOS_STT_*` names remain accepted. `STT_*` takes precedence.
 
 ## Testing
 
@@ -253,79 +154,29 @@ open for as long as the daemon runs. Not worth it here.
 sh test.sh
 ```
 
-Stubs the recorder, whisper, clipboard and paste — no microphone, no model, and
-nothing typed into the focused window.
+The tests stub the recorder, Parakeet, clipboard, and paste commands.
 
 ## Troubleshooting
 
-### The first word or two is missing
+### No speech detected
 
-Expected — see the note at the top. Pause briefly after pressing the hotkey.
-
-### "No speech detected" / whisper returns `[BLANK_AUDIO]`
-
-The ffmpeg avfoundation input may be a virtual/silent device. List devices and
-pick a real microphone:
+On macOS, list AVFoundation devices and set the desired audio input:
 
 ```bash
 ffmpeg -f avfoundation -list_devices true -i ""
-export MACOS_STT_FFMPEG_INPUT=:1
+export STT_FFMPEG_INPUT=:1
 ```
 
-### A recorder is stuck holding the microphone
+On Linux, check `STT_FFMPEG_FORMAT` and `STT_FFMPEG_INPUT` against your
+PulseAudio, PipeWire, or ALSA setup.
 
-Check and clear:
+### Automatic paste fails
 
-```bash
-pgrep -fl "ffmpeg.*avfoundation"
-pkill -f "ffmpeg.*avfoundation"
-```
+The transcript remains on the clipboard. On macOS, grant Accessibility
+permission to the hotkey launcher. On Linux, install the matching Wayland or
+X11 paste tool, or set `STT_AUTO_PASTE=0`.
 
-This used to happen for two compounding reasons, both fixed here.
+### A recorder is stuck
 
-**What created an orphan: a race on the start path.** `main()` locked the stop
-path but not the start path. Two near-simultaneous invocations — a double tap,
-or skhd firing twice — would both read "nothing is recording", both spawn a
-recorder, and the second `writeState()` would overwrite the first's pid. The
-first recorder was then unreachable by any later hotkey press and ran until
-killed by hand, holding the microphone open. Capture devices are effectively
-exclusive, so other apps (Teams, Zoom) misbehave while that is true. A double
-tap is easy to provoke, because the recorder takes ~600 ms to open the mic and
-the hotkey feels unresponsive until it does.
-
-**What made it unrecoverable: `$TMPDIR`.** State used to live there, and macOS
-runs `com.apple.bsd.dirhelper` nightly at 03:35, deleting anything under
-`/var/folders/.../T` untouched for three days. `state.json` is written once and
-never touched again, so it aged out — taking with it any record of a still
-running recorder, and unlinking the `.wav` while ffmpeg held it open. Disk space
-for an unlinked-but-open file is not reclaimed and `ls` cannot show it. One
-instance was found alive for 9 days having written 702 MB.
-
-Three changes prevent recurrence: the start/stop decision is taken under a lock
-(`decision.lock`) so concurrent invocations cannot both start; state lives in
-`~/.local/state/macos-stt`, which nothing garbage-collects; and the recorder gets
-a `-t` hard stop (`MACOS_STT_MAX_RECORDING_SECONDS`, default 30 minutes). On
-each start, any recorder writing into the audio directory that the state file
-does not know about is also reaped. `test.sh` covers the double-press case.
-
-To check for orphaned open-but-deleted recordings:
-
-```bash
-lsof -c ffmpeg | grep -i 'recording-.*\.wav'
-```
-
-### "osascript is not allowed to send keystrokes"
-
-The auto-paste needs Accessibility permission for whatever launches the script
-(skhd). Grant it in **System Settings → Privacy & Security → Accessibility**.
-The transcript is still on the clipboard, so ⌘V works meanwhile.
-
-### "Missing whisper-cpp binary" / "Missing whisper model"
-
-Install `whisper-cpp`, or set `MACOS_STT_WHISPER_BIN` /
-`MACOS_STT_WHISPER_MODEL` to the correct paths.
-
-### No menu-bar indicator
-
-The indicator is a Swift status-bar app (`status.swift`) run through
-`/usr/bin/swift`, which ships with macOS.
+Run `toggle.ts --cancel`. The tool also reaps orphaned recorder processes on
+the next start and caps FFmpeg recordings at 30 minutes by default.

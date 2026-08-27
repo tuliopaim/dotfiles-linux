@@ -22,9 +22,6 @@ in
     bun
     devenv
 
-    # speech-to-text
-    whisper-cpp
-
     # cli tools
     pngpaste
     clipboard-jh
