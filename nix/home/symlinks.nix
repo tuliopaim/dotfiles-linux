@@ -14,6 +14,7 @@ in
   home.file.".config/opencode/AGENTS.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/agents/AGENTS.md";
   xdg.configFile."kanata/kanata.kbd".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/kanata/kanata.kbd";
   xdg.configFile."vicinae/settings.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/vicinae/settings.json";
+  xdg.dataFile."vicinae/scripts".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/vicinae/scripts";
   # herdr: only the config file; the rest of ~/.config/herdr is runtime state (sockets, logs, session)
   home.file.".config/herdr/config.toml".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/herdr/config.toml";
 
