@@ -1,0 +1,21 @@
+{
+  "$schema": "https://vicinae.com/schemas/config.json",
+  "theme": {
+    "dark": {
+      "name": "catppuccin-mocha"
+    }
+  },
+  "favorites": [
+    "@tulio_paim/pi-spell:pi-spell",
+    "clipboard:history"
+  ],
+  "providers": {
+    "clipboard": {
+      "entrypoints": {
+        "history": {
+          "shortcut": "control+;"
+        }
+      }
+    }
+  }
+}

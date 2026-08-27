@@ -178,6 +178,7 @@
       "via"
       "google-drive"
       "codexbar"
+      "vicinae"
 
       # Browsers (cont.)
       "zen"
