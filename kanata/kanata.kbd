@@ -12,7 +12,9 @@
   danger-enable-cmd no
   ;; Only act on the laptop's built-in keyboard. The Corne already has its
   ;; own HRM via ZMK — letting Kanata grab it too would double-process.
-  macos-dev-names-exclude ("Corne")
+  ;; Use an allowlist because Kanata does not always report the Corne's name
+  ;; correctly on macOS.
+  macos-dev-names-include ("Apple Internal Keyboard / Trackpad")
 )
 
 (defvar

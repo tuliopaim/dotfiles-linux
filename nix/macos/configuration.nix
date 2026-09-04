@@ -26,6 +26,10 @@
       NSGlobalDomain = {
         AppleInterfaceStyle = "Dark";
         AppleShowAllExtensions = true;
+        # Keep the repeat cadence fast, but delay its start past Kanata's
+        # tap-hold window so a delayed key-up cannot produce key chatter.
+        InitialKeyRepeat = 35;
+        KeyRepeat = 2;
         "com.apple.swipescrolldirection" = false;
       };
 
