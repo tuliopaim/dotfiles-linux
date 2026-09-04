@@ -7,7 +7,12 @@ in
   # opencode: individual file symlinks, not xdg.configFile (which reifies the whole dir)
   home.file.".config/opencode/opencode.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/opencode.json";
   home.file.".config/opencode/tui.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/tui.json";
-  home.file.".config/opencode/cli.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/cli.json";
+  # The OpenCode client atomically rewrites cli.json, replacing this symlink.
+  # Restore it on activation without creating colliding .backup files.
+  home.file.".config/opencode/cli.json" = {
+    source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/cli.json";
+    force = true;
+  };
   home.file.".config/opencode/commands/commit.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/commands/commit.md";
   home.file.".config/opencode/commands/review-comments.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/commands/review-comments.md";
   home.file.".config/opencode/commands/review.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/commands/review.md";
