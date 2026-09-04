@@ -1,5 +1,12 @@
 { ... }:
 {
+  system.defaults.NSGlobalDomain = {
+    # Keep the repeat cadence fast, but delay its start past Kanata's
+    # tap-hold window so a delayed key-up cannot produce key chatter.
+    InitialKeyRepeat = 35;
+    KeyRepeat = 2;
+  };
+
   # Userland daemon for the Karabiner VirtualHIDDevice driver.
   # The standalone .pkg installs the binary but no launchd plist for it
   # (Karabiner-Elements normally starts it). Without this, kanata can't
