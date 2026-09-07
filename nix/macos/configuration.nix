@@ -133,6 +133,7 @@
       "zlib"
       "qmk/qmk/qmk"
       "mole"
+      "herdr"
     ];
 
     casks = [
