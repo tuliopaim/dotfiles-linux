@@ -40,7 +40,7 @@ route_rows() {
         $routes[] as $route
         | ([.[] | select(.target == $route.target)] | first) as $profile
         | [
-            ($profile.id // ""),
+            ($profile.id // "-"),
             (if ($profile.enabled // false) then "ON " else "OFF" end),
             $route.label,
             $route.target
@@ -77,7 +77,7 @@ while true; do
     IFS=$'\t' read -r profile_id enabled label target <<< "$selected"
     if [[ "$enabled" == "ON " ]]; then
         run_herdr machine remove "$profile_id" >/dev/null
-    elif [[ -n "$profile_id" ]]; then
+    elif [[ "$profile_id" != "-" ]]; then
         run_herdr machine enable "$profile_id" >/dev/null
     else
         run_herdr machine add "$target" --label "$label" >/dev/null
