@@ -3,6 +3,9 @@
 
 set -euo pipefail
 
+# Herdr and SSH-launched popups may not inherit login-shell profile paths.
+export PATH="$HOME/.local/bin:$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:/opt/homebrew/bin:$PATH"
+
 CATALOG_HOST="${HERDR_MACHINE_CATALOG_HOST:-macbook}"
 CURRENT_HOST=$(hostname -s)
 
