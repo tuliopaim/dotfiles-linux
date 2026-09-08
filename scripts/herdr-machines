@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+# Toggle saved machines in the MacBook Herdr client's catalog.
+
+set -euo pipefail
+
+CATALOG_HOST="${HERDR_MACHINE_CATALOG_HOST:-macbook}"
+CURRENT_HOST=$(hostname -s)
+
+if [[ "$CURRENT_HOST" == "$CATALOG_HOST" ]]; then
+    HERDR_CMD=(herdr)
+else
+    HERDR_CMD=(
+        ssh
+        -o BatchMode=yes
+        -o ConnectTimeout=5
+        -o StrictHostKeyChecking=accept-new
+        "$CATALOG_HOST"
+        /opt/homebrew/bin/herdr
+    )
+fi
+
+list_machines() {
+    "${HERDR_CMD[@]}" machine list --json \
+        | jq -r '
+            .[]
+            | [
+                .id,
+                (if .enabled then "ON " else "OFF" end),
+                .label,
+                .target
+              ]
+            | @tsv
+        '
+}
+
+if [[ "${1:-}" == "--list" ]]; then
+    list_machines
+    exit 0
+fi
+
+while true; do
+    machines=$("${HERDR_CMD[@]}" machine list --json)
+
+    if ! jq -e 'length > 0' >/dev/null <<< "$machines"; then
+        printf 'No saved Herdr machines found on %s.\n' "$CATALOG_HOST" >&2
+        exit 1
+    fi
+
+    set +e
+    selected=$(jq -r '
+            .[]
+            | [
+                .id,
+                (if .enabled then "ON " else "OFF" end),
+                .label,
+                .target
+              ]
+            | @tsv
+        ' <<< "$machines" \
+        | fzf --reverse \
+              --delimiter=$'\t' \
+              --with-nth=2.. \
+              --prompt 'machines > ' \
+              --border \
+              --border-label ' enter: toggle · esc: close ')
+    fzf_status=$?
+    set -e
+
+    [[ $fzf_status -ne 0 || -z "$selected" ]] && exit 0
+
+    IFS=$'\t' read -r profile_id enabled _label _target <<< "$selected"
+    if [[ "$enabled" == "ON " ]]; then
+        "${HERDR_CMD[@]}" machine disable "$profile_id" >/dev/null
+    else
+        "${HERDR_CMD[@]}" machine enable "$profile_id" >/dev/null
+    fi
+done

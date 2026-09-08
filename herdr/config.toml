@@ -53,6 +53,15 @@ key = "prefix+shift+f"
 type = "pane"
 command = "$HOME/dotfiles/scripts/session-worktree --herdr"
 
+# prefix+shift+m: toggle saved machines from an fzf popup.
+[[keys.command]]
+key = "prefix+shift+m"
+type = "popup"
+command = "$HOME/dotfiles/scripts/herdr-machines"
+description = "manage machines"
+width = "72%"
+height = "70%"
+
 [[keys.command]]
 key = "prefix+a"
 type = "plugin_action"
