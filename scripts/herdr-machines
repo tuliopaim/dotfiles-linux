@@ -9,31 +9,48 @@ export PATH="$HOME/.local/bin:$HOME/.nix-profile/bin:/nix/var/nix/profiles/defau
 CATALOG_HOST="${HERDR_MACHINE_CATALOG_HOST:-macbook}"
 CURRENT_HOST=$(hostname -s)
 
-if [[ "$CURRENT_HOST" == "$CATALOG_HOST" ]]; then
-    HERDR_CMD=(herdr)
-else
-    HERDR_CMD=(
-        ssh
-        -o BatchMode=yes
-        -o ConnectTimeout=5
-        -o StrictHostKeyChecking=accept-new
-        "$CATALOG_HOST"
-        /opt/homebrew/bin/herdr
-    )
-fi
+# Profiles are removed when off so Herdr's sidebar only shows active routes.
+# Keep the known routes here so the picker can recreate absent profiles.
+ROUTES_JSON='[
+  {"target":"macmini",     "label":"Mac mini · Tailscale"},
+  {"target":"macmini-lan", "label":"Mac mini · Home LAN"},
+  {"target":"homelab",     "label":"Homelab · Tailscale"},
+  {"target":"homelab-lan", "label":"Homelab · Home LAN"}
+]'
+
+run_herdr() {
+    if [[ "$CURRENT_HOST" == "$CATALOG_HOST" ]]; then
+        herdr "$@"
+        return
+    fi
+
+    local remote_command
+    printf -v remote_command '%q ' /opt/homebrew/bin/herdr "$@"
+    ssh \
+        -o BatchMode=yes \
+        -o ConnectTimeout=5 \
+        -o StrictHostKeyChecking=accept-new \
+        "$CATALOG_HOST" \
+        "$remote_command"
+}
+
+route_rows() {
+    local machines=$1
+    jq -r --argjson routes "$ROUTES_JSON" '
+        $routes[] as $route
+        | ([.[] | select(.target == $route.target)] | first) as $profile
+        | [
+            ($profile.id // ""),
+            (if ($profile.enabled // false) then "ON " else "OFF" end),
+            $route.label,
+            $route.target
+          ]
+        | @tsv
+    ' <<< "$machines"
+}
 
 list_machines() {
-    "${HERDR_CMD[@]}" machine list --json \
-        | jq -r '
-            .[]
-            | [
-                .id,
-                (if .enabled then "ON " else "OFF" end),
-                .label,
-                .target
-              ]
-            | @tsv
-        '
+    route_rows "$(run_herdr machine list --json)"
 }
 
 if [[ "${1:-}" == "--list" ]]; then
@@ -42,24 +59,10 @@ if [[ "${1:-}" == "--list" ]]; then
 fi
 
 while true; do
-    machines=$("${HERDR_CMD[@]}" machine list --json)
-
-    if ! jq -e 'length > 0' >/dev/null <<< "$machines"; then
-        printf 'No saved Herdr machines found on %s.\n' "$CATALOG_HOST" >&2
-        exit 1
-    fi
+    machines=$(run_herdr machine list --json)
 
     set +e
-    selected=$(jq -r '
-            .[]
-            | [
-                .id,
-                (if .enabled then "ON " else "OFF" end),
-                .label,
-                .target
-              ]
-            | @tsv
-        ' <<< "$machines" \
+    selected=$(route_rows "$machines" \
         | fzf --reverse \
               --delimiter=$'\t' \
               --with-nth=2.. \
@@ -71,10 +74,12 @@ while true; do
 
     [[ $fzf_status -ne 0 || -z "$selected" ]] && exit 0
 
-    IFS=$'\t' read -r profile_id enabled _label _target <<< "$selected"
+    IFS=$'\t' read -r profile_id enabled label target <<< "$selected"
     if [[ "$enabled" == "ON " ]]; then
-        "${HERDR_CMD[@]}" machine disable "$profile_id" >/dev/null
+        run_herdr machine remove "$profile_id" >/dev/null
+    elif [[ -n "$profile_id" ]]; then
+        run_herdr machine enable "$profile_id" >/dev/null
     else
-        "${HERDR_CMD[@]}" machine enable "$profile_id" >/dev/null
+        run_herdr machine add "$target" --label "$label" >/dev/null
     fi
 done
