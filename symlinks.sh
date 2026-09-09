@@ -52,6 +52,8 @@ create_symlink ~/dotfiles/kanata/kanata.kbd ~/.config/kanata/kanata.kbd
 create_symlink ~/dotfiles/herdr/config.toml ~/.config/herdr/config.toml
 create_symlink ~/dotfiles/pi/agent/settings.json ~/.pi/agent/settings.json
 create_symlink ~/dotfiles/skills ~/.claude/skills
+create_symlink ~/dotfiles/skills ~/.claude-work/skills
+create_symlink ~/dotfiles/skills ~/.claude-personal/skills
 create_symlink ~/dotfiles/claude/statusline.sh ~/.claude/statusline.sh
 
 if [ "$(uname)" = "Darwin" ]; then
