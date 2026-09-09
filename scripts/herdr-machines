@@ -13,9 +13,9 @@ CURRENT_HOST=$(hostname -s)
 # Keep the known routes here so the picker can recreate absent profiles.
 ROUTES_JSON='[
   {"target":"macmini",     "label":"Mac mini · Tailscale"},
-  {"target":"macmini-lan", "label":"Mac mini · Home LAN"},
+  {"target":"macmini-lan", "label":"Mac mini · LAN"},
   {"target":"homelab",     "label":"Homelab · Tailscale"},
-  {"target":"homelab-lan", "label":"Homelab · Home LAN"}
+  {"target":"homelab-lan", "label":"Homelab · LAN"}
 ]'
 
 run_herdr() {
