@@ -72,6 +72,7 @@ DISTRIBUTE_SH="${HOME}/.config/yabai/distribute.sh"
 # ============================================================
 # Shottr — screenshot tool, keep it floating outside the tile
 yabai -m rule --add app="^cc\\.ffitch\\.shottr$" manage=off
+yabai -m rule --add app="^Camera Preview$" manage=off
 
 # Common system dialogs that should float
 yabai -m rule --add app="^System Settings$" manage=off
