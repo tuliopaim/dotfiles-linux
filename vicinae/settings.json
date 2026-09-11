@@ -6,6 +6,7 @@
       }
    },
    "favorites": [
+      "core:open-camera",
       "scripts:capture-text.sh",
       "@tulio_paim/pi-spell:pi-spell",
       "clipboard:history"
