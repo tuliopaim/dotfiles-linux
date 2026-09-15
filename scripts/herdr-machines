@@ -6,6 +6,12 @@ set -euo pipefail
 # Herdr and SSH-launched popups may not inherit login-shell profile paths.
 export PATH="$HOME/.local/bin:$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:/opt/homebrew/bin:$PATH"
 
+# fzf's reload runs this script again in a child shell, so resolve an absolute
+# path once: a relative $0 would be re-resolved against fzf's working directory.
+SELF="$0"
+[[ "$SELF" != /* ]] && SELF="$(cd "$(dirname "$SELF")" && pwd)/$(basename "$SELF")"
+RELOAD_CMD=$(printf '%q ' "$SELF" --list)
+
 CATALOG_HOST="${HERDR_MACHINE_CATALOG_HOST:-macbook}"
 CURRENT_HOST=$(hostname -s)
 
@@ -37,20 +43,38 @@ run_herdr() {
 route_rows() {
     local machines=$1
     jq -r --argjson routes "$ROUTES_JSON" '
-        $routes[] as $route
-        | ([.[] | select(.target == $route.target)] | first) as $profile
-        | [
-            ($profile.id // "-"),
-            (if ($profile.enabled // false) then "ON " else "OFF" end),
-            $route.label,
-            $route.target
-          ]
+        . as $machines
+        | [ $routes | to_entries[]
+            | .key as $idx
+            | .value as $route
+            | ([$machines[] | select(.target == $route.target)] | first) as $profile
+            | {
+                on:  (if ($profile.enabled // false) then 0 else 1 end),
+                idx: $idx,
+                row: [
+                    ($profile.id // "-"),
+                    (if ($profile.enabled // false) then "ON " else "OFF" end),
+                    $route.label,
+                    $route.target
+                ]
+              } ]
+        # Enabled routes first, then keep the configured order within each group.
+        | sort_by(.on, .idx)[]
+        | .row
         | @tsv
     ' <<< "$machines"
 }
 
+# Keep a failed fetch (e.g. catalog host unreachable) distinct from an empty
+# catalog so every route does not look simply "off", which would invite a
+# duplicate `machine add` on the next toggle.
 list_machines() {
-    route_rows "$(run_herdr machine list --json)"
+    local machines
+    if machines=$(run_herdr machine list --json 2>/dev/null); then
+        route_rows "$machines"
+    else
+        printf '%s\n' $'-\tERROR\tcatalog unavailable · press r to retry\t-'
+    fi
 }
 
 if [[ "${1:-}" == "--list" ]]; then
@@ -58,28 +82,36 @@ if [[ "${1:-}" == "--list" ]]; then
     exit 0
 fi
 
-while true; do
-    machines=$(run_herdr machine list --json)
+# Shown until the background fetch replaces it, so the popup opens instantly
+# instead of sitting blank while the catalog responds over SSH.
+LOADING_ROW=$'-\tLOADING\tloading machines…\t-'
 
+while true; do
     set +e
-    selected=$(route_rows "$machines" \
+    selected=$(printf '%s\n' "$LOADING_ROW" \
         | fzf --reverse \
               --delimiter=$'\t' \
               --with-nth=2.. \
               --prompt 'machines > ' \
               --border \
-              --border-label ' enter: toggle · esc: close ')
+              --border-label ' enter: toggle · esc: close ' \
+              --disabled \
+              --bind "start:reload($RELOAD_CMD),r:reload($RELOAD_CMD)")
     fzf_status=$?
     set -e
 
     [[ $fzf_status -ne 0 || -z "$selected" ]] && exit 0
 
     IFS=$'\t' read -r profile_id enabled label target <<< "$selected"
+
+    # Enter pressed on the loading row before the reload finished.
+    [[ "$enabled" == "ON " || "$enabled" == "OFF" ]] || continue
+
     if [[ "$enabled" == "ON " ]]; then
-        run_herdr machine remove "$profile_id" >/dev/null
+        run_herdr machine remove "$profile_id" >/dev/null 2>&1 || true
     elif [[ "$profile_id" != "-" ]]; then
-        run_herdr machine enable "$profile_id" >/dev/null
+        run_herdr machine enable "$profile_id" >/dev/null 2>&1 || true
     else
-        run_herdr machine add "$target" --label "$label" >/dev/null
+        run_herdr machine add "$target" --label "$label" >/dev/null 2>&1 || true
     fi
 done
