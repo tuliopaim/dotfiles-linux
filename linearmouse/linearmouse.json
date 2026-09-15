@@ -1,27 +1,49 @@
 {
-  "$schema": "https://schema.linearmouse.app/0.11.3",
-  "schemes": [
+  "$schema" : "https:\/\/schema.linearmouse.app\/0.11.4",
+  "schemes" : [
     {
-      "if": {
-        "device": {
-          "category": "mouse"
-        }
-      },
-      "buttons": {
-        "mappings": [
+      "buttons" : {
+        "mappings" : [
           {
-            "button": 3,
-            "action": {
-              "keyPress": ["command", "["]
-            }
+            "action" : {
+              "keyPress" : [
+                "command",
+                "["
+              ]
+            },
+            "button" : 3
           },
           {
-            "button": 4,
-            "action": {
-              "keyPress": ["command", "]"]
-            }
+            "action" : {
+              "keyPress" : [
+                "command",
+                "]"
+              ]
+            },
+            "button" : 4
           }
         ]
+      },
+      "if" : {
+        "device" : {
+          "category" : "mouse"
+        }
+      }
+    },
+    {
+      "if" : {
+        "device" : {
+          "category" : "mouse",
+          "productID" : "0xfa11",
+          "productName" : "2.4G Wireless Receiver",
+          "vendorID" : "0x25a7"
+        }
+      },
+      "pointer" : {
+        "acceleration" : 0.75,
+        "disableAcceleration" : false,
+        "redirectsToScroll" : false,
+        "speed" : 0.08
       }
     }
   ]
