@@ -13,5 +13,6 @@
     },
     "session": {
         "sidebar": "hide"
-    }
+    },
+    "plugins": ["./herdr-opencode"]
 }
