@@ -97,6 +97,7 @@
     taps = [
       "mongodb/brew"
       "koekeishiya/formulae"
+      "nikitabobko/tap"
       "anomalyco/tap"
       "modem-dev/tap"
       "qmk/qmk"
@@ -136,6 +137,9 @@
     ];
 
     casks = [
+      # Tiling window manager
+      "nikitabobko/tap/aerospace"
+
       # Browsers
       "firefox"
       "google-chrome"

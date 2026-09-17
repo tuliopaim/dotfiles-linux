@@ -36,6 +36,7 @@ in
 
   # Mac-only symlinks
   xdg.configFile = {
+    "aerospace/aerospace.toml".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/aerospace/aerospace.toml";
     "ghostty".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/ghostty";
     "linearmouse/linearmouse.json".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/linearmouse/linearmouse.json";
   };
