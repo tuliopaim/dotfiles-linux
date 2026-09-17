@@ -1,0 +1,4 @@
+# AeroSpace owns window-management shortcuts. skhd only launches STT because
+# AeroSpace cannot request microphone access without NSMicrophoneUsageDescription.
+f9 : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dev/personal/stt/main/toggle.ts
+cmd + shift + alt - space : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dev/personal/stt/main/toggle.ts --cancel

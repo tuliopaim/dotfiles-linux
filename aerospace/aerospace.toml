@@ -1,15 +1,12 @@
-# Place a copy of this config to ~/.aerospace.toml
-# After that, you can edit ~/.aerospace.toml to your liking
-
-# You can use it to add commands that run after login to macOS user session.
-# 'start-at-login' needs to be 'true' for 'after-login-command' to work
-# Available commands: https://nikitabobko.github.io/AeroSpace/commands
-after-login-command = []
+# Linked to ~/.config/aerospace/aerospace.toml by Home Manager.
+# See README.md for switching between AeroSpace and yabai.
+config-version = 2
+persistent-workspaces = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'S', 'N', 'T']
 
 # You can use it to add commands that run after AeroSpace startup.
-# 'after-startup-command' is run after 'after-login-command'
 # Available commands : https://nikitabobko.github.io/AeroSpace/commands
-after-startup-command = []
+# Restore home monitors once. Fixed monitor assignments would block alt-shift-tab.
+after-startup-command = ['exec-and-forget /bin/bash "$HOME/dotfiles/aerospace/distribute.sh"']
 
 # Start AeroSpace at login
 start-at-login = true
@@ -39,10 +36,11 @@ default-root-container-orientation = 'auto'
 
 on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 on-focus-changed = ['move-mouse window-lazy-center']
+focus-follows-mouse.enabled = false
 
 # You can effectively turn off macOS "Hide application" (cmd-h) feature by toggling this flag
 # Useful if you don't use this macOS feature, but accidentally hit cmd-h or cmd-alt-h key
-# Also see: https://nikitabobko.github.io/AeroSpace/goodness#disable-hide-app
+# Also see: https://nikitabobko.github.io/AeroSpace/goodies#disable-hide-app
 automatically-unhide-macos-hidden-apps = false
 
 # Possible values: (qwerty|dvorak)
@@ -58,12 +56,12 @@ preset = 'qwerty'
 #                 Monitor pattern is the same as for 'workspace-to-monitor-force-assignment'.
 #                 See: https://nikitabobko.github.io/AeroSpace/guide#assign-workspaces-to-monitors
 [gaps]
-inner.horizontal = 10
-inner.vertical =   10
-outer.left =       10
-outer.bottom =     10
-outer.top =        10
-outer.right =      10
+inner.horizontal = 6
+inner.vertical =   6
+outer.left =       6
+outer.bottom =     6
+outer.top =        6
+outer.right =      6
 
 # 'main' binding mode declaration
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
@@ -86,21 +84,14 @@ outer.right =      10
 
 # All possible commands: https://nikitabobko.github.io/AeroSpace/commands
 
-# See: https://nikitabobko.github.io/AeroSpace/commands#exec-and-forget
-# You can uncomment the following lines to open up terminal with alt + enter shortcut (like in i3)
-# alt-enter = '''exec-and-forget osascript -e '
-# tell application "Terminal"
-#     do script
-#     activate
-# end tell'
-# '''
-
 # See: https://nikitabobko.github.io/AeroSpace/commands#layout
 alt-slash = 'layout tiles horizontal vertical'
 alt-period = 'layout accordion horizontal vertical'
+# AeroSpace floats individual windows, unlike yabai's whole-Space float layout.
+alt-shift-period = 'layout floating'
 
-# Shortchuts
-alt-enter = 'exec-and-forget open -a $(which ghostty)'
+# Launch the app directly; GUI processes may not have ghostty in PATH.
+alt-enter = 'exec-and-forget open -a /Applications/Ghostty.app'
 
 # Fullscreen
 alt-f = 'fullscreen'
@@ -133,27 +124,44 @@ alt-6 = 'workspace 6'
 alt-7 = 'workspace 7'
 alt-8 = 'workspace 8'
 alt-9 = 'workspace 9'
+alt-0 = 'workspace S' # Same Slack workspace as alt-s
 alt-n = 'workspace N' # Notes
 alt-s = 'workspace S' # Slack
 alt-t = 'workspace T' # Teams
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
-alt-shift-1 = [ 'move-node-to-workspace 1', 'workspace 1' ] 
-alt-shift-2 = [ 'move-node-to-workspace 2', 'workspace 2' ] 
-alt-shift-3 = [ 'move-node-to-workspace 3', 'workspace 3' ] 
-alt-shift-4 = [ 'move-node-to-workspace 4', 'workspace 4' ] 
-alt-shift-5 = [ 'move-node-to-workspace 5', 'workspace 5' ] 
-alt-shift-6 = [ 'move-node-to-workspace 6', 'workspace 6' ] 
-alt-shift-7 = [ 'move-node-to-workspace 7', 'workspace 7' ] 
-alt-shift-8 = [ 'move-node-to-workspace 8', 'workspace 8' ] 
-alt-shift-9 = [ 'move-node-to-workspace 9', 'workspace 9' ] 
-alt-shift-s = [ 'move-node-to-workspace S', 'workspace S' ] 
-alt-shift-t = [ 'move-node-to-workspace T', 'workspace T' ] 
-alt-shift-n = [ 'move-node-to-workspace N', 'workspace N' ] 
+alt-shift-1 = 'move-node-to-workspace --focus-follows-window 1'
+alt-shift-2 = 'move-node-to-workspace --focus-follows-window 2'
+alt-shift-3 = 'move-node-to-workspace --focus-follows-window 3'
+alt-shift-4 = 'move-node-to-workspace --focus-follows-window 4'
+alt-shift-5 = 'move-node-to-workspace --focus-follows-window 5'
+alt-shift-6 = 'move-node-to-workspace --focus-follows-window 6'
+alt-shift-7 = 'move-node-to-workspace --focus-follows-window 7'
+alt-shift-8 = 'move-node-to-workspace --focus-follows-window 8'
+alt-shift-9 = 'move-node-to-workspace --focus-follows-window 9'
+alt-shift-0 = 'move-node-to-workspace --focus-follows-window S'
+alt-shift-s = 'move-node-to-workspace --focus-follows-window S'
+alt-shift-t = 'move-node-to-workspace --focus-follows-window T'
+alt-shift-n = 'move-node-to-workspace --focus-follows-window N'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#workspace-back-and-forth
 alt-tab = 'workspace-back-and-forth'
 alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
+
+# Direct shortcuts from skhd. Float/tiling acts on the focused window.
+alt-q = 'close'
+ctrl-alt-backspace = 'close'
+ctrl-alt-r = ['flatten-workspace-tree', 'layout tiles', 'balance-sizes']
+ctrl-alt-f = 'layout floating'
+ctrl-alt-b = ['layout tiling', 'layout tiles']
+ctrl-alt-shift-h = 'join-with left'
+ctrl-alt-shift-j = 'join-with down'
+ctrl-alt-shift-k = 'join-with up'
+ctrl-alt-shift-l = 'join-with right'
+ctrl-alt-period = 'reload-config'
+ctrl-alt-shift-period = 'reload-config'
+# Also use after plugging in a monitor; manual moves persist until redistribution.
+ctrl-alt-d = 'exec-and-forget /bin/bash "$HOME/dotfiles/aerospace/distribute.sh"'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#mode
 alt-shift-semicolon = 'mode service'
@@ -175,6 +183,29 @@ alt-shift-k = ['join-with up', 'mode main']
 alt-shift-l = ['join-with right', 'mode main']
 
 [[on-window-detected]]
-if.app-id = 'cc.ffitch.shottr'
+if = 'test %{app-bundle-id} = cc.ffitch.shottr'
 run = 'layout floating'
 
+[[on-window-detected]]
+if = 'test %{app-name} = "Camera Preview"'
+run = 'layout floating'
+
+[[on-window-detected]]
+if = 'test %{app-bundle-id} = com.apple.systempreferences'
+run = 'layout floating'
+
+[[on-window-detected]]
+if = 'test %{app-bundle-id} = com.apple.calculator'
+run = 'layout floating'
+
+[[on-window-detected]]
+if = 'test %{app-bundle-id} = com.apple.dictionary'
+run = 'layout floating'
+
+[[on-window-detected]]
+if = 'test %{app-bundle-id} = com.apple.QuickTimePlayerX'
+run = 'layout floating'
+
+[[on-window-detected]]
+if = 'test %{window-title} ~= "Preferences|Settings"'
+run = 'layout floating'
