@@ -112,8 +112,8 @@ alt - return : open -a /Applications/Ghostty.app
 # SPEECH TO TEXT
 # ============================================================
 # Parakeet already punctuates, so F9 uses the raw transcript.
-f9 : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts
-cmd + shift + alt - space : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dotfiles/scripts/macos-stt/toggle.ts --cancel
+f9 : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dev/personal/stt/main/toggle.ts
+cmd + shift + alt - space : /etc/profiles/per-user/tuliopaim/bin/bun /Users/tuliopaim/dev/personal/stt/main/toggle.ts --cancel
 
 # ============================================================
 # SERVICE MODE TASKS
