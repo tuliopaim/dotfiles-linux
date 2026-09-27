@@ -30,6 +30,9 @@ in
   home.file.".claude/skills".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/skills";
   home.file.".claude-work/skills".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/skills";
   home.file.".claude-personal/skills".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/skills";
+  home.file.".claude/CLAUDE.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/agents/AGENTS.md";
+  home.file.".claude-work/CLAUDE.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/agents/AGENTS.md";
+  home.file.".claude-personal/CLAUDE.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/agents/AGENTS.md";
   # settings.json stays a real per-machine file: Claude Code rewrites it itself
   # (/model, /config, /statusline), and an atomic write would replace a symlink.
   home.file.".claude/statusline.sh".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/claude/statusline.sh";
