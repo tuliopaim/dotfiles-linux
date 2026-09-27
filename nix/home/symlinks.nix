@@ -27,9 +27,6 @@ in
   home.file.".pi/agent/AGENTS.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/agents/AGENTS.md";
   home.file.".ideavimrc".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/ideavim/.ideavimrc";
 
-  home.file.".claude/skills".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/skills";
-  home.file.".claude-work/skills".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/skills";
-  home.file.".claude-personal/skills".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/skills";
   home.file.".claude/CLAUDE.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/agents/AGENTS.md";
   home.file.".claude-work/CLAUDE.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/agents/AGENTS.md";
   home.file.".claude-personal/CLAUDE.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/agents/AGENTS.md";

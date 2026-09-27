@@ -7,5 +7,6 @@
     ./fzf.nix
     ./yazi.nix
     ./symlinks.nix
+    ./skills.nix
   ];
 }
