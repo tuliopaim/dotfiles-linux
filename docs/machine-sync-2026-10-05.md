@@ -7,7 +7,8 @@ was at `7673f7e`; the Mac Mini was at `f586282`. Both had uncommitted changes.
 wanted on every machine of that platform. The `macbook` and `macmini` branches
 hold the changes kept on those machines. This audit deliberately keeps AeroSpace
 on the MacBook and the EF skill and Teams presence automation on the Mac Mini,
-as requested. Neither machine branch should be merged wholesale into `main`.
+as requested. Promote shared changes with cherry-picks, and rebase machine
+branches onto main. Do not create merge commits.
 
 ## MacBook commits after main
 
@@ -82,7 +83,7 @@ it fails in the Sao Paulo timezone because the rendered local time is 21:00.
 This is an existing test assumption, not a deployment failure.
 
 For future syncs, inspect each machine's commits beyond `origin/main`, update
-only the shared commits, and merge main into the machine branch with local work
+only the shared commits, and rebase the machine branch onto main with local work
 saved. Use `git fetch --no-recurse-submodules` first: a machine branch can point
 to unpublished private or Pi commits. Update Pi explicitly to the shared pin,
 install its dependencies, and check both `pi --version` and extension loading.
@@ -99,9 +100,11 @@ settings and AGENTS.md links directly when a full Nix switch is unavailable.
 
 ## Deployment result
 
-Shared main was pushed at `3bceb73`; the first Mac Mini integration was merge
-commit `f88bc38`. This report update is published afterwards. The MacBook working
-tree was left intact, and no machine-only commits were pushed to main.
+Shared main was initially pushed at `3bceb73`. The two merge commits used for
+the first deployment were subsequently removed from the Mac Mini branch. The
+branch was rebuilt with cherry-picks of its machine-specific changes onto main.
+The MacBook working tree was left intact, and no machine-only commits were
+pushed to main.
 
 On the Mac Mini:
 
@@ -134,3 +137,31 @@ logs. The original dotfiles and Pi revisions also have backup branches named
 The full nix-darwin activation was not run because sudo requires the Mac Mini's
 password. Shared skills were linked directly and the existing Pi/Herdr links
 were checked, so the Pi and user-level deployment is active now.
+
+## Linear history correction
+
+The initial deployment incorrectly created merge commits `f88bc38` and `39e546e`
+on the Mac Mini. They were local and had not been pushed. Both were removed from
+its active branch without rewriting published main history.
+
+The replacement branch starts at shared main `2025599` and replays only these
+machine-specific commits:
+
+| Original commit | First rebuilt commit | Change |
+| --- | --- | --- |
+| `ee2225c` | `eb59425` | EF skill |
+| `081ebeb` | `360f0ba` | Teams automation |
+| `8c8dea3` | `0bf39a6` | Private repository pin |
+
+The old `f586282` Pi-pin commit was omitted because shared main already pins the
+newer Pi version. The rebuilt branch had exactly the same Git tree as the former
+merge tip. Only the branch position was replaced, preserving the working tree
+and index. The root, Pi, and Neovim working patches, root status, and private
+status were compared byte for byte before and after the replacement.
+
+The original merge history is retained in a Git bundle on the Mac Mini at
+`~/.local/state/dotfiles-sync/2026-10-05/linear-history/before.bundle`.
+
+Both dotfiles checkouts now have local Git settings `pull.rebase=true` and
+`merge.ff=only`. Sync with rebase or cherry-pick. The corrected audit is brought
+to the Mini by rebasing its machine commits onto the updated main.
