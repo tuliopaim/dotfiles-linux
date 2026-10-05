@@ -96,3 +96,41 @@ sudo darwin-rebuild switch --flake ~/dotfiles/nix#macmini
 Do not run the generic symlinks script just to update Pi: it touches unrelated
 configurations too. Link the shared skill folders and check the existing Pi
 settings and AGENTS.md links directly when a full Nix switch is unavailable.
+
+## Deployment result
+
+Shared main was pushed at `3bceb73`; the first Mac Mini integration was merge
+commit `f88bc38`. This report update is published afterwards. The MacBook working
+tree was left intact, and no machine-only commits were pushed to main.
+
+On the Mac Mini:
+
+- Pi CLI is `1.0.3`, matching the MacBook, with Pi repository pin `76574bc`.
+- Extension dependencies were reinstalled from the checked-in lockfile.
+- Both type checks and all 199 tests passed with `TZ=UTC`.
+- Normal RPC startup selected `openai-codex/gpt-6.1-sol` and registered the
+  `agents`, `commit`, `subagent-preset`, and `reask` commands.
+- Runtime registration was verified for `agent`, `scout`, `review`, `commit`,
+  `workflow`, `ask_user`, `websearch`, `webfetch`, and `apply_patch`.
+- A real model request returned `PI_OK`.
+- 34 shared skill links were added, including the Mini's EF skill. Jira and EMS
+  were absent. The existing three Plannotator skills were preserved.
+- Yabai remained running. AeroSpace was not installed or started.
+- Nix lock/config edits, the camera deletion, Neovim edits, and private pin
+  `bff4413` were retained. Pi's local Copilot choices and old subagent settings
+  were retained; the unsupported `github-copilot/gpt-6-terra:medium` model pattern
+  was removed from live settings and remains in the original backup.
+
+The third-party `pi-apply-patch` package emits a warning because it declares
+`typebox` as a dependency rather than a host peer dependency. Its tool registers,
+and startup and the model request succeeded. The package's source was not changed.
+
+Backups and verification logs are on the Mac Mini under
+`~/.local/state/dotfiles-sync/2026-10-05/`. They include Git bundles for dotfiles,
+Pi, and private, working-tree patches, the original Pi settings, and install/test
+logs. The original dotfiles and Pi revisions also have backup branches named
+`backup/macmini-before-sync-2026-10-05`. Saved local-edit stashes were retained.
+
+The full nix-darwin activation was not run because sudo requires the Mac Mini's
+password. Shared skills were linked directly and the existing Pi/Herdr links
+were checked, so the Pi and user-level deployment is active now.
