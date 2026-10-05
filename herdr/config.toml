@@ -63,6 +63,7 @@ description = "manage machines"
 width = "72%"
 height = "70%"
 
+# Terminal annotations
 [[keys.command]]
 key = "prefix+a"
 type = "plugin_action"
@@ -80,3 +81,19 @@ key = "prefix+m"
 type = "plugin_action"
 command = "annotate.manage"
 description = "manage annotations"
+
+[ui.sound]
+enabled = false
+
+# Document review (plannotator-tui)
+[[keys.command]]
+key = "prefix+o"
+type = "plugin_action"
+command = "annotate.open"
+description = "review documents in this folder"
+
+[[keys.command]]
+key = "prefix+ctrl+o"
+type = "plugin_action"
+command = "annotate.last"
+description = "review the agent's last reply"
