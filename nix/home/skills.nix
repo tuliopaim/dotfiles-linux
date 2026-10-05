@@ -17,5 +17,6 @@ in
   home.file =
     skillLinks ".claude/skills" "skills"
     // skillLinks ".claude-personal/skills" "skills"
-    // skillLinks ".claude-work/skills" "skills";
+    // skillLinks ".claude-work/skills" "skills"
+    // skillLinks ".agents/skills" "skills";
 }

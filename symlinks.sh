@@ -54,6 +54,12 @@ create_symlink ~/dotfiles/pi/agent/settings.json ~/.pi/agent/settings.json
 create_symlink ~/dotfiles/skills ~/.claude/skills
 create_symlink ~/dotfiles/skills ~/.claude-work/skills
 create_symlink ~/dotfiles/skills ~/.claude-personal/skills
+# Shared skills for Codex, Pi and OpenCode; preserve independently installed skills.
+for skill_dir in ~/dotfiles/skills/*; do
+    [ -f "$skill_dir/SKILL.md" ] || continue
+    create_symlink "$skill_dir" "$HOME/.agents/skills/$(basename "$skill_dir")"
+done
+
 create_symlink ~/dotfiles/claude/statusline.sh ~/.claude/statusline.sh
 
 if [ "$(uname)" = "Darwin" ]; then
