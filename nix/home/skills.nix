@@ -39,10 +39,18 @@ in
 {
   options.dotfiles.workSkills.enable = lib.mkEnableOption "the skills in skills/work";
 
-  # Work skills appear only in claude-work and the shared discovery directory.
+  # Work skills appear in claude-work, claude-personal and the shared discovery directory.
   config.home.file =
     skillLinks ".claude/skills" commonSkills
-    // skillLinks ".claude-personal/skills" commonSkills
+    // skillLinks ".claude-personal/skills" sharedSkills
     // skillLinks ".claude-work/skills" sharedSkills
-    // skillLinks ".agents/skills" sharedSkills;
+    // skillLinks ".agents/skills" sharedSkills
+    # Claude work only: it depends on tools that exist only in that profile.
+    # Lives in the private submodule; Nix links the path without reading it.
+    // lib.optionalAttrs config.dotfiles.workSkills.enable {
+      ".claude-work/skills/work-services".source =
+        config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/private/skills/work-services";
+      ".claude-work/skills/health-scout".source =
+        config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/private/skills/health-scout";
+    };
 }

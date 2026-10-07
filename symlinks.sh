@@ -136,6 +136,12 @@ link_skills() {
 
 link_skills || exit 1
 
+# Claude work only: depends on tools that exist only in that profile.
+if [ "${DOTFILES_WORK_SKILLS:-false}" = true ]; then
+    create_symlink ~/dotfiles/private/skills/work-services ~/.claude-work/skills/work-services
+    create_symlink ~/dotfiles/private/skills/health-scout ~/.claude-work/skills/health-scout
+fi
+
 create_symlink ~/dotfiles/claude/statusline.sh ~/.claude/statusline.sh
 
 if [ "$(uname)" = "Darwin" ]; then

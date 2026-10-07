@@ -1,0 +1,154 @@
+{
+  "name": "work",
+  "title": "Work",
+  "description": "Quick links for EMS work: Jira boards, Grafana dashboards, your tickets, your open PRs and the repos you use most.",
+  "icon": "extension-icon.png",
+  "author": "tulio_paim",
+  "license": "MIT",
+  "platforms": [
+    "macOS"
+  ],
+  "preferences": [
+    {
+      "name": "acliBin",
+      "title": "acli Path",
+      "description": "Optional absolute path to acli. Leave blank to resolve from common PATH locations.",
+      "type": "textfield",
+      "required": false
+    },
+    {
+      "name": "ghBin",
+      "title": "gh Path",
+      "description": "Optional absolute path to gh. Leave blank to resolve from common PATH locations.",
+      "type": "textfield",
+      "required": false
+    },
+    {
+      "name": "ghConfigDir",
+      "title": "gh Config Dir",
+      "description": "GH_CONFIG_DIR of the EMS GitHub account",
+      "type": "textfield",
+      "default": "~/.config/gh-ems",
+      "required": true
+    }
+  ],
+  "commands": [
+    {
+      "name": "work",
+      "title": "Work",
+      "subtitle": "Boards · Grafana · Tickets · PRs · Repos",
+      "description": "Boards, Grafana dashboards, your tickets, your open PRs and the repos you use most",
+      "mode": "view",
+      "keywords": [
+        "jira",
+        "ems",
+        "github",
+        "repo",
+        "repos",
+        "board",
+        "grafana"
+      ]
+    },
+    {
+      "name": "e2-board",
+      "title": "E2 Board",
+      "subtitle": "Jira",
+      "description": "Open the EMSmart 2.0 Combined Board",
+      "mode": "no-view",
+      "keywords": [
+        "e2",
+        "am",
+        "emsmart",
+        "board",
+        "sprint",
+        "jira"
+      ]
+    },
+    {
+      "name": "emservices-board",
+      "title": "Services Board",
+      "subtitle": "Jira",
+      "description": "Open the Services Board in EMSmart 2.0",
+      "mode": "no-view",
+      "keywords": [
+        "emsvc",
+        "services",
+        "board",
+        "sprint",
+        "jira"
+      ]
+    },
+    {
+      "name": "emservices-grafana-prod",
+      "title": "EMServices Prod",
+      "subtitle": "Grafana",
+      "description": "Open the EMServices Grafana dashboards in production",
+      "mode": "no-view",
+      "keywords": [
+        "grafana",
+        "dashboard",
+        "metrics",
+        "emsvc",
+        "prod",
+        "production"
+      ]
+    },
+    {
+      "name": "emservices-grafana-nonprod",
+      "title": "EMServices Non-prod",
+      "subtitle": "Grafana",
+      "description": "Open the EMServices Grafana dashboards in staging",
+      "mode": "no-view",
+      "keywords": [
+        "grafana",
+        "dashboard",
+        "metrics",
+        "emsvc",
+        "nonprod",
+        "stage",
+        "staging"
+      ]
+    },
+    {
+      "name": "my-tickets",
+      "title": "My Tickets",
+      "subtitle": "Jira",
+      "description": "Your open Jira work items, grouped by status",
+      "mode": "view",
+      "keywords": [
+        "tickets",
+        "issues",
+        "jira",
+        "emsvc",
+        "am"
+      ]
+    },
+    {
+      "name": "my-prs",
+      "title": "My PRs",
+      "subtitle": "GitHub",
+      "description": "Your open pull requests in the EMS organization",
+      "mode": "view",
+      "keywords": [
+        "pr",
+        "prs",
+        "pull",
+        "github"
+      ]
+    }
+  ],
+  "dependencies": {
+    "@vicinae/api": "^0.29.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.0"
+  },
+  "scripts": {
+    "build": "vici build",
+    "dev": "vici develop",
+    "typecheck": "tsc --noEmit"
+  }
+}

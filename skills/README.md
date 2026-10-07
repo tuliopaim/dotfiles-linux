@@ -45,6 +45,10 @@ Work skills go only to the work Claude profile and the shared directory when
 `dotfiles.workSkills.enable` is enabled. The shared directory is machine-wide,
 so work skills are available to all agents on that machine, not profile-isolated.
 
+`work-services` is the exception: it lives in the private submodule at
+`private/skills/work-services/` and links only into `~/.claude-work/skills`,
+because it uses tools that exist only in that profile.
+
 For non-Nix machines, `symlinks.sh` creates the same per-skill links. Opt into
 work skills with `DOTFILES_WORK_SKILLS=true bash ~/dotfiles/symlinks.sh`.
 Nix-owned and independently installed skills are left alone.

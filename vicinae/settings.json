@@ -16,6 +16,7 @@
       }
    },
    "favorites": [
+      "@tulio_paim/work:work",
       "@tulio_paim/ai-usage:ai-usage",
       "@tulio_paim/pi-spell:pi-spell",
       "scripts:capture-text.sh"
