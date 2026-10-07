@@ -39,5 +39,9 @@
     };
   };
 
-  homebrew.brews = [ "kanata" ];
+  homebrew.taps = [ "atlassian/homebrew-acli" ];
+  homebrew.brews = [ "kanata" "atlassian/homebrew-acli/acli" ];
+
+  # Jira skill (skills/work) and the acli it uses are for work, on this machine only.
+  home-manager.users.tuliopaim.dotfiles.workSkills.enable = true;
 }

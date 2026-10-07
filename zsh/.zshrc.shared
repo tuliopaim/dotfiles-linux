@@ -87,6 +87,23 @@ export EDITOR=nvim
 export DIRENV_WARN_TIMEOUT=0
 export AWS_SDK_LOAD_CONFIG=1
 
+# Use the EMS GitHub CLI account only inside the EMS workspace.
+autoload -Uz add-zsh-hook
+
+set-gh-config-for-directory() {
+    case "$PWD" in
+        "$HOME/dev/ems"|"$HOME/dev/ems/"*)
+            export GH_CONFIG_DIR="$HOME/.config/gh-ems"
+            ;;
+        *)
+            unset GH_CONFIG_DIR
+            ;;
+    esac
+}
+
+add-zsh-hook chpwd set-gh-config-for-directory
+set-gh-config-for-directory
+
 # Base PATH additions
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/dotfiles/scripts:$PATH"
