@@ -65,14 +65,8 @@ alias hd="hunk diff"
 alias tm="session-worktree"
 alias hw="session-worktree --herdr"
 
-# pi aliases
-alias pic='pi --model openai-codex/gpt-5.6-sol:medium'
-alias pio='pi --model opencode-go/deepseek-v4-flash:high'
-
-# opencode presets
-export OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true
-alias oc='OH_MY_OPENCODE_SLIM_PRESET=mixed opencode'
-alias oco='OH_MY_OPENCODE_SLIM_PRESET=opencode-go opencode'
+# ai aliases
+alias pilu='pi --model openai-codex/gpt-6-luna:medium'
 
 alias cc='claude --dangerously-skip-permissions'
 alias ccw='CLAUDE_CONFIG_DIR="$HOME/.claude-work" claude --dangerously-skip-permissions'
