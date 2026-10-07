@@ -150,7 +150,7 @@
       "visual-studio-code"
       "orbstack"
       "codex"
-      "t3-code"
+      "t3-code@nightly"
 
       # Database Tools
       "mongodb-compass"
