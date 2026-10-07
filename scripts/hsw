@@ -3,6 +3,20 @@
 
 set -euo pipefail
 
+if [[ $# -gt 0 ]]; then
+    case "$1" in
+        -h|--help)
+            echo "Usage: hsw"
+            echo "Set up ai, nvim, and terminal tabs in the current Herdr pane's workspace."
+            exit 0
+            ;;
+        *)
+            echo "hsw: unexpected argument: $1" >&2
+            exit 1
+            ;;
+    esac
+fi
+
 if [[ -z "${HERDR_PANE_ID:-}" ]]; then
     echo "hsw: must be run from inside a herdr pane" >&2
     exit 1
