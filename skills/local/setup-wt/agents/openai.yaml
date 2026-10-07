@@ -1,0 +1,4 @@
+interface:
+  display_name: "Set up a worktree"
+  short_description: "Prepare a task worktree and its workspace"
+  default_prompt: "Use $setup-wt to prepare a worktree for this task and open its workspace."

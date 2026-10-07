@@ -14,6 +14,7 @@ in
     force = true;
   };
   home.file.".config/opencode/commands/commit.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/commands/commit.md";
+  home.file.".config/opencode/commands/setup-wt.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/commands/setup-wt.md";
   home.file.".config/opencode/commands/review-comments.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/commands/review-comments.md";
   home.file.".config/opencode/commands/review.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/opencode/commands/review.md";
   home.file.".config/opencode/AGENTS.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/agents/AGENTS.md";
@@ -27,6 +28,7 @@ in
   home.file.".pi/agent/AGENTS.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/agents/AGENTS.md";
   home.file.".ideavimrc".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/ideavim/.ideavimrc";
 
+  home.file.".codex/AGENTS.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/agents/AGENTS.md";
   home.file.".claude/CLAUDE.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/agents/AGENTS.md";
   home.file.".claude-work/CLAUDE.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/agents/AGENTS.md";
   home.file.".claude-personal/CLAUDE.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/agents/AGENTS.md";

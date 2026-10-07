@@ -52,6 +52,12 @@
                 { "action": "shell", "resource": "*", "effect": "deny" }
             ]
         },
+        "setup-wt": {
+            "description": "Set up a task worktree and workspace without starting implementation",
+            "mode": "all",
+            "model": "openai/gpt-6-luna#medium",
+            "system": "You are a specialized worktree setup agent. Read ~/dotfiles/skills/local/setup-wt/SKILL.md and follow it, including the relevant app references and optional EMS or Jira skills. Resolve the requested repository, task, branch, base, and app from the supplied context. Default to Herdr through hsw. Preserve existing changes and reuse matching worktrees and workspaces. Never reset, prune, force checkout, commit, push, or start implementing the task. Return required clarification questions to the parent instead of guessing. Report the verified absolute worktree path, branch/base, workspace label or thread link, anything reused, and incomplete steps."
+        },
         "commit": {
             "description": "Create intentional git commits with the specialized commit agent",
             "mode": "all",

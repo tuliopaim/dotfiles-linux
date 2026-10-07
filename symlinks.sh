@@ -46,11 +46,13 @@ create_symlink ~/dotfiles/opencode/opencode.json ~/.config/opencode/opencode.jso
 create_symlink ~/dotfiles/opencode/cli.json ~/.config/opencode/cli.json
 create_symlink ~/dotfiles/opencode/tui.json ~/.config/opencode/tui.json
 create_symlink ~/dotfiles/opencode/commands/commit.md ~/.config/opencode/commands/commit.md
+create_symlink ~/dotfiles/opencode/commands/setup-wt.md ~/.config/opencode/commands/setup-wt.md
 create_symlink ~/dotfiles/opencode/commands/review-comments.md ~/.config/opencode/commands/review-comments.md
 create_symlink ~/dotfiles/opencode/commands/review.md ~/.config/opencode/commands/review.md
 create_symlink ~/dotfiles/kanata/kanata.kbd ~/.config/kanata/kanata.kbd
 create_symlink ~/dotfiles/herdr/config.toml ~/.config/herdr/config.toml
 create_symlink ~/dotfiles/pi/agent/settings.json ~/.pi/agent/settings.json
+create_symlink ~/dotfiles/agents/AGENTS.md ~/.codex/AGENTS.md
 link_skills() {
     local root="$HOME/dotfiles/skills"
     local source skill_dir name previous target link
