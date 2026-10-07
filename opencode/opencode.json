@@ -10,11 +10,6 @@
             }
         }
     ],
-    "skills": {
-        "paths": [
-            "~/dotfiles/skills"
-        ]
-    },
     "lsp": false,
     "permissions": [
         { "action": "*", "resource": "*", "effect": "allow" },

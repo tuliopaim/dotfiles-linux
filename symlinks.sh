@@ -51,14 +51,88 @@ create_symlink ~/dotfiles/opencode/commands/review.md ~/.config/opencode/command
 create_symlink ~/dotfiles/kanata/kanata.kbd ~/.config/kanata/kanata.kbd
 create_symlink ~/dotfiles/herdr/config.toml ~/.config/herdr/config.toml
 create_symlink ~/dotfiles/pi/agent/settings.json ~/.pi/agent/settings.json
-create_symlink ~/dotfiles/skills ~/.claude/skills
-create_symlink ~/dotfiles/skills ~/.claude-work/skills
-create_symlink ~/dotfiles/skills ~/.claude-personal/skills
-# Shared skills for Codex, Pi and OpenCode; preserve independently installed skills.
-for skill_dir in ~/dotfiles/skills/*; do
-    [ -f "$skill_dir/SKILL.md" ] || continue
-    create_symlink "$skill_dir" "$HOME/.agents/skills/$(basename "$skill_dir")"
-done
+link_skills() {
+    local root="$HOME/dotfiles/skills"
+    local source skill_dir name previous target link
+    local roots=("$root/upstream/.agents/skills" "$root/local")
+    local sources=() names=()
+    local targets=("$HOME/.claude/skills" "$HOME/.claude-personal/skills"
+                   "$HOME/.claude-work/skills" "$HOME/.agents/skills")
+    [ "${DOTFILES_WORK_SKILLS:-false}" != true ] || roots+=("$root/work")
+
+    # Check names before changing any skill links. Compatible with macOS Bash 3.
+    for source in "${roots[@]}"; do
+        for skill_dir in "$source"/*; do
+            [ -f "$skill_dir/SKILL.md" ] || continue
+            name="$(basename "$skill_dir")"
+            for previous in "${names[@]}"; do
+                if [ "$name" = "$previous" ]; then
+                    echo "Error: duplicate skill folder name: $name" >&2
+                    return 1
+                fi
+            done
+            names+=("$name")
+            sources+=("$skill_dir")
+        done
+    done
+
+    for target in "${targets[@]}"; do
+        if [ -L "$target" ]; then
+            # Replace only the whole-directory links this script used to create.
+            if [ "$(readlink "$target")" = "$root" ]; then
+                rm "$target"
+            else
+                echo "Preserving externally managed skills directory: $target"
+                continue
+            fi
+        fi
+        for link in "$target"/*; do
+            [ -L "$link" ] || continue
+            source="$(readlink "$link")"
+            case "$source" in
+                "$root"/*|"$HOME/dotfiles/skills-work"/*)
+                    if [ ! -f "$source/SKILL.md" ]; then
+                        rm "$link"
+                        continue
+                    fi
+                    ;;
+            esac
+            case "$source" in
+                "$root/work"/*|"$HOME/dotfiles/skills-work"/*)
+                    if [ "${DOTFILES_WORK_SKILLS:-false}" != true ] ||
+                       { [ "$target" != "$HOME/.claude-work/skills" ] &&
+                         [ "$target" != "$HOME/.agents/skills" ]; }; then
+                        rm "$link"
+                    fi
+                    ;;
+            esac
+        done
+        for skill_dir in "${sources[@]}"; do
+            case "$skill_dir" in
+                "$root/work"/*)
+                    [ "$target" = "$HOME/.claude-work/skills" ] ||
+                    [ "$target" = "$HOME/.agents/skills" ] || continue
+                    ;;
+            esac
+            link="$target/$(basename "$skill_dir")"
+            if [ -L "$link" ]; then
+                case "$(readlink "$link")" in
+                    "$root"/*|"$HOME/dotfiles/skills-work"/*) ;;
+                    *)
+                        echo "Preserving externally managed skill: $link"
+                        continue
+                        ;;
+                esac
+            elif [ -e "$link" ]; then
+                echo "Preserving independently installed skill: $link"
+                continue
+            fi
+            create_symlink "$skill_dir" "$link"
+        done
+    done
+}
+
+link_skills || exit 1
 
 create_symlink ~/dotfiles/claude/statusline.sh ~/.claude/statusline.sh
 
