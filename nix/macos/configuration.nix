@@ -112,7 +112,6 @@
       "fnm"
       "poetry"
       "python@3.13"
-      "anomalyco/tap/opencode"
       "modem-dev/tap/hunk"
 
       # Databases & Related
