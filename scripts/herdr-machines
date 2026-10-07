@@ -85,6 +85,8 @@ fi
 # Shown until the background fetch replaces it, so the popup opens instantly
 # instead of sitting blank while the catalog responds over SSH.
 LOADING_ROW=$'-\tLOADING\tloading machines…\t-'
+HEADER='enter: toggle · r: refresh · esc: close'
+message="$HEADER"
 
 while true; do
     set +e
@@ -93,8 +95,10 @@ while true; do
               --delimiter=$'\t' \
               --with-nth=2.. \
               --prompt 'machines > ' \
-              --border \
-              --border-label ' enter: toggle · esc: close ' \
+              --no-border \
+              --no-info \
+              --margin=1,2 \
+              --header "$message" \
               --disabled \
               --bind "start:reload($RELOAD_CMD),r:reload($RELOAD_CMD)")
     fzf_status=$?
@@ -108,10 +112,22 @@ while true; do
     [[ "$enabled" == "ON " || "$enabled" == "OFF" ]] || continue
 
     if [[ "$enabled" == "ON " ]]; then
-        run_herdr machine remove "$profile_id" >/dev/null 2>&1 || true
+        action=(machine remove "$profile_id")
+        progress="Removing $label"
     elif [[ "$profile_id" != "-" ]]; then
-        run_herdr machine enable "$profile_id" >/dev/null 2>&1 || true
+        action=(machine enable "$profile_id")
+        progress="Enabling $label"
     else
-        run_herdr machine add "$target" --label "$label" >/dev/null 2>&1 || true
+        # This is a toggle, not interactive installation/session setup.
+        action=(machine add "$target" --label "$label" --remote-session default)
+        progress="Connecting to $label"
+    fi
+
+    printf '\033[2J\033[H\n  %s…\n' "$progress"
+    if output=$(run_herdr "${action[@]}" </dev/null 2>&1); then
+        message="$HEADER"
+    else
+        message="${output:-Machine change failed}
+$HEADER"
     fi
 done
