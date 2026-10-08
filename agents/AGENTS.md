@@ -100,3 +100,39 @@ git worktree add -b feature-name ../feature-name origin/main
 If the branch already exists, omit `-b` and use the existing branch name. Do
 not run `git clone`, `git init`, or manually move `.git` directories to create
 additional worktrees. Do not place a worktree inside `.bare`.
+## Memory
+
+Use OptMem for persistent memory across sessions:
+- The CLI is `~/.optmem/memo`.
+- The shared memory store is `~/.optmem/memory`, unless `MEMORY_DIR` overrides it.
+
+### Pi sessions
+
+The installed OptMem extension handles startup and supplies the `optmem` tool.
+Use that tool for notes, requested compression, recall, and zoom. Do not run
+the CLI startup instructions below in Pi.
+
+### Non-Pi sessions
+
+At startup, run `~/.optmem/memo wake` before any other tool call. Follow its
+continuation and compression instructions until it says "You are awake."
+
+Run `~/.optmem/memo note "<one line, at most 280 bytes>"` when you learn a
+durable fact, user preference or correction, finish substantial work, or make
+a lasting decision. Do not save redundant notes.
+
+If any OptMem output requests compression, submit the requested summary with
+`~/.optmem/memo nap <a-b> "<summary>"` before your next non-memory action.
+Continue until no compression remains.
+
+Use `~/.optmem/memo recall "<regex>"` to search original notes.
+Use `~/.optmem/memo zoom <a-b>` to open a summary into its children.
+Never directly edit or delete files under the memory store; the tool manages them.
+
+### Subagents
+
+Subagents must skip all memory instructions, ignore injected OptMem memory,
+and never run `memo` or call `optmem`. Only parent agents maintain memory;
+parallel parent sessions may all write to the shared store.
+
+When spawning a subagent, include: "You are a subagent. Don't run memo or use optmem."
