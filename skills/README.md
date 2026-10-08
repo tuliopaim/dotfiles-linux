@@ -20,6 +20,16 @@ npx skills@latest list
 npx skills@latest update --project
 ```
 
+`update` has no folder flag. To update from any directory without changing your
+shell's working directory, run:
+
+```sh
+(cd ~/dotfiles/skills/upstream && npx skills@latest update --project)
+```
+
+`--project` updates skills tracked in `upstream/skills-lock.json`, not global
+skills. Add `--yes` to skip prompts.
+
 Review changes with `git diff -- skills` and `git status --short -- skills` from
 the dotfiles root. Upstream skills are not automatically updated at startup.
 Do not edit them directly. Copy a skill into `local/` to maintain your own
