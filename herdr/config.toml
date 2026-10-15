@@ -1,15 +1,30 @@
 onboarding = false
 
 [theme]
-name = "catppuccin"
-
-# Subtle gray accent: keeps pane borders quiet without killing contrast for
-# inactive tab labels and other UI that also uses this token. Matching the
-# panel bg (#1e1e2e) hides the border entirely but makes inactive tab names
-# unreadable.
+name = "terminal"
 auto_switch = false
+
+# GitHub Dark Default with subtle sidebar selection backgrounds.
 [theme.custom]
-accent = "#45475a"
+accent = "#58a6ff"
+panel_bg = "#0d1117"
+sidebar_bg = "#0d1117"
+active_row_bg = "#161b22"
+selection_bg = "#21262d"
+surface0 = "#161b22"
+surface1 = "#21262d"
+surface_dim = "#161b22"
+overlay0 = "#6e7681"
+overlay1 = "#8b949e"
+text = "#e6edf3"
+subtext0 = "#b1bac4"
+mauve = "#bc8cff"
+green = "#3fb950"
+yellow = "#d29922"
+red = "#ff7b72"
+blue = "#58a6ff"
+teal = "#39c5cf"
+peach = "#ffa198"
 
 [ui]
 pane_scrollbars = false
