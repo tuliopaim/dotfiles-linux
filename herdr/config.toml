@@ -4,20 +4,20 @@ onboarding = false
 name = "terminal"
 auto_switch = false
 
-# GitHub Dark Default with subtle sidebar selection backgrounds.
+# T3 Code surfaces with GitHub's semantic colors.
 [theme.custom]
-accent = "#58a6ff"
-panel_bg = "#0d1117"
-sidebar_bg = "#0d1117"
-active_row_bg = "#161b22"
-selection_bg = "#21262d"
-surface0 = "#161b22"
-surface1 = "#21262d"
-surface_dim = "#161b22"
-overlay0 = "#6e7681"
-overlay1 = "#8b949e"
-text = "#e6edf3"
-subtext0 = "#b1bac4"
+accent = "#818181"
+panel_bg = "#0a0a0a"
+sidebar_bg = "#000000"
+active_row_bg = "#111111"
+selection_bg = "#1a1b1b"
+surface0 = "#111111"
+surface1 = "#191919"
+surface_dim = "#141414"
+overlay0 = "#818181"
+overlay1 = "#a3a3a3"
+text = "#f5f5f5"
+subtext0 = "#a3a3a3"
 mauve = "#bc8cff"
 green = "#3fb950"
 yellow = "#d29922"
