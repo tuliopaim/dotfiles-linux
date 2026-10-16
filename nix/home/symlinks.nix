@@ -28,6 +28,10 @@ in
   home.file.".pi/agent/AGENTS.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/agents/AGENTS.md";
   home.file.".ideavimrc".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/ideavim/.ideavimrc";
 
+  home.file.".codex/commit.toml".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/codex/commit.toml";
+  home.file.".claude/agents/commit.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/claude/agents/commit.md";
+  home.file.".claude-work/agents/commit.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/claude/agents/commit.md";
+  home.file.".claude-personal/agents/commit.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/claude/agents/commit.md";
   home.file.".codex/AGENTS.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/agents/AGENTS.md";
   home.file.".claude/CLAUDE.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/agents/AGENTS.md";
   home.file.".claude-work/CLAUDE.md".source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/agents/AGENTS.md";
