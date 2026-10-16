@@ -145,7 +145,6 @@
       "dbeaver-community"
       "ghostty"
       "postman"
-      "rider"
       "visual-studio-code"
       "orbstack"
       "codex"
@@ -184,7 +183,7 @@
       "zen"
 
       # Entertainment
-      "spotify"
+      "crmne/tap/spotifast"
       "calibre"
     ];
   };
