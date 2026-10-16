@@ -18,8 +18,12 @@ if [[ $# -ge 1 ]]; then
     selected=$(echo "$1" | tr -s '/')
 else
     set +e
-    selected=$(find -L "${BASE_DIRS[@]}" -mindepth 1 -maxdepth 3 -type d \
-        -not -path '*/.bare*' -print 2>/dev/null \
+    selected=$({
+        find -L "${BASE_DIRS[0]}" -mindepth 1 -maxdepth 3 -type d \
+            -not -path '*/.bare*' -print 2>/dev/null
+        find -L "${BASE_DIRS[1]}" -mindepth 1 -maxdepth 1 -type d \
+            -not -path '*/.bare*' -print 2>/dev/null
+    } \
         | fzf --reverse --prompt 'worktree > ' \
               --border --border-label ' worktrees ' \
               --preview 'ls -la {}' --preview-window 'right:55%')
