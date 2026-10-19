@@ -60,6 +60,22 @@ fi
 # --- 3. Dispatch ---
 case "$MODE" in
     herdr)
+        if [[ -f "$selected/.git" ]]; then
+            git_dir=$(git -C "$selected" rev-parse --path-format=absolute --git-dir)
+            common_dir=$(git -C "$selected" rev-parse --path-format=absolute --git-common-dir)
+            if [[ "$git_dir" != "$common_dir" ]]; then
+                source="$common_dir"
+                # Keep the repo parent distinct from the checkout being opened.
+                if [[ "${common_dir##*/}" == ".git" ]] || \
+                    [[ "${common_dir##*/}" == ".bare" && -f "${common_dir%/*}/.git" ]]; then
+                    source="${common_dir%/*}"
+                fi
+                herdr worktree open --cwd "$source" --path "$selected" \
+                    --label "$label" --focus >/dev/null
+                exit 0
+            fi
+        fi
+
         existing=$(herdr workspace list 2>/dev/null \
             | jq -r --arg label "$label" \
                 '.result.workspaces[]? | select(.label==$label) | .workspace_id' \

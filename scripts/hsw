@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# herdr equivalent of tsw: turn the current workspace into ai/nvim/terminal tabs.
+# herdr equivalent of tsw: turn the current workspace into ai/terminal/nvim tabs.
 
 set -euo pipefail
 
@@ -7,7 +7,7 @@ if [[ $# -gt 0 ]]; then
     case "$1" in
         -h|--help)
             echo "Usage: hsw"
-            echo "Set up ai, nvim, and terminal tabs in the current Herdr pane's workspace."
+            echo "Set up ai, terminal, and nvim tabs in the current Herdr pane's workspace."
             exit 0
             ;;
         *)
@@ -32,6 +32,6 @@ if [[ -z "$ws" || "$ws" == "null" || -z "$current_tab" || "$current_tab" == "nul
 fi
 
 herdr tab rename "$current_tab" ai >/dev/null
-herdr tab create --workspace "$ws" --label nvim --no-focus >/dev/null
 herdr tab create --workspace "$ws" --label terminal --no-focus >/dev/null
+herdr tab create --workspace "$ws" --label nvim --no-focus >/dev/null
 herdr tab focus "$current_tab" >/dev/null
