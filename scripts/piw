@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+export PI_CODING_AGENT_DIR="$HOME/.pi-work/agent"
+export PI_CODING_AGENT_SESSION_DIR="$PI_CODING_AGENT_DIR/sessions"
+export PI_WORK_PROFILE=1
+export PI_SUBAGENT_PRESET=anthropic-work
+# 1-hour prompt cache: work sessions pause for minutes between turns, and the
+# 5-minute default rewrites the whole prefix after every such gap.
+export PI_CACHE_RETENTION=long
+# Resolve only the work profile's Keychain credential, not an inherited token.
+unset ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN ANTHROPIC_OAUTH_TOKEN
+
+root="$HOME/dotfiles/pi"
+umask 077
+mkdir -p "$PI_CODING_AGENT_DIR"
+for file in settings.json auth.json mcp.json; do
+    # Never replace credentials or settings changed by the user.
+    if [ ! -e "$PI_CODING_AGENT_DIR/$file" ]; then
+        cp -n "$root/work/$file" "$PI_CODING_AGENT_DIR/$file"
+    fi
+done
+if [ ! -e "$PI_CODING_AGENT_DIR/AGENTS.md" ]; then
+    ln -s "$HOME/dotfiles/agents/AGENTS.md" "$PI_CODING_AGENT_DIR/AGENTS.md"
+fi
+
+# Administrative subcommands must be the first argument and do not run a model.
+case "${1:-}" in
+    auth|mcp|install|remove|uninstall|update|list|config) exec pi "$@" ;;
+esac
+# Explicit extensions still load with --no-extensions.
+exec pi --extension "$root/work/guard.ts" "$@"
