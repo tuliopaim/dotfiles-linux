@@ -1,0 +1,404 @@
+#!/usr/bin/env python3
+"""Small macOS network recorder. Run `net-watch --help` for commands."""
+
+import argparse
+import concurrent.futures
+import datetime as dt
+import fcntl
+import ipaddress
+import json
+import os
+from pathlib import Path
+import plistlib
+import re
+import shutil
+import signal
+import socket
+import subprocess
+import sys
+import threading
+import time
+
+
+LABEL = "dev.tuliopaim.net-watch"
+LOG_LIMIT = 8 * 1024 * 1024
+RETENTION_DAYS = 7
+DEFAULT_DATA = Path.home() / ".local/state/net-watch"
+
+
+def command(args, timeout=2):
+    try:
+        result = subprocess.run(args, capture_output=True, text=True, timeout=timeout)
+        return result.returncode, result.stdout, result.stderr.strip()[:200]
+    except subprocess.TimeoutExpired:
+        return 124, "", "timed out after %ss" % timeout
+    except OSError as error:
+        return 127, "", str(error)[:200]
+
+
+def ping(target):
+    args = ["/sbin/ping6" if ":" in target else "/sbin/ping", "-n", "-c", "1"]
+    if ":" not in target:
+        args += ["-W", "1000"]
+    code, output, error = command(args + [target], 1.8)
+    match = re.search(r"time[=<]([\d.]+)", output)
+    if code == 0 and match:
+        return {"ok": True, "ms": float(match[1])}
+    return {"ok": False, "error": error or "no ICMP reply"}
+
+
+def router_tcp(target):
+    start = time.monotonic()
+    try:
+        with socket.create_connection((target, 80), timeout=1.5):
+            return {"ok": True, "ms": round((time.monotonic() - start) * 1000, 2)}
+    except OSError as error:
+        return {"ok": False, "error": str(error)[:200]}
+
+
+def dns(system):
+    start = time.monotonic()
+    if system:
+        args = [sys.executable, "-c", "import socket; socket.getaddrinfo('www.cloudflare.com', 443)"]
+    else:
+        args = ["/usr/bin/dig", "@1.1.1.1", "www.cloudflare.com", "A",
+                "+tries=1", "+time=2", "+noall", "+comments"]
+    code, output, error = command(args, 3)
+    ok = code == 0 and (system or "status: NOERROR" in output)
+    result = {"ok": ok, "ms": round((time.monotonic() - start) * 1000, 2)}
+    if not ok:
+        result["error"] = error or "DNS lookup failed"
+    return result
+
+
+def https(family):
+    code, output, error = command([
+        "/usr/bin/curl", family, "--silent", "--show-error", "--output", "/dev/null",
+        "--connect-timeout", "2", "--max-time", "3", "--write-out",
+        "%{http_code} %{time_namelookup} %{time_connect} %{time_starttransfer} %{time_total}",
+        "https://www.cloudflare.com/cdn-cgi/trace",
+    ], 3.5)
+    fields = output.split()
+    result = {"ok": code == 0 and len(fields) == 5 and fields[0] == "200"}
+    if len(fields) == 5:
+        result["http_code"] = fields[0]
+        for key, value in zip(["dns_ms", "connect_ms", "first_byte_ms", "ms"], fields[1:]):
+            result[key] = round(float(value) * 1000, 2)
+    if not result["ok"]:
+        result["error"] = error or "HTTPS request failed"
+    return result
+
+
+def network():
+    code, output, error = command(["/sbin/route", "-n", "get", "default"])
+    values = dict(re.findall(r"^\s*(gateway|interface):\s*(\S+)", output, re.M))
+    if code or not values.get("interface"):
+        return {"error": error or "no IPv4 default route"}, None
+    interface = values["interface"]
+    code, output, _ = command(["/usr/sbin/netstat", "-ib", "-I", interface])
+    counters = None
+    if code == 0:
+        lines = output.splitlines()
+        if lines:
+            headers = lines[0].split()
+            for line in lines[1:]:
+                fields = line.split()
+                if len(fields) == len(headers) and fields[0] == interface and "<Link#" in line:
+                    row = dict(zip(headers, fields))
+                    counters = (int(row["Ibytes"]), int(row["Obytes"]))
+                    break
+    return values, counters
+
+
+def ipv6_state(interface):
+    state = {"ipv6_primary_prefix": None, "ipv6_prefixes": []}
+    _, output, _ = command(["/usr/sbin/scutil", "--nwi"])
+    match = re.search(r"IPv6 network interface information.*?address\s*:\s*(\S+)", output, re.S)
+    if match:
+        address = match[1].split("%")[0]
+        state["ipv6_primary_prefix"] = str(ipaddress.IPv6Network(address + "/64", strict=False))
+    _, output, _ = command(["/sbin/route", "-n", "get", "-inet6", "default"])
+    state["ipv6_route"] = dict(re.findall(r"^\s*(gateway|interface):\s*(\S+)", output, re.M))
+    if interface:
+        _, output, _ = command(["/sbin/ifconfig", interface])
+        prefixes = {}
+        for line in output.splitlines():
+            match = re.search(r"inet6 ([0-9a-f:]+) ", line)
+            if match and ipaddress.IPv6Address(match[1]).is_global:
+                prefix = str(ipaddress.IPv6Network(match[1] + "/64", strict=False))
+                prefixes[prefix] = prefixes.get(prefix, True) and "deprecated" in line
+        state["ipv6_prefixes"] = [{"prefix": prefix, "deprecated": deprecated}
+                                  for prefix, deprecated in prefixes.items()]
+    return state
+
+
+def resolve_peer(alias):
+    if not alias:
+        return None
+    code, output, error = command(["/usr/bin/ssh", "-G", alias])
+    match = re.search(r"^hostname (\S+)$", output, re.M)
+    if code or not match:
+        raise RuntimeError("Cannot resolve SSH alias %s: %s" % (alias, error))
+    return match[1]
+
+
+def sample(peer=None, deep=True):
+    start = time.monotonic()
+    network_info, counters = network()
+    jobs = {
+        "google_v4": (ping, "8.8.8.8"),
+        "cloudflare_v4": (ping, "1.1.1.1"),
+        "cloudflare_v6": (ping, "2606:4700:4700::1111"),
+    }
+    if network_info.get("gateway"):
+        jobs["router_tcp"] = (router_tcp, network_info["gateway"])
+    if peer:
+        jobs["lan_peer"] = (ping, peer)
+    if deep:
+        jobs.update({"system_dns": (dns, True), "direct_dns": (dns, False),
+                     "https_v4": (https, "-4"), "https_v6": (https, "-6")})
+    with concurrent.futures.ThreadPoolExecutor(max_workers=len(jobs) + 1) as pool:
+        state = pool.submit(ipv6_state, network_info.get("interface")) if deep else None
+        pending = {name: pool.submit(fn, arg) for name, (fn, arg) in jobs.items()}
+        probes = {name: future.result() for name, future in pending.items()}
+        if state:
+            network_info.update(state.result())
+    record = {"time": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
+              "host": socket.gethostname(), "network": network_info, "probes": probes,
+              "sample_ms": round((time.monotonic() - start) * 1000, 2)}
+    return record, counters
+
+
+def traffic(previous, current, elapsed):
+    if previous is None or current is None or elapsed <= 0 or elapsed > 30:
+        return None
+    deltas = [new - old for old, new in zip(previous, current)]
+    if any(value < 0 for value in deltas):
+        return None
+    return dict(zip(["rx_mbps", "tx_mbps"],
+                    [round(value * 8 / elapsed / 1e6, 3) for value in deltas]))
+
+
+def write_record(data, record, limit=LOG_LIMIT):
+    data.mkdir(parents=True, exist_ok=True, mode=0o700)
+    date = dt.date.fromisoformat(record["time"][:10])
+    path = data / (date.isoformat() + ".jsonl")
+    line = json.dumps(record, separators=(",", ":")) + "\n"
+    if path.exists() and path.stat().st_size + len(line.encode()) > limit:
+        path.replace(path.with_suffix(".jsonl.1"))
+    with path.open("a") as stream:
+        stream.write(line)
+    latest = data / ("latest.%s.tmp" % os.getpid())
+    latest.write_text(line)
+    latest.replace(data / "latest.json")
+    cutoff = date - dt.timedelta(days=RETENTION_DAYS - 1)
+    for old in data.iterdir():
+        if re.fullmatch(r"\d{4}-\d{2}-\d{2}\.jsonl(?:\.1)?", old.name):
+            if dt.date.fromisoformat(old.name[:10]) < cutoff:
+                old.unlink()
+
+
+def run(data, peer_alias, interval):
+    data.mkdir(parents=True, exist_ok=True, mode=0o700)
+    with (data / "recorder.lock").open("a") as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            raise RuntimeError("A recorder is already running for %s" % data)
+        stop = threading.Event()
+        for sig in [signal.SIGTERM, signal.SIGINT]:
+            signal.signal(sig, lambda *_: stop.set())
+        previous_counters = previous_interface = previous_start = None
+        next_deep = 0
+        peer = None
+        peer_error = None
+        while not stop.is_set():
+            start = time.monotonic()
+            try:
+                deep = start >= next_deep
+                if deep:
+                    try:
+                        peer = resolve_peer(peer_alias)
+                        peer_error = None
+                    except RuntimeError as error:
+                        peer_error = str(error)
+                record, counters = sample(peer, deep)
+                if peer_error:
+                    record["probes"]["lan_peer"] = {"ok": False, "error": peer_error}
+                interface = record["network"].get("interface")
+                if previous_start is not None:
+                    elapsed = start - previous_start
+                    if elapsed > interval * 3:
+                        record["gap_s"] = round(elapsed, 1)
+                    if interface == previous_interface:
+                        rates = traffic(previous_counters, counters, elapsed)
+                        if rates is not None:
+                            record["traffic"] = rates
+                write_record(data, record)
+                previous_counters, previous_interface = counters, interface
+                if deep:
+                    next_deep = start + 30
+            except Exception as error:
+                write_record(data, {"time": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
+                                    "host": socket.gethostname(), "monitor_error": str(error)[:300]})
+                previous_counters = previous_interface = None
+            previous_start = start
+            stop.wait(max(0, interval - (time.monotonic() - start)))
+
+
+def records_since(data, since):
+    for path in sorted(data.glob("*.jsonl*")):
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}\.jsonl(?:\.1)?", path.name):
+            continue
+        with path.open() as stream:
+            for line in stream:
+                try:
+                    record = json.loads(line)
+                    if dt.datetime.fromisoformat(record["time"]) >= since:
+                        yield record
+                except (ValueError, KeyError):
+                    continue  # A reader may catch a partially written final line.
+
+
+def status(data, hours):
+    now = dt.datetime.now(dt.timezone.utc)
+    records = sorted(records_since(data, now - dt.timedelta(hours=hours)), key=lambda r: r["time"])
+    if not records:
+        print("No samples in the last %g hours. Data: %s" % (hours, data))
+        return 1
+    last = records[-1]
+    age = (now - dt.datetime.fromisoformat(last["time"])).total_seconds()
+    print("%s: last sample %s (%ds ago%s)" %
+          (last["host"], last["time"], age, "; recorder stale or host asleep" if age > 45 else ""))
+    print("%d samples in the last %g hours. Data: %s" % (len(records), hours, data))
+    names = sorted({name for record in records for name in record.get("probes", {})})
+    for name in names:
+        readings = [(record["time"], record["probes"][name]) for record in records
+                    if name in record.get("probes", {})]
+        failed = [(stamp, result) for stamp, result in readings if not result["ok"]]
+        times = sorted(result["ms"] for _, result in readings if result["ok"] and "ms" in result)
+        detail = ""
+        if times:
+            detail = ", p95 %gms, max %gms" % (times[min(len(times) - 1, int(len(times) * .95))], times[-1])
+        if failed:
+            detail += ", last failure %s: %s" % (failed[-1][0], failed[-1][1].get("error", "failed"))
+        print("  %-15s %d/%d failed%s" % (name, len(failed), len(readings), detail))
+    errors = [r for r in records if "monitor_error" in r]
+    gaps = [r for r in records if "gap_s" in r]
+    print("Recorder errors: %d. Sampling gaps: %d (sleep/stopped recorder also causes gaps)." % (len(errors), len(gaps)))
+    if errors:
+        print("Last recorder error: " + errors[-1]["monitor_error"])
+    rates = [r["traffic"] for r in records if "traffic" in r]
+    if rates:
+        print("Peak interface traffic: %.1f Mbps down / %.1f Mbps up." %
+              (max(r["rx_mbps"] for r in rates), max(r["tx_mbps"] for r in rates)))
+    states = [r["network"] for r in records if "ipv6_primary_prefix" in r.get("network", {})]
+    if states:
+        print("Latest IPv6 primary prefix: %s. Configured prefixes: %d." %
+              (states[-1]["ipv6_primary_prefix"], len(states[-1]["ipv6_prefixes"])))
+    return 0
+
+
+def service_path():
+    return Path.home() / "Library/LaunchAgents" / (LABEL + ".plist")
+
+
+def stop_service():
+    target = "gui/%s/%s" % (os.getuid(), LABEL)
+    code, _, _ = command(["/bin/launchctl", "print", target])
+    if code == 0:
+        code, _, error = command(["/bin/launchctl", "bootout", target], 10)
+        if code:
+            raise RuntimeError("Cannot stop recorder: " + error)
+
+
+def start_service(path):
+    deadline = time.monotonic() + 5
+    while True:
+        code, _, error = command(["/bin/launchctl", "bootstrap", "gui/%s" % os.getuid(), str(path)], 10)
+        if code == 0:
+            return
+        # bootout may return before launchd finishes removing the old job.
+        if code != 5 or time.monotonic() >= deadline:
+            raise RuntimeError("Cannot start recorder: " + error)
+        time.sleep(.25)
+
+
+def install(data, peer, interval):
+    if sys.platform != "darwin":
+        raise RuntimeError("The LaunchAgent installer requires macOS")
+    if peer:
+        resolve_peer(peer)
+    data.mkdir(parents=True, exist_ok=True, mode=0o700)
+    data.chmod(0o700)
+    script = data / "net-watch"
+    stop_service()
+    if Path(__file__).resolve() != script.resolve():
+        shutil.copyfile(__file__, script)
+    script.chmod(0o700)
+    python = shutil.which("python3")
+    if not python:
+        raise RuntimeError("python3 is required")
+    args = [python, str(script), "--data-dir", str(data), "run", "--interval", str(interval)]
+    if peer:
+        args += ["--peer", peer]
+    plist = {"Label": LABEL, "ProgramArguments": args, "RunAtLoad": True, "KeepAlive": True,
+             "ProcessType": "Background", "Nice": 10, "ThrottleInterval": 10,
+             "StandardErrorPath": "/dev/null",
+             "EnvironmentVariables": {"PATH": "/usr/bin:/bin:/usr/sbin:/sbin"}}
+    path = service_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(plistlib.dumps(plist))
+    start_service(path)
+    print("Recorder installed. Probes every %gs, DNS/HTTPS every 30s. Data: %s" % (interval, data))
+
+
+def main():
+    os.umask(0o077)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA)
+    sub = parser.add_subparsers(dest="action", required=True)
+    for action in ["sample", "run", "install"]:
+        cmd = sub.add_parser(action, help={"sample": "Print one sample without saving it",
+                                          "run": "Record until stopped", "install": "Install/start a user LaunchAgent"}[action])
+        cmd.add_argument("--peer", help="SSH alias of an always-on LAN peer; resolves via ssh -G, never connects")
+        if action != "sample":
+            cmd.add_argument("--interval", type=float, default=10)
+    report = sub.add_parser("status", help="Summarize recorded probe failures and latency")
+    report.add_argument("--hours", type=float, default=24)
+    sub.add_parser("uninstall", help="Stop/remove the LaunchAgent; keep recorded history")
+    args = parser.parse_args()
+    if getattr(args, "interval", 10) < 5:
+        parser.error("--interval must be at least 5 seconds")
+    if getattr(args, "hours", 24) <= 0:
+        parser.error("--hours must be positive")
+    try:
+        if args.action == "sample":
+            record, _ = sample(resolve_peer(args.peer))
+            print(json.dumps(record, indent=2))
+        elif args.action == "run":
+            run(args.data_dir, args.peer, args.interval)
+        elif args.action == "install":
+            install(args.data_dir.resolve(), args.peer, args.interval)
+        elif args.action == "status":
+            return status(args.data_dir, args.hours)
+        elif args.action == "uninstall":
+            stop_service()
+            service_path().unlink(missing_ok=True)
+            print("Recorder stopped and LaunchAgent removed. History kept in %s" % args.data_dir)
+    except (RuntimeError, OSError) as error:
+        if args.action == "run":
+            try:
+                args.data_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
+                # Keep only the latest fatal error. launchd's open stderr file
+                # descriptor would keep writing to a renamed rotation backup.
+                (args.data_dir / "last-error.txt").write_text(str(error)[:1000])
+            except OSError:
+                pass
+        print(str(error), file=sys.stderr)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

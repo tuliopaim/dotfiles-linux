@@ -175,6 +175,26 @@ Located in `scripts/`:
 | `tmux-vault` | Obsidian's vault access helper for tmux |
 | `clone-wt` | Git worktree creation helper |
 | `usersecrets` | .NET user secrets management |
+| `net-watch` | Local network history for diagnosing intermittent outages on macOS |
+
+`net-watch` records router TCP reachability, internet IPv4/IPv6 pings, and interface
+traffic every 10 seconds. DNS, HTTPS, and IPv6 address/route checks run every 30 seconds. On the
+MacBook, an optional wired LAN peer helps distinguish Wi-Fi failures from an
+internet outage. Logs contain probe results, not browsing contents, and stay in
+`~/.local/state/net-watch` for up to seven days, capped around 112 MiB per host.
+The user LaunchAgent starts at login without sudo or a Nix activation.
+Fatal recorder errors replace a small `last-error.txt` file instead of appending
+to a service log.
+
+```sh
+~/dotfiles/scripts/net-watch install --peer macmini-lan  # MacBook
+~/dotfiles/scripts/net-watch install                    # Wired Mac mini
+~/dotfiles/scripts/net-watch status --hours 24
+~/dotfiles/scripts/net-watch uninstall                  # Stop; keep history
+```
+
+Installation copies the recorder into its data directory, so subsequent checkout
+edits do not change the running version. Run `install` again to update it.
 
 ## Tools & Applications
 
