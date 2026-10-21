@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+mode=personal
+if [[ "${1:-}" == --work ]]; then
+    mode=work
+    shift
+fi
+
+source_profile="$HOME/.pi/agent"
+root="$HOME/.pi-opt"
+provider=openai
+model=gpt-6.1-sol
+thinking=medium
+summary_model=gpt-6-luna
+summary_thinking=medium
+extensions='[]'
+skills='["~/.agents/skills"]'
+extra_extensions=()
+# Do not inherit work routing or OptMem state from a calling Pi shell.
+unset PI_WORK_PROFILE PI_SUBAGENT_PRESET MEMORY_DIR OPTCHAT_REFRESH_AT
+if [[ "$mode" == work ]]; then
+    source_profile="$HOME/.pi-work/agent"
+    root="$HOME/.pi-opt-work"
+    provider=anthropic
+    model=claude-opus-5-5
+    thinking=high
+    summary_model=claude-haiku-5-5
+    summary_thinking=low
+    guard="$HOME/dotfiles/pi/work/guard.ts"
+    extensions='["~/dotfiles/pi/work/guard.ts"]'
+    skills='["~/.agents/skills", "~/dotfiles/private/skills/work-services", "~/dotfiles/private/skills/health-scout"]'
+    extra_extensions=(--extension "$guard"
+        --skill "$HOME/dotfiles/private/skills/work-services"
+        --skill "$HOME/dotfiles/private/skills/health-scout")
+    unset ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN ANTHROPIC_OAUTH_TOKEN
+fi
+
+if [[ ! -f "$source_profile/auth.json" ]]; then
+    printf 'Missing credentials: %s/auth.json. Sign in with %s first.\n' "$source_profile" "$([[ "$mode" == work ]] && printf piw || printf pi)" >&2
+    exit 1
+fi
+
+export PI_CODING_AGENT_DIR="$root/agent"
+export PI_CODING_AGENT_SESSION_DIR="$root/sessions"
+export OPTCHAT_HOME="$root/memory"
+export PI_CACHE_RETENTION=long
+umask 077
+mkdir -p "$PI_CODING_AGENT_DIR" "$PI_CODING_AGENT_SESSION_DIR" "$OPTCHAT_HOME/profiles/main"
+# Share live credentials, not a copy that can retain an obsolete refresh token.
+if [[ ! -e "$PI_CODING_AGENT_DIR/auth.json" && ! -L "$PI_CODING_AGENT_DIR/auth.json" ]]; then
+    ln -s "$source_profile/auth.json" "$PI_CODING_AGENT_DIR/auth.json"
+fi
+# Children read this isolated config too, not the normal extension/package list.
+if [[ ! -e "$PI_CODING_AGENT_DIR/settings.json" ]]; then
+    printf '{"defaultProvider":"%s","defaultModel":"%s","defaultThinkingLevel":"%s","extensions":%s,"skills":%s}\n' \
+        "$provider" "$model" "$thinking" "$extensions" "$skills" > "$PI_CODING_AGENT_DIR/settings.json"
+fi
+profile="$OPTCHAT_HOME/profiles/main"
+if [[ ! -e "$profile/config.json" ]]; then
+    printf '{"compactor":{"provider":"%s","model":"%s","thinking":"%s"},"subagent":{"provider":"%s","model":"%s","thinking":"%s"},"maxAgents":4}\n' \
+        "$provider" "$summary_model" "$summary_thinking" "$provider" "$model" "$thinking" > "$profile/config.json"
+fi
+if [[ ! -e "$profile/AGENTS.md" ]]; then
+    touch "$profile/AGENTS.md"
+fi
+
+# Herdr manages this bridge outside dotfiles. Keep it when discovery is disabled.
+bridge="$HOME/.pi/agent/extensions/herdr-agent-state.ts"
+if [[ -f "$bridge" ]]; then
+    extra_extensions+=(--extension "$bridge")
+fi
+
+# Preserve the personal trial's selected UI tools without loading normal memory.
+if [[ "$mode" == personal ]]; then
+    export OPTCHAT_INSPECT_KEY=f9
+    export PLANNOTATOR_AGENT_TOOL=1
+    for extension in web-tools ask-user.ts markdown.ts selection-comments-prototype.ts triple-escape.ts plannotator-phone; do
+        path="$HOME/dotfiles/pi/agent/extensions/$extension"
+        if [[ -e "$path" ]]; then
+            extra_extensions+=(--extension "$path")
+        fi
+    done
+    extra_extensions+=(--extension npm:@plannotator/pi-extension@0.28.17)
+fi
+
+# Only the pinned packages, explicit extensions, skills, and optional work guard.
+exec pi --no-approve --no-extensions --no-context-files --no-skills \
+    --no-prompt-templates --no-mcp --skill "$HOME/.agents/skills" \
+    "${extra_extensions[@]}" --extension npm:pi-optchat@0.8.9 \
+    --optchat-profile main "$@"
