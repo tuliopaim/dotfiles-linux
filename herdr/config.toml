@@ -21,13 +21,14 @@ prefix = "ctrl+s"
 
 # Prefix-based vim-style pane navigation, matching the tmux setup.
 # Using prefix avoids shadowing ctrl+h/j/k/l inside vim/nvim panes.
-# Pane navigation — direct chords only, no prefix mode (no blink).
-# ctrl+alt+h/j/k/l: universal terminal support, no vim conflict, no yabai conflict.
-# prefix+h/j/k/l kept as fallback.
-focus_pane_left = ["ctrl+alt+h", "alt+h", "prefix+h"]
-focus_pane_down = ["ctrl+alt+j", "alt+j", "prefix+j"]
-focus_pane_up = ["ctrl+alt+k", "alt+k", "prefix+k"]
-focus_pane_right = ["ctrl+alt+l", "alt+l", "prefix+l"]
+# prefix+j/k: cycle focus over agents (sidebar order, wraps). Pane focus
+# stays on ctrl+alt+h/j/k/l (and alt+h/j/k/l fallbacks), no prefix needed.
+next_agent = ["prefix+j"]
+previous_agent = ["prefix+k"]
+focus_pane_left = ["ctrl+alt+h", "alt+h"]
+focus_pane_down = ["ctrl+alt+j", "alt+j"]
+focus_pane_up = ["ctrl+alt+k", "alt+k"]
+focus_pane_right = ["ctrl+alt+l", "alt+l"]
 
 # In prefix+w navigate mode, use j/k for workspace selection. Pane movement
 # stays on ctrl+alt+h/j/k/l (and alt+/prefix fallbacks) above.
